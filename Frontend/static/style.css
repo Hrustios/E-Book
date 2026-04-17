@@ -102,3 +102,15 @@ button:hover {
 .link a {
   color: #6f3b1f;
 }
+
+.error-message {
+    color: #e74c3c; /* Красный цвет */
+    background-color: #fceae9; /* Легкий фон для читаемости */
+    font-size: 13px;
+    margin-top: 15px;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    border: 1px solid #e74c3c;
+}
+
