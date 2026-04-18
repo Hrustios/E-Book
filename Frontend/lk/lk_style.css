@@ -29,9 +29,9 @@ body.modal-open {
 /*  ШАПКА  */
 .main-header {
     position: fixed;
-    top: 25px;
-    left: 0;
-    right: 0;
+    top: 0;
+    padding-top: 25px; /* Сохраняем твой отступ от верха экрана */
+    width: 100%;
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -131,8 +131,31 @@ body.modal-open {
 
 .profile-avatar:hover { transform: scale(1.1); }
 
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
+
 /* --- ОСНОВНОЙ КОНТЕНТ ЛК --- */
-.lk-main { padding: 140px 0 80px; }
+.lk-main {
+    /* padding: 140px 0 80px; <-- УБИРАЕМ старый огромный паддинг */
+    padding: 0 0 80px;
+}
 .lk-container {
     width: 92%;           /* Ширина контента относительно экрана */
     max-width: 1240px;    /* Максимальная ширина по макету */
@@ -152,10 +175,11 @@ body.modal-open {
 }
 
 .user-header {
-    width: 100%;
-    max-width: 1300px;
-    margin: 0 auto 80px auto;
+    width: 92%; /* Чтобы ширина совпадала с контейнером шапки */
+    max-width: 1400px;
+    margin: 50px auto 80px auto; /* 50px — это твой фиксированный отступ от шапки */
     position: relative;
+    margin-top: 150px;
 }
 
 /* Баннер с закруглением как в Figma */
@@ -188,13 +212,23 @@ body.modal-open {
 .user-avatar-large {
     width: 230px;
     height: 230px;
-    background-color: #9D9167; /* Olive Harvest */
+    background-color: #9D9167; /* Твой оливковый цвет */
     border: 10px solid var(--white);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.avatar-letter-big {
+    font-size: 100px; /* Размер буквы */
+    font-weight: 800;
+    color: var(--white);
+    font-family: 'Verdana', sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Легкий объем */
+    user-select: none;
 }
 
 .avatar-placeholder img {

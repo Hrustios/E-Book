@@ -22,9 +22,12 @@
 
             <div class="profile-section">
                 {% if session.get('username') %}
-                    <a href="#" class="profile-text">Личный кабинет</a> <div class="profile-avatar-letter">
-                        {{ session['username'][0] | upper }}
-                    </div>
+                    <a href="{{ url_for('lk_page') }}" class="profile-text">Личный кабинет</a>
+                    <a href="{{ url_for('lk_page') }}" style="text-decoration: none;">
+                        <div class="profile-avatar-letter">
+                            {{ session['username'][0] | upper }}
+                        </div>
+                    </a>
                 {% else %}
                     <a href="{{ url_for('auth_login.login') }}" class="profile-text">Личный кабинет</a>
                     <div class="profile-avatar">
@@ -43,7 +46,7 @@
                     <p>Списки желаний, личные заметки и наглядные отчеты — всё максимально просто и удобно.</p>
                     <div class="hero-btns">
                         {% if session.get('username') %}
-                            <a href="#" class="btn-reg">Личный кабинет</a>
+                            <a href="{{ url_for('lk_page') }}" class="btn-reg">Личный кабинет</a>
                         {% else %}
                             <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
                             <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
@@ -106,7 +109,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -115,11 +118,17 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="#" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
-                        <div class="social-item"><img src="images/tg.svg" alt="tg"></div>
-                        <div class="social-item"><img src="images/inst.svg" alt="inst"></div>
-                        <div class="social-item"><img src="images/vk.svg" alt="vk"></div>
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="Telegram">
+                        </div>
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="Instagram">
+                        </div>
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/vk.svg') }}" alt="VK">
+                        </div>
                     </div>
                 </div>
                 <nav class="footer-nav">

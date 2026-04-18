@@ -183,28 +183,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ЛОГИКА ОТПРАВКИ (ИМИТАЦИЯ)
+    // ЛОГИКА ОТПРАВКИ (РЕАЛЬНАЯ)
     if (submitBtn) {
         submitBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log("Кнопка нажата!"); // Проверка в консоли
+
+            // 1. Находим форму
+            const form = document.getElementById('uploadBookForm');
+            if (!form) {
+                console.error("Форма не найдена! Проверь id='uploadBookForm' в HTML");
+                return;
+            }
+
+            // 2. Собираем данные (включая файлы)
+            const formData = new FormData(form);
 
             // Визуальный эффект загрузки
-            this.textContent = "Добавление...";
+            this.textContent = "Загрузка в облако...";
             this.style.opacity = "0.7";
             this.disabled = true;
 
-            setTimeout(() => {
-                // Скрываем форму и заголовок
-                if (formGrid) formGrid.style.setProperty('display', 'none', 'important');
-                if (mainTitle) mainTitle.style.setProperty('display', 'none', 'important');
-                
-                // Показываем сообщение об успехе
-                if (successMsg) {
-                    successMsg.style.display = 'flex';
-                    console.log("Сообщение об успехе показано");
+            // 3. Отправляем на сервер
+            fetch('/add_book', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Скрываем форму и заголовок
+                    if (formGrid) formGrid.style.setProperty('display', 'none', 'important');
+                    if (mainTitle) mainTitle.style.setProperty('display', 'none', 'important');
+
+                    // Показываем сообщение об успехе
+                    if (successMsg) {
+                        successMsg.style.display = 'flex';
+                        console.log("Книга успешно загружена и сохранена!");
+                    }
+                } else {
+                    throw new Error('Ошибка сервера');
                 }
-            }, 1200);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert("Не удалось загрузить книгу. Проверь файлы и подключение.");
+                this.textContent = "Попробовать снова";
+                this.style.opacity = "1";
+                this.disabled = false;
+            });
         });
     }
 
