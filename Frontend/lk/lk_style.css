@@ -1,0 +1,1241 @@
+/* --- БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ --- */
+:root {
+    --primary: #84592B;
+    --secondary: #9D9167;
+    --accent: #E8D1A7;
+    --dark: #442D1C;
+    --light: #F5F1ED;
+    --white: #FFFFFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Verdana', sans-serif;
+    background-color: var(--white);
+    color: var(--dark);
+}
+
+html {
+    /* Резервирует место под скроллбар, чтобы страница не дергалась */
+    scrollbar-gutter: stable;
+}
+
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 
+}
+
+/*  ШАПКА  */
+.main-header {
+    position: fixed;
+    top: 25px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+}
+
+.header-container {
+    width: 92%;
+    max-width: 1400px;
+    background-color: var(--primary);
+    border-radius: 60px;
+    padding: 12px 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    color: var(--light);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 35px;
+}
+
+/* АНИМАЦИИ МЕНЮ  */
+.nav-link {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+    opacity: 0.8;
+    position: relative; /* Нужно для позиционирования линии */
+    padding: 4px 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0; 
+    height: 2px;
+    background-color: var(--accent); 
+    transition: width 0.3s ease; 
+    border-radius: 2px;
+}
+
+/* Эффект при наведении */
+.nav-link:hover {
+    opacity: 1;
+    transform: translateY(-1px); 
+}
+
+.nav-link:hover::after {
+    width: 100%; 
+}
+
+/* Состояние активной ссылки (Главная) */
+.nav-link.active {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.nav-link.active::after {
+    width: 100%; 
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-text {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile-avatar:hover { transform: scale(1.1); }
+
+/* --- ОСНОВНОЙ КОНТЕНТ ЛК --- */
+.lk-main { padding: 140px 0 80px; }
+.lk-container {
+    width: 92%;           /* Ширина контента относительно экрана */
+    max-width: 1240px;    /* Максимальная ширина по макету */
+    margin: 0 auto;       /* Центрирует блок по горизонтали */
+    padding: 20px 0;      /* Внутренние отступы сверху и снизу */
+}
+
+/* Блок юзера */
+/* Контейнер всей секции */
+
+.user-name {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.user-header {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto 80px auto;
+    position: relative;
+}
+
+/* Баннер с закруглением как в Figma */
+.user-banner {
+    width: 100%;
+    height: 320px; /* Высота согласно пропорциям макета */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Строка с аватаром и инфо - ключевое позиционирование */
+.user-info-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 0 60px;
+    margin-top: -110px; /* Выносит аватар на баннер */
+    gap: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Аватар: оливковый фон и белая обводка */
+.user-avatar-large {
+    width: 230px;
+    height: 230px;
+    background-color: #9D9167; /* Olive Harvest */
+    border: 10px solid var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder img {
+    width: 120px; /* Размер иконки внутри круга */
+    height: auto;
+    opacity: 0.9;
+}
+
+/* Группа статистики и кнопки */
+.user-stats-actions {
+    margin-top: 130px; /* Опускает текст под линию баннера */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stats-group {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px; 
+}
+
+.stat-item {
+    font-size: 16px;
+    color: var(--dark);
+}
+
+.stat-item strong {
+    font-size: 18px;
+    margin-right: 4px;
+}
+
+.stat-label {
+    font-size: 18px;
+    color: var(--dark);
+    font-weight: 500;
+}
+
+/* Кнопка: темно-коричневая, скругленная */
+.btn-add-book {
+    background-color: #5B351F; /* Более насыщенный коричневый из макета */
+    color: var(--white);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.btn-add-book:hover {
+    background-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Контейнер */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 220px; /* Ширина как на макете */
+}
+
+.custom-select {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Главное поле (триггер) */
+.custom-select__trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #442D1C;
+    background: #ffffff;
+    border: 1.5px solid rgba(68, 45, 28, 0.2);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-select__trigger:hover {
+    border-color: #84592B;
+}
+
+/* Стрелочка */
+.arrow {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #442D1C;
+    border-bottom: 2px solid #442D1C;
+    transform: rotate(45deg);
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+/* Состояние при открытии */
+.custom-select.open .custom-select__trigger {
+    border-radius: 15px 15px 0 0;
+    border-bottom: 1px solid transparent;
+}
+
+.custom-select.open .arrow {
+    transform: rotate(-135deg);
+    margin-bottom: -4px;
+}
+
+/* Выпадающее меню */
+.custom-options {
+    position: absolute;
+    display: block;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1.5px solid rgba(68, 45, 28, 0.2);
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+    background: #fff;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+/* Пункты списка */
+.custom-option {
+    position: relative;
+    display: block;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #442D1C;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-option:hover {
+    background-color: #f8f5f0; /* Легкий бежевый фон при наведении */
+    color: #84592B;
+}
+
+.custom-option.selected {
+    color: #ffffff;
+    background-color: #A36E4D; /* Цвет как у твоих кнопок */
+}
+
+/* Скругление последнего элемента */
+.custom-option:last-child {
+    border-radius: 0 0 13px 13px;
+}
+/* Адаптация под мобильные устройства */
+@media (max-width: 768px) {
+    .user-info-row {
+        flex-direction: column;
+        align-items: center;
+        margin-top: -115px;
+        padding: 0 20px;
+        text-align: center;
+    }
+    
+    .user-stats-actions {
+        margin-top: 10px;
+        align-items: center;
+    }
+    
+    .user-banner {
+        height: 200px;
+    }
+    
+    .user-avatar-large {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+
+/* --- СЕКЦИЯ КОЛЛЕКЦИИ --- */
+.collection-section {
+    margin-top: 20px;      /* Уменьшено с 70px для сближения с верхним блоком */
+    margin-bottom: 100px; 
+    width: 100%;
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    /* Ограничиваем ширину шапки коллекции и центрируем */
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.collection-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.filter-dropdown select {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(68, 45, 28, 0.2);
+    background-color: var(--white);
+    font-family: 'Verdana', sans-serif;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Сетка карточек */
+.profile-book-grid {
+    display: grid;
+    /* Увеличиваем минимальную ширину карточки до 500px, чтобы они не были слишком мелкими */
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: 30px;
+    width: 100%;
+    /* Ограничиваем общую ширину сетки и центрируем */
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+/* Карточка */
+.profile-book-card {
+    background-color: #CABAA1;
+    border-radius: 25px;
+    padding: 25px;
+    display: flex;
+    gap: 25px;
+    align-items: stretch;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.profile-book-card:hover {
+    transform: translateY(-5px);
+}
+
+/* --- КОНСТРУКЦИЯ КНИГИ (КАК НА ГЛАВНОЙ) --- */
+.book-visual {
+    position: relative;
+    width: 145px; /* Фиксированная ширина для ЛК */
+    aspect-ratio: 1 / 1.4; 
+    flex-shrink: 0;
+    box-shadow: 10px 10px 0px rgba(68, 45, 28, 0.05); 
+    border-radius: 5px 25px 25px 5px;
+}
+
+.css-book-shape {
+    width: 100%;
+    height: 100%;
+    background-color: #995F47; 
+    border: 1.5px solid #442D1C; 
+    border-radius: 5px 25px 25px 5px; 
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Линия сгиба (корешок) */
+.css-book-shape::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(68, 45, 28, 0.2);
+    z-index: 3;
+}
+
+/* Обложка (занимает 86% ширины) */
+.book-cover-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 86%; 
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    border-radius: 0 25px 25px 0;
+}
+
+/* Инфо блок */
+.p-book-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-top: 5px;
+}
+
+.p-book-info h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 5px;
+}
+
+.p-author {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.p-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(44, 45, 28, 0.8);
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Кнопка */
+.btn-read-more {
+    margin-top: auto;
+    align-self: flex-end;
+    background-color: #995F47;
+    color: #ECE7D4;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-read-more:hover {
+    background-color: var(--dark);
+}
+
+/* Адаптивность для планшетов и мобильных */
+@media (max-width: 1024px) {
+    .profile-book-grid {
+        grid-template-columns: 1fr; /* Одна колонка на узких экранах */
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-book-card {
+        flex-direction: column; /* Элементы друг под другом на мобилках */
+        align-items: center;
+        text-align: center;
+    }
+    .btn-read-more {
+        align-self: center;
+    }
+}
+
+/* Адаптивность для узких экранов */
+@media (max-width: 1100px) {
+    .collection-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .collection-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .btn-read {
+        align-self: center;
+    }
+    
+    .book-preview {
+        width: 180px;
+    }
+}
+
+/* --- МОДАЛЬНОЕ ОКНО --- */
+
+/* Базовое состояние */
+.modal {
+    display: flex; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto; 
+    padding: 40px;
+    border-radius: 30px;
+    width: 80%;
+    max-width: 900px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+
+    transform: translateY(30px) scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal.is-visible .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.close-modal {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    font-size: 35px;
+    cursor: pointer;
+    color: #442D1C;
+}
+
+.modal-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #442D1C;
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    align-items: stretch; /* Растягиваем колонки по высоте друг друга */
+}
+
+/* Левая часть */
+.modal-book-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-book-view .book-visual.large {
+    width: 100%;
+    height: 400px;
+    flex-shrink: 0;
+}
+
+.modal-book-meta {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #A3907C;
+    font-size: 14px;
+}
+
+/* Правая часть: Инфо и выравнивание */
+.modal-book-info {
+    display: flex;
+    flex-direction: column;
+    /* Убеждаемся, что колонка занимает всю доступную высоту грида */
+    height: 100%; 
+    justify-content: flex-start;
+}
+
+#modal-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #442D1C;
+    margin-bottom: 6px; /* Небольшой отступ до автора */
+    line-height: 1.2;
+}
+
+.modal-author {
+    font-size: 18px;
+    color: #A3907C;
+    margin-bottom: 16px; /* Умеренный отступ до статистики */
+    line-height: 1.4;
+}
+
+.modal-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #442D1C;
+    margin-bottom: 24px; /* Увеличенный отступ перед кнопками действий */
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Расстояние между цифрами и звездой */
+}
+
+.stat-star {
+    width: 16px;  /* Размер подбираем под высоту шрифта */
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    /* Фильтр для заливки звезды золотистым цветом */
+    filter: invert(72%) sepia(86%) saturate(628%) hue-rotate(351deg) brightness(103%) contrast(104%);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 32px; /* Важно: отделяем блок управления от текста описания */
+}
+
+/* Описание забирает свободное место, выталкивая футер вниз */
+#modal-description {
+    flex-grow: 1; /* Заставляет блок занять всё свободное место */
+    font-size: 15px;
+    line-height: 1.7; 
+    color: rgba(68, 45, 28, 0.8);
+    margin-bottom: 20px; /* Отступ до линии футера */
+}
+
+/* НОВАЯ СТРОКА: Жанр и Звезды в одну линию */
+.modal-footer-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Убираем лишние отступы, так как прижатие идет за счет flex-grow выше */
+    margin-top: 0; 
+    padding-top: 15px;
+    /* Добавляем небольшую прозрачную границу сверху для точности линии (опционально) */
+    border-top: 1px solid rgba(68, 45, 28, 0.05); 
+}
+
+/* Звезды в футере */
+.modal-footer-stars {
+    display: flex;
+    align-items: center;
+    line-height: 1; /* Чтобы высота строки не поднимала звезды выше жанра */
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.star-icon {
+    width: 26px;
+    height: 26px;
+    /* Делаем звезду серой и полупрозрачной по умолчанию */
+    filter: grayscale(100%) brightness(0.8) opacity(0.3);
+    transition: all 0.2s ease;
+}
+
+/* Состояние "Закрашенная звезда" */
+.star-icon.active {
+    filter: none; /* Возвращаем оригинальный цвет SVG (желтый/золотой) */
+    opacity: 1;
+}
+
+/* Эффект при наведении: звезда чуть увеличивается */
+.star-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Основная кнопка "Читать книгу" */
+.btn-read {
+    background-color: #DCCFB8;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    color: #5B351F;
+    font-weight: 600;
+    cursor: pointer;
+    /* Плавный переход для всех свойств */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-read:hover {
+    background-color: #D1C0A3; /* Чуть темнее при наведении */
+    transform: translateY(-2px); /* Легкий подъем */
+    box-shadow: 0 5px 15px rgba(91, 53, 31, 0.15); /* Мягкая тень */
+}
+
+.btn-read:active {
+    transform: translateY(0); /* Возвращается на место при клике */
+    transform: scale(0.96);    /* Эффект нажатия (сжатие) */
+}
+
+/* Кнопки-иконки и кнопка с тремя точками */
+.btn-icon {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: #DCCFB8;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    /* Плавный переход */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-icon:hover {
+    background-color: #D1C0A3;
+    transform: translateY(-4px); /* Подпрыгивает выше, так как кнопка меньше */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon:active {
+    transform: scale(0.9); /* Заметное сжатие при нажатии */
+}
+
+/* Анимация иконок внутри кнопок при наведении */
+.btn-icon:hover img {
+    transition: transform 0.3s ease;
+}
+
+.tag {
+    border: 1px solid #ccc;
+    padding: 6px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #442D1C;
+}
+
+.more-options {
+    position: relative;
+    display: inline-block;
+}
+
+.options-dropdown {
+    position: absolute;
+    top: calc(100% + 10px); bottom: auto;
+    right: 0;
+    width: 180px;
+    background-color: #ffffff;
+    border: 1.5px solid rgba(68, 45, 28, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    z-index: 1100;
+    /* Анимация появления */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+/* Класс для открытия через JS */
+.options-dropdown.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #442D1C;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #F4EFE6; /* Легкий бежевый фон */
+    color: #84592B;
+}
+
+
+/* --- СТИЛИ ОКНА ДОБАВЛЕНИЯ КНИГИ (ADD BOOK MODAL) --- */
+
+/* Конкретизируем ширину контента для этого окна */
+.add-book-content {
+    max-width: 950px !important;
+}
+
+/* Сетка формы */
+.add-book-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+/* Зона загрузки обложки (Dropzone) */
+.cover-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 450px;
+    border: 2px dashed #DCCFB8;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgba(220, 207, 184, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+}
+
+.cover-dropzone:hover {
+    background-color: rgba(220, 207, 184, 0.15);
+    border-color: #84592B;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(68, 45, 28, 0.08);
+}
+
+/* ИКОНКА - ПРИНУДИТЕЛЬНЫЙ РАЗМЕР */
+.placeholder-icon {
+    width: 80px !important;  /* Жестко ограничиваем ширину */
+    height: 80px !important; /* Жестко ограничиваем высоту */
+    object-fit: contain;     /* Сохраняем пропорции картинки внутри квадрата */
+    margin-bottom: 20px;
+    opacity: 0.5;
+    filter: sepia(1) saturate(50%) hue-rotate(330deg) brightness(0.8);
+    transition: all 0.4s ease;
+}
+
+/* Эффект при наведении (БЕЗ ПОВОРОТА) */
+.cover-dropzone:hover .placeholder-icon {
+    transform: scale(1.05); /* Только легкое увеличение */
+    opacity: 0.8;
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* Центрирование по горизонтали */
+    justify-content: center;   /* Центрирование по вертикали */
+    width: 100%;
+    height: 100%;             /* Растягиваем на всю высоту рамки */
+    pointer-events: none;
+}
+
+/* Стили полей ввода */
+.add-book-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-input, 
+.form-textarea {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1.5px solid rgba(68, 45, 28, 0.1);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #442D1C;
+    outline: none;
+    background-color: #fcfcfc;
+    transition: all 0.3s ease;
+}
+
+.form-input::placeholder, 
+.form-textarea::placeholder {
+    color: #A3907C;
+    opacity: 0.7;
+}
+
+.form-input:focus, 
+.form-textarea:focus {
+    border-color: #DCCFB8;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(220, 207, 184, 0.25);
+}
+
+/* Поле для выбора файла (пунктирное) */
+.file-upload-design {
+    display: block;
+    padding: 14px;
+    border: 1.5px dashed #DCCFB8;
+    border-radius: 12px;
+    text-align: center;
+    color: #84592B;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: rgba(220, 207, 184, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-upload-design:hover {
+    background-color: #F4EFE6;
+    border-style: solid;
+    transform: scale(1.01);
+}
+
+/* Описание */
+.form-textarea {
+    height: 140px;
+    resize: none;
+    line-height: 1.6;
+}
+
+/* Нижняя строка и кнопка */
+.submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.btn-submit-book {
+    background-color: #D9D9D9; /* Изначально серый как на Frame 53 */
+    border: 1px solid #442D1C;
+    padding: 12px 45px;
+    border-radius: 15px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: #442D1C;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-submit-book:hover {
+    background-color: #DCCFB8; /* Становится бежевым при наведении */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit-book:active {
+    transform: scale(0.96);
+}
+
+/* Стили для выбора жанра (Datalist) */
+.genre-input {
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+}
+
+/* Фикс для плавности при вставке изображения через JS */
+.cover-dropzone img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+.success-message {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 0;
+    animation: fadeInScale 0.5s ease forwards;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #DCCFB8;
+    color: #5B351F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 20px rgba(220, 207, 184, 0.4);
+}
+
+.success-message h2 {
+    color: #442D1C;
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    color: #A3907C;
+    margin-bottom: 30px;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+
+/* ФУТЕР */
+.main-footer {
+    background-color: var(--dark);
+    padding: 80px 0 40px 0;
+    color: var(--light);
+    border-radius: 50px 50px 0 0;
+    margin-top: 0;
+}
+
+.footer-container {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: flex-start; 
+    align-items: flex-start;
+    margin-bottom: 60px;
+}
+
+.footer-left {
+    min-width: 250px; 
+}
+
+.footer-logo {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 30px;
+}
+
+.social-links { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.social-item {
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Плавная анимация подъема */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.social-item:hover { 
+    transform: translateY(-8px); 
+}
+
+.social-item img {
+    width: 22px;
+    height: auto;
+}
+
+/*НАВИГАЦИЯ*/
+.footer-nav { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+    margin-left: 80px; 
+}
+
+.footer-nav a {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-nav a:hover { 
+    opacity: 1; 
+    color: var(--accent); 
+}
+
+/*КНОПКА НАВЕРХ  */
+.footer-right {
+    margin-left: auto; 
+}
+
+.btn-up {
+    width: 55px;
+    height: 55px;
+    background-color: var(--accent);
+    color: var(--dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.4s ease;
+}
+
+.btn-up:hover { 
+    transform: rotate(-360deg) scale(1.1); 
+    background-color: var(--white); 
+}
+
+/*ЛИНИЯ ФУТЕРА */
+.footer-line {
+    width: 100%;
+    height: 2px; 
+    background-color: var(--light);
+    opacity: 0.2; /* Сделали заметнее */
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .collection-grid { grid-template-columns: 1fr; }
+    .user-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
+    .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 40px; }
+}

@@ -209,7 +209,7 @@ body {
 
 /*  ВИДЖЕТ ЛИДЕР ЧТЕНИЙ */
 .leader-widget {
-    background-color: rgba(144, 137, 103, 0.85); /* Olive Harvest */
+    background-color: var(--secondary); 
     backdrop-filter: blur(15px);
     border-radius: 35px;
     padding: 30px 35px;
