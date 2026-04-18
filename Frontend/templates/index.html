@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная - EBook</title>
+</head>
+<body>
+    <h1>Добро пожаловать в E-Book!</h1>
+    {% if user %}
+        <p>Привет, <strong>{{ user }}</strong>! Вы успешно вошли в систему.</p>
+        <a href="{{ url_for('auth_login.logout') }}">Выйти</a>
+    {% else %}
+        <p>Вы не авторизованы.</p>
+        <a href="{{ url_for('auth_login.login') }}">Войти</a> или
+        <a href="{{ url_for('auth_reg.register') }}">Зарегистрироваться</a>
+    {% endif %}
+</body>
+</html>
