@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
-from db_utils import get_db_connection
+from login_register.db_utils import get_db_connection # Убрали EBook.Backend
 
 auth_login_bp = Blueprint('auth_login', __name__)
 
@@ -28,7 +28,7 @@ def login():
             if user['is_confirmed'] == 0:
                 flash("Пожалуйста, подтвердите вашу почту перед входом!", "error")
                 conn.close()
-                return render_template('login.html', form_data=form_data)
+                return render_template('register_login/login.html', form_data=form_data)
 
             # 3. УСПЕШНЫЙ ВХОД
             # Сохраняем данные в сессию
@@ -48,10 +48,10 @@ def login():
         # Если пароль неверный или пользователя нет
         conn.close()
         flash("Неверный логин или пароль", "error")
-        return render_template('login.html', form_data=form_data)
+        return render_template('register_login/login.html', form_data=form_data)
 
     # Обычный GET запрос (первое открытие страницы)
-    return render_template('login.html', form_data=form_data)
+    return render_template('register_login/login.html', form_data=form_data)
 
 
 @auth_login_bp.route('/logout')

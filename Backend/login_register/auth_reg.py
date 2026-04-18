@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_mail import Message
-from extensions import mail, serializer
-from db_utils import get_db_connection
+from extensions import mail, serializer # Убрали EBook.Backend
+from login_register.db_utils import get_db_connection # Убрали EBook.Backend
 from werkzeug.security import generate_password_hash
 
 auth_reg_bp = Blueprint('auth_reg', __name__)
@@ -41,7 +41,7 @@ def register():
         except Exception as e:
             flash(f"Ошибка при отправке письма: {e}", "error")
 
-    return render_template('register.html', form_data=form_data)
+    return render_template('register_login/register.html', form_data=form_data)
 
 
 @auth_reg_bp.route('/confirm_email/<token>')
