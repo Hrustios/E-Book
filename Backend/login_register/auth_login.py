@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
-from login_register.db_utils import get_db_connection # Убрали EBook.Backend
+from Backend.login_register.db_utils import get_db_connection
 
 auth_login_bp = Blueprint('auth_login', __name__)
 

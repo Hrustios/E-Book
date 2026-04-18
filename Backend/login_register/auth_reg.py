@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_mail import Message
-from extensions import mail, serializer # Убрали EBook.Backend
-from login_register.db_utils import get_db_connection # Убрали EBook.Backend
+from Backend.extensions import mail, serializer
+from Backend.login_register.db_utils import get_db_connection
 from werkzeug.security import generate_password_hash
 
 auth_reg_bp = Blueprint('auth_reg', __name__)
