@@ -701,6 +701,28 @@ body {
     transition: 0.4s ease;
 }
 
+.profile-avatar-letter {
+    width: 36px;          /* Такой же размер, как у обычной аватарки */
+    height: 36px;
+    background-color: var(--accent); /* Используем золотистый из твоих переменных */
+    color: var(--dark);              /* Темный текст для контраста */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;      /* Подходящий размер шрифта */
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Легкая рамка */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(232, 209, 167, 0.4);
+}
+
 .btn-up:hover { 
     transform: rotate(-360deg) scale(1.1); 
     background-color: var(--white); 

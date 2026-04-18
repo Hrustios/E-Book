@@ -21,10 +21,16 @@
             </nav>
 
             <div class="profile-section">
-                <a href="#" class="profile-text">Личный кабинет</a>
-                <div class="profile-avatar">
-                    <img src="{{ url_for('static', filename='main/images/Profile.png') }}">
-                </div>
+                {% if session.get('username') %}
+                    <a href="#" class="profile-text">Личный кабинет</a> <div class="profile-avatar-letter">
+                        {{ session['username'][0] | upper }}
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth_login.login') }}" class="profile-text">Личный кабинет</a>
+                    <div class="profile-avatar">
+                        <img src="{{ url_for('static', filename='main/images/Profile.png') }}" alt="Profile">
+                    </div>
+                {% endif %}
             </div>
         </div>
     </header>
@@ -36,8 +42,12 @@
                     <h1>Помните каждую прочитанную страницу</h1>
                     <p>Списки желаний, личные заметки и наглядные отчеты — всё максимально просто и удобно.</p>
                     <div class="hero-btns">
-                        <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
-                        <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
+                        {% if session.get('username') %}
+                            <a href="#" class="btn-reg">Личный кабинет</a>
+                        {% else %}
+                            <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
+                            <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
+                        {% endif %}
                     </div>
                 </div>
 
