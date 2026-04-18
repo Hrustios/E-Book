@@ -1042,7 +1042,7 @@ body.modal-open {
 /* Поле для выбора файла (пунктирное) */
 .file-upload-design {
     display: block;
-    padding: 14px;
+    padding: 14px 20px; /* Увеличил боковые отступы, чтобы троеточие смотрелось аккуратнее */
     border: 1.5px dashed #DCCFB8;
     border-radius: 12px;
     text-align: center;
@@ -1052,6 +1052,12 @@ body.modal-open {
     cursor: pointer;
     background-color: rgba(220, 207, 184, 0.03);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* НОВЫЕ СВОЙСТВА ДЛЯ СОКРАЩЕНИЯ ТЕКСТА */
+    width: 100%;           /* Занимает всю ширину родителя */
+    white-space: nowrap;    /* Запрещает перенос текста на новую строку */
+    overflow: hidden;       /* Скрывает текст, который не влез в границы */
+    text-overflow: ellipsis; /* Добавляет то самое троеточие (...) */
 }
 
 .file-upload-design:hover {
