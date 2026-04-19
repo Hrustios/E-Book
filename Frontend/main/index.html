@@ -51,8 +51,6 @@
                             <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
                             <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
                         {% endif %}
-                        <a href="#" class="btn-reg">Зарегистрироваться</a>
-                        <a href="#" class="btn-login">Войти</a>
                     </div>
                 </div>
 
@@ -100,7 +98,7 @@
                     <div class="book-card">
                         <div class="book-visual">
                             <div class="css-book-shape">
-                                <img src="{{ url_for('static', filename='main/images/test.jpg') }}" alt="Обложка" class="book-cover-img">
+                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
                             </div>
                         </div>
                         <div class="book-info">
@@ -111,101 +109,80 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test2.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Михаил Булгаков</p>
+                            <h4 class="book-title">Мастер и Маргарита</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test3.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Лев Толстой</p>
+                            <h4 class="book-title">Война и мир</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.8
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Антон Чехов</p>
+                            <h4 class="book-title">Палата №6</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Антон Чехов</p>
+                            <h4 class="book-title">Палата №6</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="catalog-footer">
+                    <div class="slider-nav">
+                        <button class="nav-btn prev">←</button>
+                        <button class="nav-btn next">→</button>
+                    </div>
+                    <a href="#" class="btn-all-catalog">Весь каталог</a>
                 </div>
             </div>
         </section>
     </main>
-    <div class="catalog-container">
-        <h2 class="catalog-title">Каталог книг</h2>
-
-        <div class="book-grid">
-            <div class="book-card">
-                <div class="book-visual">
-                    <div class="css-book-shape">
-                        <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
-                    </div>
-                </div>
-                <div class="book-info">
-                    <p class="book-author">Фёдор Достоевский</p>
-                    <h4 class="book-title">Идиот</h4>
-                    <div class="book-rating">
-                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 4.9
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <div class="book-visual">
-                    <div class="css-book-shape">
-                        <img src="images/test2.jpg" alt="Обложка" class="book-cover-img">
-                    </div>
-                </div>
-                <div class="book-info">
-                    <p class="book-author">Михаил Булгаков</p>
-                    <h4 class="book-title">Мастер и Маргарита</h4>
-                    <div class="book-rating">
-                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <div class="book-visual">
-                    <div class="css-book-shape">
-                        <img src="images/test3.jpg" alt="Обложка" class="book-cover-img">
-                    </div>
-                </div>
-                <div class="book-info">
-                    <p class="book-author">Лев Толстой</p>
-                    <h4 class="book-title">Война и мир</h4>
-                    <div class="book-rating">
-                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 4.8
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <div class="book-visual">
-                    <div class="css-book-shape">
-                        <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
-                    </div>
-                </div>
-                <div class="book-info">
-                    <p class="book-author">Антон Чехов</p>
-                    <h4 class="book-title">Палата №6</h4>
-                    <div class="book-rating">
-                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <div class="book-visual">
-                    <div class="css-book-shape">
-                        <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
-                    </div>
-                </div>
-                <div class="book-info">
-                    <p class="book-author">Антон Чехов</p>
-                    <h4 class="book-title">Палата №6</h4>
-                    <div class="book-rating">
-                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
-        <div class="catalog-footer">
-            <div class="slider-nav">
-                <button class="nav-btn prev">←</button>
-                <button class="nav-btn next">→</button>
-            </div>
-            <a href="#" class="btn-all-catalog">Весь каталог</a>
-        </div>
-    </div>
-</section>
 
     <footer class="main-footer">
         <div class="footer-container">
