@@ -49,48 +49,60 @@ def add_book():
     if not user_id:
         return "Необходима авторизация", 401
 
+    # Извлекаем данные формы
     title = request.form.get('title')
     writer_name = request.form.get('author')
     year = request.form.get('year')
     genre = request.form.get('genre')
     description = request.form.get('description')
 
-    # ВАЖНО: Имена должны совпадать с HTML: 'book_file' и 'cover_file'
     book_file = request.files.get('book_file')
     cover_file = request.files.get('cover_file')
 
     if book_file and cover_file:
-        # Читаем контент для парсера страниц
-        file_content = book_file.read()
+        try:
+            # 1. Читаем данные ОДИН раз
+            file_content = book_file.read()
+            file_size = len(file_content)
 
-        # Парсим страницы
-        temp_stream = io.BytesIO(file_content)
-        pages_count = get_page_count(temp_stream, book_file.filename)
+            # 2. Считаем количество страниц
+            # Используем BytesIO, так как book_file.read() уже переместил курсор в конец
+            temp_stream = io.BytesIO(file_content)
+            pages_count = get_page_count(temp_stream, book_file.filename)
 
-        # Подготавливаем файл для Cloudinary
-        book_upload_stream = io.BytesIO(file_content)
-        # Обязательно вешаем имя файла на поток
-        book_upload_stream.filename = book_file.filename
+            # 3. Загружаем в облако (Supabase)
+            # Передаем: объект файла (для имени), обложку и сами байты контента
+            upload_data = upload_book_to_cloud(book_file, cover_file, file_content)
 
-        # Загружаем
-        upload_data = upload_book_to_cloud(book_upload_stream, cover_file)
+            if upload_data:
+                db = get_db_connection()
+                db.execute('''
+                           INSERT INTO Books (title, description, author_id, author_name, genre,
+                                              release_year, file_url, cover_url, file_size, pages)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (
+                               title,
+                               description,
+                               user_id,
+                               writer_name,
+                               genre,
+                               year,
+                               upload_data['book_url'],
+                               upload_data['cover_url'],
+                               file_size,
+                               pages_count
+                           ))
+                db.commit()
+                db.close()
+                return "OK", 200
+            else:
+                return "Ошибка при загрузке в облачное хранилище", 500
 
-        if upload_data:
-            db = get_db_connection()
-            db.execute('''
-                       INSERT INTO Books (title, description, author_id, author_name, genre,
-                                          release_year, file_url, cover_url, file_size, pages)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                       ''', (
-                           title, description, user_id, writer_name, genre,
-                           year, upload_data['book_url'], upload_data['cover_url'],
-                           upload_data['file_size'], pages_count
-                       ))
-            db.commit()
-            db.close()
-            return "OK", 200
+        except Exception as e:
+            print(f"Ошибка в add_book: {e}")
+            return f"Критическая ошибка сервера: {e}", 500
 
-    return "Ошибка: файлы не получены или неверный формат", 400
+    return "Файлы книги или обложки не выбраны", 400
 
 
 @app.route('/get_my_books')

@@ -1,60 +1,62 @@
-import cloudinary
-import cloudinary.uploader
-import cloudinary.utils
-from werkzeug.utils import secure_filename
+import httpx
+from supabase import create_client, ClientOptions
 import os
+import uuid
+import urllib3
 
-# Конфигурация
-cloudinary.config(
-    cloud_name="drjbitzbf",
-    api_key="723567953571628",
-    api_secret="ccVRHcB7DjwZvvcuMyfMh8sgF-8",
-    secure=True
+# Отключаем лишние предупреждения в консоли, раз мы намеренно выключили проверку SSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Твои данные
+SUPABASE_URL = "https://nnapwjrhawtoigutvcjy.supabase.co"
+SUPABASE_KEY = "sb_secret_xerkuvP7audRKqPLnh94-A_-h4oaNX-"
+
+# 1. Создаем кастомный HTTP-клиент
+custom_http_client = httpx.Client(
+    verify=False,
+    timeout=60.0
 )
 
-ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.fb2'}
+# 2. Инициализируем Supabase с ПРАВИЛЬНЫМ именем аргумента (httpx_client)
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    options=ClientOptions(
+        httpx_client=custom_http_client  # <--- ИСПРАВЛЕНО С http_client НА httpx_client
+    )
+)
 
-
-def upload_book_to_cloud(book_file, cover_file):
+def upload_book_to_cloud(book_file, cover_file, book_content):
     try:
-        original_name = getattr(book_file, 'filename', 'document.pdf')
-        filename = secure_filename(original_name)
-        name, ext = os.path.splitext(filename)
-        ext = ext.lower()
+        # Генерируем уникальные пути
+        book_ext = os.path.splitext(book_file.filename)[1]
+        book_path = f"files/{uuid.uuid4()}{book_ext}"
 
-        # 1. Загрузка книги с ПРИНУДИТЕЛЬНЫМ публичным доступом
-        book_result = cloudinary.uploader.upload(
-            book_file,
-            folder="ebooks/files",
-            resource_type="raw",
-            access_mode="public",  # Это снимет статус Blocked for delivery
-            public_id=f"{name}{ext}",
-            use_filename=True,
-            unique_filename=True
+        cover_ext = os.path.splitext(cover_file.filename)[1]
+        cover_path = f"covers/{uuid.uuid4()}{cover_ext}"
+
+        # Загрузка книги
+        supabase.storage.from_("books").upload(
+            path=book_path,
+            file=book_content,
+            file_options={
+                "content-type": "application/pdf",
+                "x-content-disposition": "attachment"  # Это заставит браузер качать файл
+            }
         )
 
-        actual_pid = book_result['public_id']
-
-        # 2. Генерация ссылки
-        download_url = cloudinary.utils.private_download_url(
-            actual_pid,
-            None,
-            resource_type="raw",
-            attachment=True
+        # Загрузка обложки
+        supabase.storage.from_("books").upload(
+            path=cover_path,
+            file=cover_file.read()
         )
 
-        # 3. Загрузка обложки
-        cover_result = cloudinary.uploader.upload(
-            cover_file,
-            folder="ebooks/covers",
-            resource_type="image"
-        )
-
+        # Получаем публичные ссылки
         return {
-            "book_url": download_url,
-            "cover_url": cover_result['secure_url'],
-            "file_size": book_result['bytes']
+            "book_url": supabase.storage.from_("books").get_public_url(book_path),
+            "cover_url": supabase.storage.from_("books").get_public_url(cover_path),
+            "file_size": len(book_content)
         }
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка Supabase: {e}")
         return None

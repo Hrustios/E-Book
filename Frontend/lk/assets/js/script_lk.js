@@ -102,13 +102,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const downloadBtn = document.getElementById('btn-download');
         if (downloadBtn) {
-            downloadBtn.onclick = (e) => {
+            downloadBtn.onclick = async (e) => {
                 e.preventDefault();
-                if (fileUrl && fileUrl !== "None") {
-                    console.log("Скачивание:", fileUrl);
-                    window.location.href = fileUrl; // Переход по подписанной ссылке
-                } else {
-                    alert("Файл не найден. Загрузите книгу заново.");
+
+                // Анимация загрузки на кнопке (опционально)
+                const originalContent = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = " Wait...";
+
+                try {
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) throw new Error('Network response was not ok');
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+
+                    // Формируем красивое имя файла
+                    const fileName = title.replace(/[/\\?%*:|"<>]/g, '-') + ".pdf";
+                    a.download = fileName;
+
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Чистим за собой
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } catch (err) {
+                    console.error("Download failed:", err);
+                    // Резервный вариант, если fetch не прошел (например, CORS)
+                    window.open(fileUrl, '_blank');
+                } finally {
+                    downloadBtn.innerHTML = originalContent;
                 }
             };
         }
