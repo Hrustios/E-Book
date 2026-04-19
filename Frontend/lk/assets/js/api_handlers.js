@@ -1,9 +1,14 @@
 // api_handlers.js
 
-export async function fetchMyBooks(page = 1) {
-    const res = await fetch(`/get_my_books?page=${page}`);
+export const fetchMyBooks = async (page = 1, filter = 'all') => {
+    const res = await fetch(`/get_my_books?page=${page}&filter=${filter}`);
+
+    if (!res.ok) {
+        throw new Error('Ошибка при получении списка книг');
+    }
+
     return await res.json();
-}
+};
 
 // Новая функция для обновления книги
 export async function updateBookRequest(formData) {
@@ -28,3 +33,4 @@ export async function downloadBook(url, title, btn) {
     } catch (e) { window.open(url, '_blank'); }
     finally { btn.innerHTML = original; }
 }
+

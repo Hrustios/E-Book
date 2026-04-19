@@ -110,6 +110,7 @@ def add_book():
 def get_my_books():
     user_id = session.get('user_id')
     page = request.args.get('page', 1, type=int)
+    filter_type = request.args.get('filter', 'all')  # Получаем фильтр
     per_page = 10
     offset = (page - 1) * per_page
 
@@ -117,32 +118,33 @@ def get_my_books():
         return jsonify({"error": "Unauthorized"}), 401
 
     db = get_db_connection()
-    # ДОБАВЛЕНО ПОЛЕ id В SELECT
-    books = db.execute('''
-                       SELECT id, 
-                              title,
-                              author_name,
-                              description,
-                              cover_url,
-                              file_url,
-                              release_year,
-                              genre,
-                              file_size,
-                              pages
-                       FROM Books
-                       WHERE author_id = ?
-                       ORDER BY upload_date DESC LIMIT ?
-                       OFFSET ?
-                       ''', (user_id, per_page, offset)).fetchall()
 
-    books_list = []
-    for b in books:
-        book_dict = dict(b)
-        if not book_dict.get('pages'):
-            book_dict['pages'] = "---"
-        books_list.append(book_dict)
+    # ЛОГИКА ФИЛЬТРАЦИИ
+    if filter_type == 'my-books':
+        # Только те, что я загрузил сам
+        query = 'FROM Books WHERE author_id = ?'
+        params = [user_id]
+    elif filter_type == 'all':
+        # В будущем здесь будет UNION с другими таблицами (прочитанное и т.д.)
+        # Пока возвращаем все мои книги, так как другой логики нет
+        query = 'FROM Books WHERE author_id = ?'
+        params = [user_id]
+    else:
+        # Для wishlist, read, later — пока отдаем пустой список
+        db.close()
+        return jsonify({"books": [], "total_pages": 0, "current_page": page})
 
-    total_books = db.execute('SELECT COUNT(*) FROM Books WHERE author_id = ?', (user_id,)).fetchone()[0]
+    books = db.execute(f'''
+                       SELECT id, title, author_name, description, cover_url, 
+                              file_url, release_year, genre, pages
+                       {query}
+                       ORDER BY upload_date DESC LIMIT ? OFFSET ?
+                       ''', (*params, per_page, offset)).fetchall()
+
+    # Считаем общее кол-во для пагинации именно по этому фильтру
+    total_books = db.execute(f'SELECT COUNT(*) {query}', params).fetchone()[0]
+
+    books_list = [dict(b) for b in books]
     db.close()
 
     return jsonify({
@@ -150,7 +152,6 @@ def get_my_books():
         "total_pages": (total_books + per_page - 1) // per_page,
         "current_page": page
     })
-
 
 @app.route('/update_book', methods=['POST'])
 def update_book():
