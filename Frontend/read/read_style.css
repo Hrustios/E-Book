@@ -1,0 +1,198 @@
+/* --- ПЕРЕМЕННЫЕ И ТЕМЫ --- */
+:root {
+    --primary: #84592B;
+    --secondary: #9D9167;
+    --accent: #E8D1A7;
+    --dark: #442D1C;
+    --light: #F5F1ED;
+    --white: #FFFFFF;
+    
+    /* Цвета ридера по умолчанию (Светлая тема) */
+    --reader-bg: var(--white);
+    --reader-text: var(--dark);
+    --panel-bg: rgba(132, 89, 43, 0.95); /* Прозрачный primary */
+    --panel-border: rgba(232, 209, 167, 0.3);
+}
+
+body.dark-theme {
+    --reader-bg: #2C1E14; 
+    --reader-text: var(--accent);
+    --panel-bg: rgba(26, 18, 11, 0.95); /* Глубокий темный */
+    --panel-border: rgba(132, 89, 43, 0.4);
+}
+
+/* --- БАЗОВЫЕ СТИЛИ --- */
+.reader-body {
+    background-color: var(--reader-bg);
+    color: var(--reader-text);
+    font-family: 'Verdana', sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- ПАРЯЩЕЕ МЕНЮ (TOOLBAR) --- */
+.reader-toolbar {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    min-width: 280px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Эффект скрытия при скролле */
+.reader-toolbar.hidden {
+    top: -100px;
+    opacity: 0;
+}
+
+.toolbar-container {
+    background-color: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Группировка кнопок */
+.tool-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 2px;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 4px;
+}
+
+/* Кнопки управления */
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--light);
+    cursor: pointer;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 12px;
+}
+
+.tool-btn span {
+    font-size: 18px;
+    margin-right: 1px;
+}
+
+.tool-btn small {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Стили для изображений-иконок */
+.tool-btn img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    /* Делаем иконки светлыми (под цвет --light), если исходники черные */
+    filter: brightness(0) invert(0.9); 
+    transition: all 0.2s ease;
+}
+
+/* Эффект при наведении на любую кнопку */
+.tool-btn:hover {
+    color: var(--accent);
+}
+
+.tool-btn:hover img {
+    /* Фильтр для окрашивания в золотистый --accent (#E8D1A7) */
+    filter: sepia(100%) saturate(400%) hue-rotate(350deg) brightness(95%);
+    transform: translateY(-1px);
+}
+
+/* Состояние активной закладки (через класс active) */
+.bookmark-btn.active img {
+    /* Оставляем фильтр акцента постоянно, когда закладка активна */
+    filter: sepia(100%) saturate(500%) hue-rotate(350deg) brightness(90%);
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+/* --- КОНТЕНТ --- */
+.reader-content {
+    padding: 140px 24px 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.readable-area {
+    max-width: 720px;
+    width: 100%;
+    line-height: 1.8;
+    transition: font-size 0.2s ease;
+}
+
+.readable-area h1 {
+    font-size: 2.2em;
+    margin-bottom: 1.5em;
+    color: var(--primary);
+    text-align: center;
+}
+
+.readable-area p {
+    margin-bottom: 1.6em;
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .reader-toolbar {
+        top: auto;
+        bottom: 30px; /* На мобильных меню удобнее снизу */
+        width: 92%;
+    }
+    
+    .reader-toolbar.hidden {
+        top: auto;
+        bottom: -100px;
+    }
+
+    .readable-area {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar-container {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+    
+    .tool-btn {
+        padding: 10px 12px;
+    }
+    
+    .readable-area h1 {
+        font-size: 1.8em;
+    }
+}

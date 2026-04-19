@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чтение книги | E-Book</title>
+    <link rel="stylesheet" href="read_style.css">
+    <script src="assets/js/script_read.js"></script>
+</head>
+<body class="reader-body">
+
+    <header class="reader-toolbar" id="readerToolbar">
+        <div class="toolbar-container">
+            <div class="tool-group">
+                <button onclick="changeZoom(-0.1)" class="tool-btn" title="Уменьшить">
+                    <span>A</span><small>-</small>
+                </button>
+                <div class="divider"></div>
+                <button onclick="changeZoom(0.1)" class="tool-btn" title="Увеличить">
+                    <span>A</span><small>+</small>
+                </button>
+            </div>
+
+            <div class="tool-group">
+                <button class="tool-btn theme-toggle" onclick="toggleTheme()" title="Сменить тему">
+                    <img src="images/sun.svg" id="themeIcon" alt="Тема" width="20" height="20">
+                </button>
+                <div class="divider"></div>
+                <button class="tool-btn bookmark-btn" id="bookmarkBtn" onclick="toggleBookmark()" title="Закладка">
+                    <img src="images/bookmark.svg" alt="Закладка" width="20" height="20">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="reader-content" id="readerText">
+        <article class="readable-area">
+            <h1>Название книги</h1>
+            <p>Ваш текст начинается здесь. Это пространство оптимизировано для долгого чтения...</p>
+            </article>
+    </main>
+
+    
+</body>
+</html>
