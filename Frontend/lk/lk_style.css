@@ -16,10 +16,6 @@ body {
     color: var(--dark);
 }
 
-html {
-    /* Резервирует место под скроллбар, чтобы страница не дергалась */
-    scrollbar-gutter: stable;
-}
 
 body.modal-open {
     overflow: hidden;
@@ -234,10 +230,25 @@ body.modal-open {
 }
 
 /* Кнопка: темно-коричневая, скругленная */
+/* Контейнер для выравнивания кнопок в ряд */
+.user-stats-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.actions-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Основная кнопка: Добавить книгу */
 .btn-add-book {
-    background-color: #5B351F; /* Более насыщенный коричневый из макета */
+    background-color: #5B351F; /* Насыщенный коричневый */
     color: var(--white);
-    border: none;
+    border: 2px solid #5B351F; /* Добавлена граница для выравнивания высоты с контурной кнопкой */
     padding: 12px 28px;
     border-radius: 14px;
     font-size: 16px;
@@ -249,8 +260,34 @@ body.modal-open {
 
 .btn-add-book:hover {
     background-color: var(--primary);
+    border-color: var(--primary);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Второстепенная кнопка: Сформировать отчет */
+.btn-report {
+    background-color: transparent;
+    color: #5B351F; /* Используем тот же коричневый для текста */
+    border: 2px solid #5B351F; /* Контурная кнопка */
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.btn-report:hover {
+    background-color: rgba(91, 53, 31, 0.05); /* Легкий налет при наведении */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Активное состояние для обеих кнопок */
+.btn-add-book:active, .btn-report:active {
+    transform: translateY(0);
 }
 
 /* Контейнер */
@@ -939,16 +976,20 @@ body.modal-open {
 /* Конкретизируем ширину контента для этого окна */
 .add-book-content {
     max-width: 950px !important;
+    max-height: 90vh;            /* Ограничиваем высоту окна до 90% высоты экрана */
+    overflow: hidden;            /* Прячем общий скролл */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Сетка формы */
 .add-book-grid {
     display: grid;
-    grid-template-columns: 1fr 1.5fr; /* Соотношение сторон обложки и полей */
-    gap: 30px; /* Расстояние между левой и правой колонкой */
-    align-items: start;
+    grid-template-columns: 320px 1fr; /* Фиксируем ширину обложки, остальное — форме */
+    gap: 40px;
+    align-items: stretch; /* Изменено на stretch для равномерного распределения */
     width: 100%;
-    box-sizing: border-box; /* Важно: учитывает отступы в общей ширине */
+    overflow: hidden; /* Предотвращаем внутренний скролл сетки */
 }
 
 /* Зона загрузки обложки (Dropzone) */
@@ -958,7 +999,8 @@ body.modal-open {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 450px;
+    height: 100%;             /* Теперь высота подстраивается под сетку */
+    min-height: 400px;        /* Фиксированный минимум */
     border: 2px dashed #DCCFB8;
     border-radius: 30px;
     cursor: pointer;
@@ -978,9 +1020,9 @@ body.modal-open {
 
 /* ИКОНКА - ПРИНУДИТЕЛЬНЫЙ РАЗМЕР */
 .placeholder-icon {
-    width: 80px !important;  /* Жестко ограничиваем ширину */
-    height: 80px !important; /* Жестко ограничиваем высоту */
-    object-fit: contain;     /* Сохраняем пропорции картинки внутри квадрата */
+    width: 80px !important;  
+    height: 80px !important; 
+    object-fit: contain;     
     margin-bottom: 20px;
     opacity: 0.5;
     filter: sepia(1) saturate(50%) hue-rotate(330deg) brightness(0.8);
@@ -989,17 +1031,17 @@ body.modal-open {
 
 /* Эффект при наведении (БЕЗ ПОВОРОТА) */
 .cover-dropzone:hover .placeholder-icon {
-    transform: scale(1.05); /* Только легкое увеличение */
+    transform: scale(1.05); 
     opacity: 0.8;
 }
 
 .dropzone-content {
     display: flex;
     flex-direction: column;
-    align-items: center;      /* Центрирование по горизонтали */
-    justify-content: center;   /* Центрирование по вертикали */
+    align-items: center;      
+    justify-content: center;   
     width: 100%;
-    height: 100%;             /* Растягиваем на всю высоту рамки */
+    height: 100%;             
     pointer-events: none;
 }
 
@@ -1007,15 +1049,16 @@ body.modal-open {
 .add-book-form {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Вертикальные отступы между полями */
+    gap: 12px;                /* Немного уменьшен зазор для экономии места */
     width: 100%;
-    min-width: 0; /* Предотвращает раздувание флекс-элементов */
+    min-width: 0; 
+    height: 100%;             /* Растягиваем на всю высоту сетки */
 }
 
 .form-input, 
 .form-textarea {
     width: 100%;
-    padding: 14px 20px;
+    padding: 12px 20px;       /* Немного уменьшены вертикальные отступы */
     border: 1.5px solid rgba(68, 45, 28, 0.1);
     border-radius: 12px;
     font-size: 15px;
@@ -1042,7 +1085,7 @@ body.modal-open {
 /* Поле для выбора файла (пунктирное) */
 .file-upload-design {
     display: block;
-    padding: 14px 20px; /* Увеличил боковые отступы, чтобы троеточие смотрелось аккуратнее */
+    padding: 14px 20px; 
     border: 1.5px dashed #DCCFB8;
     border-radius: 12px;
     text-align: center;
@@ -1052,12 +1095,10 @@ body.modal-open {
     cursor: pointer;
     background-color: rgba(220, 207, 184, 0.03);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* НОВЫЕ СВОЙСТВА ДЛЯ СОКРАЩЕНИЯ ТЕКСТА */
-    width: 100%;           /* Занимает всю ширину родителя */
-    white-space: nowrap;    /* Запрещает перенос текста на новую строку */
-    overflow: hidden;       /* Скрывает текст, который не влез в границы */
-    text-overflow: ellipsis; /* Добавляет то самое троеточие (...) */
+    width: 100%;           
+    white-space: nowrap;    
+    overflow: hidden;       
+    text-overflow: ellipsis; 
 }
 
 .file-upload-design:hover {
@@ -1066,10 +1107,12 @@ body.modal-open {
     transform: scale(1.01);
 }
 
-/* Описание */
+/* Описание - ГЛАВНЫЙ ФИКС ДЛЯ СКРОЛЛА */
 .form-textarea {
-    height: 140px;
-    resize: none;
+    flex: 1;                  /* Поле забирает все оставшееся пространство */
+    min-height: 80px;         /* Минимум, чтобы не схлопнулось */
+    height: auto;             /* Убираем жесткие 140px */
+    resize: none; 
     line-height: 1.6;
 }
 
@@ -1078,10 +1121,11 @@ body.modal-open {
     display: flex;
     justify-content: flex-end;
     margin-top: 10px;
+    flex-shrink: 0;           /* Запрещаем кнопке сжиматься */
 }
 
 .btn-submit-book {
-    background-color: #D9D9D9; /* Изначально серый как на Frame 53 */
+    background-color: #D9D9D9; 
     border: 1px solid #442D1C;
     padding: 12px 45px;
     border-radius: 15px;
@@ -1094,7 +1138,7 @@ body.modal-open {
 }
 
 .btn-submit-book:hover {
-    background-color: #DCCFB8; /* Становится бежевым при наведении */
+    background-color: #DCCFB8; 
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
