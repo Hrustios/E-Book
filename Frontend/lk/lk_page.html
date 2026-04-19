@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет | E-Book</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='lk/lk_style.css') }}">
-    <script src="{{ url_for('static', filename='lk/assets/js/script_lk.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='lk/assets/js/main.js') }}"></script>
 </head>
 <body>
 
@@ -178,11 +178,11 @@
             <form id="uploadBookForm" action="/add_book" method="POST" enctype="multipart/form-data" novalidate>
                 <div class="modal-body add-book-grid" id="addBookFormGrid">
 
-                    <div class="upload-cover-section">
-                        <label for="coverInput" class="cover-dropzone" id="dropzoneContent">
+                   <div class="upload-cover-section">
+                        <label for="coverInput" class="cover-dropzone" id="coverDropzone">
                             <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
 
-                            <div class="dropzone-default">
+                            <div class="dropzone-content" id="dropzoneContent">
                                 <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="">
                                 <p>Загрузить обложку книги</p>
                             </div>
@@ -246,6 +246,51 @@
                 <p>Ваша книга добавлена в коллекцию.</p>
                 <button class="btn-submit-book" onclick="location.reload()">Закрыть</button>
             </div>
+        </div>
+    </div>
+
+    <div id="editBookModal" class="modal">
+        <div class="modal-content add-book-modal">
+            <button class="close-modal" id="closeEditBook">&times;</button>
+            <h2 id="editModalTitle">Редактировать книгу</h2>
+
+            <form id="editBookForm">
+                <input type="hidden" id="edit-book-id" name="book_id">
+
+                <div class="add-book-grid" id="editBookFormGrid">
+                    <div class="upload-cover-section">
+                        <div class="cover-dropzone readonly">
+                            <div class="dropzone-content" id="editDropzoneContent">
+                                <img id="edit-cover-preview" src="" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-info-inputs">
+                        <div class="form-group">
+                            <input type="text" id="edit-book-title" class="form-input" readonly placeholder="Название">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="edit-book-author" class="form-input" readonly placeholder="Автор">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год">
+                                <span class="error-text" id="err-edit-book-year"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр">
+                                <span class="error-text" id="err-edit-book-genre"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание"></textarea>
+                            <span class="error-text" id="err-edit-book-description"></span>
+                        </div>
+                        <button type="submit" class="btn-submit-book" id="submitEditBook">Сохранить изменения</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 

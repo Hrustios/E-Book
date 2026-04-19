@@ -117,9 +117,10 @@ def get_my_books():
         return jsonify({"error": "Unauthorized"}), 401
 
     db = get_db_connection()
-    # Теперь выбираем поле pages напрямую из БД
+    # ДОБАВЛЕНО ПОЛЕ id В SELECT
     books = db.execute('''
-                       SELECT title,
+                       SELECT id, 
+                              title,
                               author_name,
                               description,
                               cover_url,
@@ -137,7 +138,6 @@ def get_my_books():
     books_list = []
     for b in books:
         book_dict = dict(b)
-        # Если pages в БД нет (0 или None), ставим прочерк
         if not book_dict.get('pages'):
             book_dict['pages'] = "---"
         books_list.append(book_dict)
@@ -150,6 +150,51 @@ def get_my_books():
         "total_pages": (total_books + per_page - 1) // per_page,
         "current_page": page
     })
+
+
+@app.route('/update_book', methods=['POST'])
+def update_book():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+
+    # Получаем данные из формы
+    book_id = request.form.get('book_id')
+    year = request.form.get('year')
+    genre = request.form.get('genre')
+    description = request.form.get('description')
+
+    # ЛОГ ДЛЯ ОТЛАДКИ (посмотри в консоль PyCharm/VSCode после нажатия кнопки)
+    print(f"DEBUG: Updating book {book_id} for user {user_id}")
+    print(f"Data: {year}, {genre}, {description}")
+
+    if not book_id:
+        return jsonify({"status": "error", "message": "ID книги не получен"}), 400
+
+    db = get_db_connection()
+    try:
+        # Выполняем апдейт
+        cursor = db.execute('''
+                            UPDATE Books
+                            SET release_year = ?,
+                                genre        = ?,
+                                description  = ?
+                            WHERE id = ?
+                              AND author_id = ?
+                            ''', (year, genre, description, book_id, user_id))
+
+        db.commit()
+
+        # Проверяем, была ли обновлена хоть одна строка
+        if cursor.rowcount == 0:
+            return jsonify({"status": "error", "message": "Книга не найдена или доступ запрещен"}), 404
+
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"Ошибка БД: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        db.close()
 
 
 if __name__ == '__main__':

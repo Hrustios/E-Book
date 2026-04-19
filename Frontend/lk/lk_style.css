@@ -648,6 +648,56 @@ body.modal-open {
     background-color: var(--dark);
 }
 
+.form-input[readonly],
+.form-textarea[readonly] {
+    background-color: #F9F9F9 !important; /* Очень светлый фон */
+    color: #A0A0A0 !important;           /* Бледный цвет текста */
+    border: 1.5px solid #E0E0E0 !important; /* Тусклая граница */
+    cursor: not-allowed;                  /* Курсор "запрещено" */
+    pointer-events: none;                 /* Нельзя кликнуть или сфокусироваться */
+    box-shadow: none !important;          /* Убираем тени при наведении/фокусе */
+    user-select: none;                    /* Запрет выделения текста */
+}
+
+/* Приглушаем placeholder в readonly полях */
+.form-input[readonly]::placeholder,
+.form-textarea[readonly]::placeholder {
+    color: #D1D1D1 !important;
+}
+
+/* 2. Зона обложки (Dropzone) в режиме редактирования */
+.cover-dropzone.readonly {
+    background-color: #FAFAFA !important;
+    border: 2px solid #EAEAEA !important; /* Сплошная бледная линия вместо пунктира */
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.8;
+}
+
+/* Эффект бледности для самой картинки обложки */
+.cover-dropzone.readonly img {
+    filter: grayscale(0.3) contrast(0.8) opacity(0.7); /* Приглушаем цвета и яркость */
+}
+
+/* 3. Кнопка выбора файла книги (дизайн-ссылка) */
+/* Если ты добавишь этот класс в JS при открытии редактирования */
+.file-upload-design.readonly {
+    background-color: #F5F5F5 !important;
+    border-color: #DDD !important;
+    color: #B0B0B0 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    border-style: solid !important;
+}
+
+/* Убираем эффекты наведения для readonly элементов */
+.form-input[readonly]:hover,
+.cover-dropzone.readonly:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+
 /* Адаптивность для планшетов и мобильных */
 @media (max-width: 1024px) {
     .profile-book-grid {
@@ -1093,7 +1143,31 @@ body.modal-open {
     }
 }
 
+/* Стиль для заблокированных текстовых полей */
+.form-input[readonly],
+.form-textarea[readonly] {
+    background-color: #f5f5f5; /* Светло-серый фон */
+    color: #999;               /* Бледный текст */
+    border-color: #ddd;        /* Тусклая рамка */
+    cursor: not-allowed;       /* Иконка "запрещено" при наведении */
+    pointer-events: none;      /* Полное отключение кликов и выделения */
+}
 
+/* Стиль для заблокированной зоны обложки */
+.cover-dropzone.readonly {
+    opacity: 0.7;              /* Делаем светлее */
+    background-color: #fafafa;
+    cursor: not-allowed;
+    pointer-events: none;      /* Нельзя нажать и выбрать другой файл */
+    border-style: solid;       /* Убираем пунктир, если он был */
+}
+
+/* Если есть заблокированные кнопки выбора файлов */
+.btn-file-readonly {
+    filter: grayscale(1);      /* Делаем серой */
+    opacity: 0.5;
+    pointer-events: none;
+}
 /* --- СТИЛИ ОКНА ДОБАВЛЕНИЯ КНИГИ (ADD BOOK MODAL) --- */
 
 /* Конкретизируем ширину контента для этого окна */
