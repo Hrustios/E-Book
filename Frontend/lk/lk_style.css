@@ -1108,11 +1108,13 @@ body.modal-open {
 /* Сетка формы */
 .add-book-grid {
     display: grid;
-    grid-template-columns: 320px 1fr; /* Фиксируем ширину обложки, остальное — форме */
+    grid-template-columns: 320px 1fr;
     gap: 40px;
-    align-items: stretch; /* Изменено на stretch для равномерного распределения */
+    align-items: stretch;
     width: 100%;
-    overflow: hidden; /* Предотвращаем внутренний скролл сетки */
+    /* Добавляем padding сверху, чтобы при hover карточка не уходила за границы */
+    padding-top: 10px; 
+    margin-top: -10px; /* Компенсируем отступ, чтобы визуально ничего не съехало */
 }
 
 /* Зона загрузки обложки (Dropzone) */
@@ -1122,21 +1124,23 @@ body.modal-open {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100%;             /* Теперь высота подстраивается под сетку */
-    min-height: 400px;        /* Фиксированный минимум */
+    height: 100%;
+    min-height: 400px;
     border: 2px dashed #DCCFB8;
     border-radius: 30px;
     cursor: pointer;
     background-color: rgba(220, 207, 184, 0.05);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
-    overflow: hidden;
+    /* Убираем overflow: hidden здесь, чтобы тень и края при движении не резались */
+    overflow: visible; 
     padding: 20px;
 }
 
 .cover-dropzone:hover {
     background-color: rgba(220, 207, 184, 0.15);
     border-color: #84592B;
+    /* Оставляем смещение, но добавляем запас в родительском контейнере */
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(68, 45, 28, 0.08);
 }
