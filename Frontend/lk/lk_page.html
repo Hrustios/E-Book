@@ -113,7 +113,9 @@
                         </div>
                     </div>
                     <div class="modal-book-meta">
-                        </div>
+                        <p>Кол-во страниц: <span id="modal-pages">0</span></p>
+                        <p>Год выпуска: <span id="modal-year">----</span></p>
+                    </div>
                 </div>
 
                 <div class="modal-book-info">
@@ -177,30 +179,31 @@
                 <div class="modal-body add-book-grid" id="addBookFormGrid">
 
                     <div class="upload-cover-section">
-                        <label for="coverInput" class="cover-dropzone" id="coverDropzone">
+                        <label for="coverInput" class="cover-dropzone" id="dropzoneContent">
                             <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
-                            <div class="dropzone-content" id="dropzoneContent">
+
+                            <div class="dropzone-default">
                                 <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="">
                                 <p>Загрузить обложку книги</p>
                             </div>
                         </label>
-                        <span class="error-message" id="error-cover" style="text-align: center;"></span>
+                        <span class="error-text" id="err-coverInput"></span>
                     </div>
 
                     <div class="add-book-form">
                         <div class="form-group">
                             <input type="text" name="title" id="book-title" placeholder="Введите название книги" class="form-input">
-                            <span class="error-message" id="error-title"></span>
+                            <span class="error-text" id="err-book-title"></span>
                         </div>
 
                         <div class="form-group">
                             <input type="text" name="author" id="book-author" placeholder="Введите автора книги" class="form-input">
-                            <span class="error-message" id="error-author"></span>
+                            <span class="error-text" id="err-book-author"></span>
                         </div>
 
                         <div class="form-group">
                             <input type="number" name="year" id="book-year" placeholder="Введите год издания книги" class="form-input" max="2026">
-                            <span class="error-message" id="error-year"></span>
+                            <span class="error-text" id="err-book-year"></span>
                         </div>
 
                         <div class="form-group">
@@ -214,7 +217,7 @@
                                     <option value="Романы">
                                 </datalist>
                             </div>
-                            <span class="error-message" id="error-genre"></span>
+                            <span class="error-text" id="err-book-genre"></span>
                         </div>
 
                         <div class="form-group">
@@ -222,12 +225,12 @@
                                 <input type="file" name="book_file" id="fileInput" accept=".pdf,.docx,.fb2" hidden>
                                 <span class="file-upload-design" id="fileNameDisplay">Добавить файл книги</span>
                             </label>
-                            <span class="error-message" id="error-file"></span>
+                            <span class="error-text" id="err-fileInput"></span>
                         </div>
 
                         <div class="form-group">
                             <textarea name="description" id="book-description" placeholder="Описание для Вашей книги" class="form-textarea"></textarea>
-                            <span class="error-message" id="error-description"></span>
+                            <span class="error-text" id="err-book-description"></span>
                         </div>
 
                         <div class="submit-row">

@@ -10,7 +10,8 @@ from Backend.utils.parser_utils import get_page_count
 
 app = Flask(__name__,
             template_folder='Frontend',
-            static_folder='Frontend')
+            static_folder='Frontend',
+            static_url_path='/static') # Добавь этот параметр обязательно!
 
 # Прямое указание ключа
 app.secret_key = "chichiwichki"

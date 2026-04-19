@@ -1371,6 +1371,50 @@ body.modal-open {
     margin-bottom: 30px;
 }
 
+/* Стили валидации */
+.form-group {
+    position: relative; /* Важно для позиционирования ошибки */
+    margin-bottom: 18px; /* Резервируем место под ошибку */
+}
+
+.error-text {
+    color: #ff4d4d;
+    font-size: 10px;
+    position: absolute;
+    bottom: -15px; /* Выносим за пределы инпута */
+    left: 5px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.error-text.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Подсветка инпута */
+.form-input.invalid,
+.form-textarea.invalid,
+.file-upload-design.invalid {
+    border-color: #ff4d4d !important;
+    background-color: #fff8f8;
+}
+
+/* Для обложки отдельный стиль */
+.upload-cover-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#err-coverInput {
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
 .social-links { 
     display: flex; 
     gap: 15px; 
