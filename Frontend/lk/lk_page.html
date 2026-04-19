@@ -128,7 +128,9 @@
 
                     <div class="modal-actions">
                         <button class="btn-read">Читать книгу</button>
-                        <button class="btn-icon"><img src="{{ url_for('static', filename='lk/images/load.svg') }}" alt="Load"></button>
+                        <button class="btn-icon" id="btn-download">
+                            <img src="{{ url_for('static', filename='lk/images/load.svg') }}" alt="Load">
+                        </button>
                         <button class="btn-icon"><img src="{{ url_for('static', filename='lk/images/edit.svg') }}" alt="Edit"></button>
 
                         <div class="more-options">
@@ -174,7 +176,7 @@
 
                     <div class="upload-cover-section">
                         <label for="coverInput" class="cover-dropzone" id="coverDropzone">
-                            <input type="file" name="cover_image" id="coverInput" accept="image/*" hidden>
+                            <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
                             <div class="dropzone-content" id="dropzoneContent">
                                 <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="">
                                 <p>Загрузить обложку книги</p>

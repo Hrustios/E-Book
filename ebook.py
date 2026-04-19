@@ -49,33 +49,31 @@ def add_book():
     if not user_id:
         return "Необходима авторизация", 401
 
-    # Получаем данные из формы
     title = request.form.get('title')
     writer_name = request.form.get('author')
     year = request.form.get('year')
     genre = request.form.get('genre')
     description = request.form.get('description')
 
+    # ВАЖНО: Имена должны совпадать с HTML: 'book_file' и 'cover_file'
     book_file = request.files.get('book_file')
-    cover_file = request.files.get('cover_image')
+    cover_file = request.files.get('cover_file')
 
     if book_file and cover_file:
-        # --- ЛОГИКА ПАРСИНГА СТРАНИЦ ---
-        # Читаем файл в память один раз
+        # Читаем контент для парсера страниц
         file_content = book_file.read()
 
-        # Создаем временный поток для парсера
+        # Парсим страницы
         temp_stream = io.BytesIO(file_content)
         pages_count = get_page_count(temp_stream, book_file.filename)
 
-        # Сбрасываем указатели для корректной загрузки в облако
-        book_file.seek(0)  # Если loader.py читает из объекта request.files
-        # Если loader.py требует объект файла, передаем ему наш поток с данными
-        book_file_for_upload = io.BytesIO(file_content)
-        book_file_for_upload.filename = book_file.filename
+        # Подготавливаем файл для Cloudinary
+        book_upload_stream = io.BytesIO(file_content)
+        # Обязательно вешаем имя файла на поток
+        book_upload_stream.filename = book_file.filename
 
-        # Загружаем файлы в облако
-        upload_data = upload_book_to_cloud(book_file_for_upload, cover_file)
+        # Загружаем
+        upload_data = upload_book_to_cloud(book_upload_stream, cover_file)
 
         if upload_data:
             db = get_db_connection()
@@ -92,7 +90,7 @@ def add_book():
             db.close()
             return "OK", 200
 
-    return "Ошибка при заполнении формы или загрузке файлов", 400
+    return "Ошибка: файлы не получены или неверный формат", 400
 
 
 @app.route('/get_my_books')
@@ -112,6 +110,7 @@ def get_my_books():
                               author_name,
                               description,
                               cover_url,
+                              file_url,
                               release_year,
                               genre,
                               file_size,
