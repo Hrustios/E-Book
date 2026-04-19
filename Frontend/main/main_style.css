@@ -736,17 +736,123 @@ body {
     opacity: 0.2; /* Сделали заметнее */
 }
 
-/*  АДАПТИВНОСТЬ  */
-@media (max-width: 1024px) {
-    .about-grid { grid-template-columns: 1fr 1fr; }
-    .main-info { grid-column: span 2; }
-}
+/* --- ОБНОВЛЕННЫЙ АДАПТИВ (Навигация снизу) --- */
 
 @media (max-width: 768px) {
-    .hero-container { flex-direction: column; align-items: center; text-align: center; }
-    .leader-widget { display: none; }
-    .header-container { padding: 10px 20px; }
-    .nav-menu { display: none; }
-    .footer-top { flex-direction: column; gap: 40px; text-align: center; }
-    .footer-left, .footer-nav, .footer-right { align-items: center; }
+    /* 1. ПЕРЕНОС ШАПКИ ВНИЗ */
+    .main-header {
+        top: auto;        /* Убираем отступ сверху */
+        bottom: 0;        /* Прижимаем к низу */
+        padding-bottom: 15px; /* Запас под системную полоску смартфонов */
+        background: linear-gradient(to top, var(--primary) 80%, transparent);
+    }
+
+    .header-container {
+        width: 100%;
+        border-radius: 30px 30px 0 0; /* Скругление только сверху */
+        padding: 10px 15px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Скрываем логотип и профиль в нижнем меню, чтобы оставить только навигацию */
+    .logo, .profile-section {
+        display: none;
+    }
+
+    /* 2. НАСТРОЙКА МЕНЮ */
+    .nav-menu {
+        display: flex;    /* Включаем обратно */
+        justify-content: space-around;
+        width: 100%;
+        gap: 0;           /* Убираем фиксированный зазор */
+    }
+
+    .nav-link {
+        font-size: 11px;  /* Уменьшаем шрифт для компактности */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 1;
+    }
+
+    /* Делаем активную ссылку более заметной */
+    .nav-link.active {
+        color: var(--accent);
+    }
+
+    .nav-link::after {
+        top: -10px;       /* Линия подчеркивания теперь над текстом */
+        bottom: auto;
+    }
+
+    /* 3. HERO СЕКЦИЯ (Корректировка под мобилку) */
+    .hero-section {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 50px;
+        padding-bottom: 100px; /* Чтобы контент не перекрывался меню снизу */
+        text-align: center;
+    }
+
+    .hero-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-content {
+        margin-bottom: 40px;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    .btn-reg, .btn-login {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* Виджет лидера на мобильных обычно занимает много места, 
+       но если хочешь оставить — сделаем его компактнее */
+    .leader-widget {
+        display: block; 
+        width: 100%;
+        max-width: 350px;
+        padding: 20px;
+        border-radius: 25px;
+    }
+
+    .widget-main { gap: 15px; }
+    .book-placeholder { width: 80px; height: 115px; }
+    .widget-text h3 { font-size: 18px; }
+
+    /* 4. КАТАЛОГ (Сетка в 2 колонки вместо карусели на маленьких экранах) */
+    .book-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-flow: row;
+        gap: 15px;
+        overflow-x: visible;
+    }
+
+    .catalog-footer {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .slider-nav { display: none; } /* Убираем стрелки слайдера */
+    .btn-all-catalog { 
+        grid-column: 1; 
+        justify-self: center; 
+        width: 100%;
+        text-align: center;
+    }
+
+    /* 5. ФУТЕР (Убираем нижний отступ, так как там меню) */
+    .main-footer {
+        padding-bottom: 100px; 
+    }
 }
