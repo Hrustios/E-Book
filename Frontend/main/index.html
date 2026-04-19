@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Book — Читайте с удовольствием</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main/main_style.css') }}">
-    <script src="{{ url_for('static', filename='main/assets/js/script_main.js') }}"></script>
+    <link rel="stylesheet" href="main_style.css">
+    <script src="assets/js/script_main.js"></script>
 </head>
 <body>
 
     <header class="main-header">
         <div class="header-container">
-            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
-
+            <a href="#" class="logo">E-Book</a>
+            
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
+                <a href="#" class="nav-link active">Главная</a>
                 <a href="#" class="nav-link">О продукте</a>
                 <a href="#" class="nav-link">Каталог</a>
                 <a href="#" class="nav-link">Контакты</a>
             </nav>
-
+            
             <div class="profile-section">
                 <a href="#" class="profile-text">Личный кабинет</a>
                 <div class="profile-avatar">
-                    <img src="{{ url_for('static', filename='main/images/Profile.png') }}">
+                    <img src="images/Profile.png">
                 </div>
             </div>
         </div>
@@ -36,8 +36,8 @@
                     <h1>Помните каждую прочитанную страницу</h1>
                     <p>Списки желаний, личные заметки и наглядные отчеты — всё максимально просто и удобно.</p>
                     <div class="hero-btns">
-                        <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
-                        <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
+                        <a href="#" class="btn-reg">Зарегистрироваться</a>
+                        <a href="#" class="btn-login">Войти</a>
                     </div>
                 </div>
 
@@ -45,7 +45,7 @@
                     <span class="widget-title">Лидер чтений</span>
                     <div class="widget-main">
                         <div class="book-placeholder">
-                             <img src="{{ url_for('static', filename='main/images/Vector.png') }}" alt="Book Icon">
+                             <img src="images/test.jpg" alt="Book Icon">
                         </div>
                         <div class="widget-text">
                             <h3>Название</h3>
@@ -60,9 +60,8 @@
         <section class="about-section">
             <div class="about-grid">
                 <div class="info-card main-info">
-                    <div class="main-info-content">
-                        <h2>О продукте</h2>
-                        <p>Простой инструмент для управления домашней библиотекой. Ведите учет книг, сохраняйте важные мысли в заметках и формируйте наглядные отчеты в пару кликов.</p>
+                    <div class="main-info-content"><h2>О продукте</h2>
+                    <p>Простой инструмент для управления домашней библиотекой. Ведите учет книг, сохраняйте важные мысли в заметках и формируйте наглядные отчеты в пару кликов.</p>
                     </div>
                     <a href="#" class="btn-more">
                         <span>Подробнее</span>
@@ -71,35 +70,125 @@
                         </svg>
                     </a>
                 </div>
-                <div class="stat-card"><span class="stat-number">5000+</span><p class="stat-title">шедевров литературы</p></div>
-                <div class="stat-card"><span class="stat-number">03</span><p class="stat-title">Универсальных формата</p></div>
-                <div class="stat-card"><span class="stat-number">∞</span><p class="stat-title">Важных заметок</p></div>
-                <div class="stat-card"><span class="stat-number">100%</span><p class="stat-title">Точных отчетов</p></div>
+
+                <div class="stat-card">
+                    <span class="stat-number">5000+</span>
+                    <p class="stat-title">шедевров литературы</p>
+                    <p class="stat-desc">Классика и новинки в одном каталоге для всех возрастов.</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-number">03</span>
+                    <p class="stat-title">Универсальных формата</p>
+                    <p class="stat-desc">Поддержка файлов fb2, pdf и docx для любого устройства.</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-number">∞</span>
+                    <p class="stat-title">Важных заметок</p>
+                    <p class="stat-desc">Неограниченное место для ваших мыслей, цитат и закладок.</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-number">100%</span>
+                    <p class="stat-title">Точных отчетов</p>
+                    <p class="stat-desc">Наглядная статистика чтения и скачиваний за любой период.</p>
+                </div>
             </div>
         </section>
 
         <section class="catalog-section">
-            <div class="catalog-container">
-                <h2 class="catalog-title">Каталог книг</h2>
-                <div class="book-grid">
-                    <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="{{ url_for('static', filename='main/images/test.jpg') }}" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Фёдор Достоевский</p>
-                            <h4 class="book-title">Идиот</h4>
-                            <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.9
-                            </div>
-                        </div>
+    <div class="catalog-container">
+        <h2 class="catalog-title">Каталог книг</h2>
+        
+        <div class="book-grid">
+            <div class="book-card">
+                <div class="book-visual">
+                    <div class="css-book-shape">
+                        <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
                     </div>
+                </div>
+                <div class="book-info">
+                    <p class="book-author">Фёдор Достоевский</p>
+                    <h4 class="book-title">Идиот</h4>
+                    <div class="book-rating">
+                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 4.9
                     </div>
+                </div>
             </div>
-        </section>
-    </main>
+
+            <div class="book-card">
+                <div class="book-visual">
+                    <div class="css-book-shape">
+                        <img src="images/test2.jpg" alt="Обложка" class="book-cover-img">
+                    </div>
+                </div>
+                <div class="book-info">
+                    <p class="book-author">Михаил Булгаков</p>
+                    <h4 class="book-title">Мастер и Маргарита</h4>
+                    <div class="book-rating">
+                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-visual">
+                    <div class="css-book-shape">
+                        <img src="images/test3.jpg" alt="Обложка" class="book-cover-img">
+                    </div>
+                </div>
+                <div class="book-info">
+                    <p class="book-author">Лев Толстой</p>
+                    <h4 class="book-title">Война и мир</h4>
+                    <div class="book-rating">
+                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 4.8
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-visual">
+                    <div class="css-book-shape">
+                        <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                    </div>
+                </div>
+                <div class="book-info">
+                    <p class="book-author">Антон Чехов</p>
+                    <h4 class="book-title">Палата №6</h4>
+                    <div class="book-rating">
+                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-visual">
+                    <div class="css-book-shape">
+                        <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                    </div>
+                </div>
+                <div class="book-info">
+                    <p class="book-author">Антон Чехов</p>
+                    <h4 class="book-title">Палата №6</h4>
+                    <div class="book-rating">
+                        <span class="star"><img src="images/star.png" alt="Оценка" class="book-reit-img"></span> 5.0
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+
+        <div class="catalog-footer">
+            <div class="slider-nav">
+                <button class="nav-btn prev">←</button>
+                <button class="nav-btn next">→</button>
+            </div>
+            <a href="#" class="btn-all-catalog">Весь каталог</a>
+        </div>
+    </div>
+</section>
 
     <footer class="main-footer">
         <div class="footer-container">
@@ -107,16 +196,26 @@
                 <div class="footer-left">
                     <a href="#" class="footer-logo">E-Book</a>
                     <div class="social-links">
-                        <div class="social-item"><img src="images/tg.svg" alt="tg"></div>
-                        <div class="social-item"><img src="images/inst.svg" alt="inst"></div>
-                        <div class="social-item"><img src="images/vk.svg" alt="vk"></div>
+                        <a href="#" class="social-item"><img src="images/tg.png" alt="Telegram"></a>
+                        <a href="#" class="social-item"><img src="images/inst.png" alt="Instagram"></a>
+                        <a href="#" class="social-item"><img src="images/vk.png" alt="VK"></a>
                     </div>
                 </div>
+
                 <nav class="footer-nav">
-                    <a href="{{ url_for('index') }}">Главная</a>
+                    <a href="#">Главная</a>
                     <a href="#">О продукте</a>
                     <a href="#">Контакты</a>
+                    <a href="#">Личный кабинет</a>
                 </nav>
+
+                <div class="footer-right">
+                    <a href="#" class="btn-up" title="Наверх">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
             <div class="footer-line"></div>
         </div>
