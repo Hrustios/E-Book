@@ -462,21 +462,19 @@ body.modal-open {
 /* Сетка карточек */
 .profile-book-grid {
     display: grid;
-    /* Увеличиваем минимальную ширину карточки до 500px, чтобы они не были слишком мелкими */
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-template-columns: repeat(2, 1fr); /* Ровно 2 колонки */
     gap: 30px;
     width: 100%;
-    /* Ограничиваем общую ширину сетки и центрируем */
     max-width: 1240px;
     margin: 0 auto;
 }
 
 /* Карточка */
 .profile-book-card {
-    background-color: #CABAA1;
+    background-color: #CABAA1; /* Твой оригинальный цвет */
     border-radius: 25px;
     padding: 25px;
-    display: flex;
+    display: flex; /* Горизонтальное расположение */
     gap: 25px;
     align-items: stretch;
     transition: transform 0.3s ease;
@@ -487,13 +485,44 @@ body.modal-open {
     transform: translateY(-5px);
 }
 
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 50px;
+    padding-bottom: 50px;
+}
+
+.page-btn {
+    padding: 10px 18px;
+    border: 2px solid #995F47;
+    background: white;
+    color: #995F47;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-btn.active {
+    background: #995F47;
+    color: white;
+    box-shadow: 0 4px 12px rgba(132, 89, 43, 0.3);
+}
+
+.page-btn:hover:not(.active) {
+    background-color: #F4EFE6;
+    transform: translateY(-2px);
+}
+
 /* --- КОНСТРУКЦИЯ КНИГИ (КАК НА ГЛАВНОЙ) --- */
 .book-visual {
     position: relative;
     width: 145px; /* Фиксированная ширина для ЛК */
-    aspect-ratio: 1 / 1.4; 
+    aspect-ratio: 1 / 1.4;
     flex-shrink: 0;
-    box-shadow: 10px 10px 0px rgba(68, 45, 28, 0.05); 
+    box-shadow: 10px 10px 0px rgba(68, 45, 28, 0.05);
     border-radius: 5px 25px 25px 5px;
 }
 
@@ -702,16 +731,76 @@ body.modal-open {
 }
 
 .modal-book-view .book-visual.large {
-    width: 100%;
+    width: 280px;
     height: 400px;
-    flex-shrink: 0;
+    margin: 0 auto;
+    box-shadow: 15px 15px 0px rgba(68, 45, 28, 0.05);
 }
 
-.modal-book-view .book-visual.large img {
+.form-group {
+    margin-bottom: 12px; /* Фиксированный отступ между полями */
+    display: flex;
+    flex-direction: column;
+    /* Убираем position: relative, если будем использовать этот метод */
+}
+
+.error-message {
+    color: #ff4d4d;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+
+    /* Секрет отсутствия прыжков и скролла: */
+    height: 0;            /* Ошибка не занимает места по вертикали */
+    overflow: visible;    /* Но текст при этом виден */
+    margin: 0;
+    padding: 2px 0 0 4px;
+
+    display: none;        /* Появляется только при ошибке */
+}
+
+.form-input.input-error,
+.form-textarea.input-error {
+    border-color: #ff4d4d !important;
+    /* Чтобы инпут не дергался при смене бордера,
+       убедись что у обычного инпута бордер тоже 1.5px или 2px */
+}
+
+/* Фикс для textarea, чтобы не залипала */
+.form-textarea {
+    resize: none;
+    min-height: 80px;
+}
+
+.modal-book-view .css-book-shape {
     width: 100%;
     height: 100%;
+    background-color: #995F47;
+    border: 1.5px solid #442D1C;
+    border-radius: 5px 35px 35px 5px; /* Чуть больше закругление для большой книги */
+    position: relative;
+    overflow: hidden;
+}
+.modal-book-view .book-cover-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 86%; /* Оставляем место под переплет слева */
+    height: 100%;
     object-fit: cover;
-    border-radius: 20px;
+    z-index: 2;
+    border-radius: 0 35px 35px 0;
+}
+
+.modal-book-view .css-book-shape::before {
+    content: '';
+    position: absolute;
+    left: 20px; /* Немного шире для большой книги */
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(68, 45, 28, 0.2);
+    z-index: 3;
 }
 
 .modal-book-meta {

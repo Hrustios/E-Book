@@ -89,10 +89,11 @@
                                 <h3>Название</h3>
                                 <p class="p-author">Автор</p>
                                 <p class="p-desc">Описание книги</p>
-                                <a href="#" class="btn-read-more">Читать больше</a>
+                                <a href="#" class="btn-read-more" onclick="openFullBookModal(this); return false;">Читать больше</a>
                             </div>
                         </div>
                     </div>
+                    <div id="pagination" class="pagination-container"></div>
                 </section>
             </div>
         </div>
@@ -110,9 +111,7 @@
                         </div>
                     </div>
                     <div class="modal-book-meta">
-                        <span>Страницы: ---</span>
-                        <span>Год издания: ---</span>
-                    </div>
+                        </div>
                 </div>
 
                 <div class="modal-book-info">
@@ -170,41 +169,62 @@
             <span class="close-modal" id="closeAddBook">&times;</span>
             <h2 class="modal-title" id="addModalTitle">Добавление новой книги</h2>
 
-            <form id="uploadBookForm" action="/add_book" method="POST" enctype="multipart/form-data">
+            <form id="uploadBookForm" action="/add_book" method="POST" enctype="multipart/form-data" novalidate>
                 <div class="modal-body add-book-grid" id="addBookFormGrid">
 
                     <div class="upload-cover-section">
-                        <label for="coverInput" class="cover-dropzone">
-                            <input type="file" name="cover_image" id="coverInput" accept="image/*" hidden required>
+                        <label for="coverInput" class="cover-dropzone" id="coverDropzone">
+                            <input type="file" name="cover_image" id="coverInput" accept="image/*" hidden>
                             <div class="dropzone-content" id="dropzoneContent">
                                 <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="">
                                 <p>Загрузить обложку книги</p>
                             </div>
                         </label>
+                        <span class="error-message" id="error-cover" style="text-align: center;"></span>
                     </div>
 
                     <div class="add-book-form">
-                        <input type="text" name="title" placeholder="Введите название книги" class="form-input" required>
-                        <input type="text" name="author" placeholder="Введите автора книги" class="form-input" required>
-                        <input type="number" name="year" placeholder="Введите год издания книги" class="form-input" required>
-
-                        <div class="genre-group">
-                            <input type="text" name="genre" list="genre-list" placeholder="Жанр" class="form-input genre-input" required>
-                            <datalist id="genre-list">
-                                <option value="Классика">
-                                <option value="Фэнтези и фантастика">
-                                <option value="Детективы и триллеры">
-                                <option value="Современная проза">
-                                <option value="Романы">
-                            </datalist>
+                        <div class="form-group">
+                            <input type="text" name="title" id="book-title" placeholder="Введите название книги" class="form-input">
+                            <span class="error-message" id="error-title"></span>
                         </div>
 
-                        <label for="fileInput" class="file-upload-label">
-                            <input type="file" name="book_file" id="fileInput" accept=".pdf,.docx,.txt" hidden required>
-                            <span class="file-upload-design" id="fileNameDisplay">Добавить файл книги</span>
-                        </label>
+                        <div class="form-group">
+                            <input type="text" name="author" id="book-author" placeholder="Введите автора книги" class="form-input">
+                            <span class="error-message" id="error-author"></span>
+                        </div>
 
-                        <textarea name="description" placeholder="Описание для Вашей книги" class="form-textarea" required></textarea>
+                        <div class="form-group">
+                            <input type="number" name="year" id="book-year" placeholder="Введите год издания книги" class="form-input" max="2026">
+                            <span class="error-message" id="error-year"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="genre-group">
+                                <input type="text" name="genre" id="book-genre" list="genre-list" placeholder="Жанр" class="form-input genre-input">
+                                <datalist id="genre-list">
+                                    <option value="Классика">
+                                    <option value="Фэнтези и фантастика">
+                                    <option value="Детективы и триллеры">
+                                    <option value="Современная проза">
+                                    <option value="Романы">
+                                </datalist>
+                            </div>
+                            <span class="error-message" id="error-genre"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fileInput" class="file-upload-label">
+                                <input type="file" name="book_file" id="fileInput" accept=".pdf,.docx,.fb2" hidden>
+                                <span class="file-upload-design" id="fileNameDisplay">Добавить файл книги</span>
+                            </label>
+                            <span class="error-message" id="error-file"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea name="description" id="book-description" placeholder="Описание для Вашей книги" class="form-textarea"></textarea>
+                            <span class="error-message" id="error-description"></span>
+                        </div>
 
                         <div class="submit-row">
                             <button type="submit" class="btn-submit-book" id="submitBook">Добавить книгу</button>
