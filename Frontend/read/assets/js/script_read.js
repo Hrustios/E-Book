@@ -1,65 +1,141 @@
 let lastScrollTop = 0;
 let currentZoom = 1;
+const ICON_PATH = '/read/images/';
 
-// Объявляем переменные, но инициализируем их позже
-let toolbar;
-let readerText;
-let themeIcon;
-
-// Ждем полной загрузки DOM, прежде чем искать элементы
 document.addEventListener('DOMContentLoaded', () => {
-    toolbar = document.getElementById('readerToolbar');
-    readerText = document.getElementById('readerText');
-    themeIcon = document.getElementById('themeIcon');
-
-    // Проверка сохраненной темы при загрузке
+    const themeIcon = document.getElementById('themeIcon');
     const savedTheme = localStorage.getItem('reader-theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
-        if (themeIcon) themeIcon.src = 'images/moon.svg';
+        if (themeIcon) themeIcon.src = `${ICON_PATH}moon.svg`;
     }
+    renderBookmarks();
+    updateTabStates();
 });
 
-// 1. Переключение темы и смена иконки
-function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-theme');
-    
-    if (themeIcon) {
-        // Добавляем проверку на существование элемента
-        themeIcon.src = isDark ? 'images/moon.svg' : 'images/sun.svg';
-    }
-
-    localStorage.setItem('reader-theme', isDark ? 'dark' : 'light');
+function showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
 }
 
-// 2. Скрытие меню при скролле
-window.addEventListener('scroll', () => {
-    if (!toolbar) return; // Защита от ошибок, если элемент еще не найден
+// --- ТЕМА И ЗУМ ---
+window.toggleTheme = function() {
+    const isDark = document.body.classList.toggle('dark-theme');
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) themeIcon.src = isDark ? `${ICON_PATH}moon.svg` : `${ICON_PATH}sun.svg`;
+    localStorage.setItem('reader-theme', isDark ? 'dark' : 'light');
+};
 
-    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Прячем, если скроллим вниз и пролистали больше 150px
-    if (scrollTop > lastScrollTop && scrollTop > 150) {
+window.changeZoom = function(delta) {
+    const area = document.querySelector('.readable-area');
+    currentZoom = Math.min(Math.max(currentZoom + delta, 0.5), 2.5);
+    area.style.setProperty('--zoom-level', currentZoom);
+};
+
+// --- ЛОГИКА ЗАМЕТОК ---
+
+// Показать/скрыть ввод
+window.toggleNoteInput = function(pageNum) {
+    const form = document.getElementById(`note-form-${pageNum}`);
+    const textarea = document.getElementById(`textarea-${pageNum}`);
+
+    // Подгружаем существующий текст, если есть
+    const bookId = document.body.getAttribute('data-book-id');
+    const notes = JSON.parse(localStorage.getItem(`notes_${bookId}`)) || {};
+    if (notes[pageNum]) textarea.value = notes[pageNum];
+
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) textarea.focus();
+};
+
+// Сохранить заметку
+window.saveNote = function(pageNum) {
+    const bookId = document.body.getAttribute('data-book-id');
+    const text = document.getElementById(`textarea-${pageNum}`).value.trim();
+    let notes = JSON.parse(localStorage.getItem(`notes_${bookId}`)) || {};
+
+    if (text) {
+        notes[pageNum] = text;
+        showToast(`Заметка на стр. ${pageNum} сохранена`);
+    } else {
+        delete notes[pageNum];
+    }
+
+    localStorage.setItem(`notes_${bookId}`, JSON.stringify(notes));
+    document.getElementById(`note-form-${pageNum}`).classList.add('hidden');
+    updateTabStates();
+    renderBookmarks();
+};
+
+// Удалить заметку
+window.deleteNote = function(pageNum) {
+    const bookId = document.body.getAttribute('data-book-id');
+    let notes = JSON.parse(localStorage.getItem(`notes_${bookId}`)) || {};
+    delete notes[pageNum];
+    localStorage.setItem(`notes_${bookId}`, JSON.stringify(notes));
+
+    document.getElementById(`textarea-${pageNum}`).value = '';
+    document.getElementById(`note-form-${pageNum}`).classList.add('hidden');
+    updateTabStates();
+    renderBookmarks();
+    showToast('Заметка удалена');
+};
+
+// Список закладок
+window.toggleBookmarkList = function() {
+    const menu = document.getElementById('bookmarks-menu');
+    menu.classList.toggle('hidden');
+    if (!menu.classList.contains('hidden')) renderBookmarks();
+};
+
+function renderBookmarks() {
+    const bookId = document.body.getAttribute('data-book-id');
+    const notes = JSON.parse(localStorage.getItem(`notes_${bookId}`)) || {};
+    const ul = document.getElementById('bookmarks-ul');
+    ul.innerHTML = '';
+
+    const pages = Object.keys(notes).sort((a, b) => a - b);
+
+    if (pages.length === 0) {
+        ul.innerHTML = '<li style="opacity:0.5; text-align:center;">Нет заметок</li>';
+        return;
+    }
+
+    pages.forEach(page => {
+        const li = document.createElement('li');
+        li.className = 'bookmark-item';
+        li.innerHTML = `<strong>Стр. ${page}:</strong> <span>${notes[page].substring(0, 30)}${notes[page].length > 30 ? '...' : ''}</span>`;
+        li.onclick = () => {
+            document.getElementById(`page-${page}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('bookmarks-menu').classList.add('hidden');
+        };
+        ul.appendChild(li);
+    });
+}
+
+function updateTabStates() {
+    const bookId = document.body.getAttribute('data-book-id');
+    const notes = JSON.parse(localStorage.getItem(`notes_${bookId}`)) || {};
+
+    document.querySelectorAll('.note-tab').forEach((tab, index) => {
+        const pageNum = index + 1;
+        if (notes[pageNum]) tab.classList.add('active');
+        else tab.classList.remove('active');
+    });
+}
+
+window.addEventListener('scroll', () => {
+    const toolbar = document.getElementById('readerToolbar');
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    if (st > lastScrollTop && st > 150) {
         toolbar.classList.add('hidden');
+        document.getElementById('bookmarks-menu').classList.add('hidden');
     } else {
         toolbar.classList.remove('hidden');
     }
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Для корректной работы на мобильных
+    lastScrollTop = st <= 0 ? 0 : st;
 });
-
-// 3. Управление масштабом
-function changeZoom(delta) {
-    if (!readerText) return;
-    
-    currentZoom += delta;
-    if (currentZoom < 0.7) currentZoom = 0.7;
-    if (currentZoom > 2.0) currentZoom = 2.0;
-    
-    readerText.style.fontSize = `${18 * currentZoom}px`;
-}
-
-// 4. Закладка
-function toggleBookmark() {
-    const btn = document.getElementById('bookmarkBtn');
-    if (btn) btn.classList.toggle('active');
-}

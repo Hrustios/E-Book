@@ -74,6 +74,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === 4. КНОПКИ В МОДАЛКЕ ПОДРОБНОСТЕЙ (INFO) ===
 
+    // Кнопка Чтения (Новая логика перехода)
+    const readBtn = infoModal ? infoModal.querySelector('.btn-read') : null;
+    if (readBtn) {
+        readBtn.onclick = function(e) {
+            e.preventDefault();
+            // Получаем ID из атрибута, который прописывает books_ui.js при открытии
+            const currentId = infoModal.getAttribute('data-current-id');
+            if (currentId) {
+                console.log("Переход к чтению книги ID:", currentId);
+                // Редирект на роут Flask (папка Frontend/read/read_page.html)
+                window.location.href = `/read/${currentId}`;
+            } else {
+                console.error("ID книги не найден в атрибутах модалки!");
+            }
+        };
+    }
+
     // Кнопка Скачивания
     const downloadBtn = document.getElementById('btn-download');
     if (downloadBtn) {
@@ -91,17 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
         editBtnInInfo.onclick = function() {
             const currentId = infoModal.getAttribute('data-current-id');
 
-            // Закрываем окно подробностей
             closeModal(infoModal);
 
-            // 1. Устанавливаем ID в скрытое поле формы
             const idInput = document.getElementById('edit-book-id');
             if (idInput) {
                 idInput.value = currentId;
-                console.log("ID книги для редактирования:", currentId);
             }
 
-            // 2. Копируем данные из Info-модалки в Edit-модалку
             document.getElementById('edit-book-title').value = document.getElementById("modal-name").textContent.trim();
 
             const authorEl = infoModal.querySelector(".modal-author");
@@ -116,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('edit-cover-preview').src = infoModal.querySelector(".book-cover-img").src;
 
-            // 3. Стили для readonly полей
             const readonlyFields = ['edit-book-title', 'edit-book-author'];
             readonlyFields.forEach(fieldId => {
                 const el = document.getElementById(fieldId);
@@ -127,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 4. Открываем окно редактирования с небольшой задержкой для плавности
             setTimeout(() => {
                 clearErrors();
                 openModal(editModal);
@@ -137,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === 5. ОБРАБОТКА ОТПРАВКИ ФОРМ ===
 
-    // Форма добавления (Upload)
     if (uploadForm) {
         uploadForm.onsubmit = async function(e) {
             e.preventDefault();
@@ -160,12 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Форма редактирования (Update)
     if (editForm) {
         editForm.onsubmit = async function(e) {
             e.preventDefault();
-
-            // Включаем валидацию (включая проверку года <= 2026)
             if (!validateForm('editBookForm')) return;
 
             const btn = document.getElementById('submitEditBook');
@@ -184,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (res.ok && result.status === 'success') {
                     closeModal(editModal);
-                    // Перезагружаем данные с учетом текущего активного фильтра
                     const currentFilter = document.querySelector('.custom-option.selected')?.getAttribute('data-value') || 'all';
                     loadData(1, currentFilter);
                 } else {
@@ -200,14 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Кнопка "+" (Открыть модалку добавления)
     const addBtn = document.querySelector('.btn-add-book');
     if (addBtn) {
         addBtn.onclick = () => {
             uploadForm.reset();
             clearErrors();
-            // Сброс визуальных элементов
-            coverDropzone.innerHTML = `<img src="/static/lk/images/place.svg" class="placeholder-icon"><p>Загрузить обложку</p>`;
+            coverDropzone.innerHTML = `<img src="/lk/images/place.svg" class="placeholder-icon"><p>Загрузить обложку</p>`;
             fileNameDisplay.textContent = 'Добавить файл книги';
             fileNameDisplay.style.color = "";
 

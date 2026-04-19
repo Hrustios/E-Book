@@ -1,4 +1,9 @@
 import io
+import fitz  # Это PyMuPDF
+import os
+from pdfminer.high_level import extract_text
+import requests
+import base64
 from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
 from Backend.extensions import mail
 from Backend.login_register.auth_reg import auth_reg_bp
@@ -8,10 +13,11 @@ from Backend.login_register.db_utils import get_db_connection
 # Импортируем наш парсер
 from Backend.utils.parser_utils import get_page_count
 
+# В начале ebook.py
 app = Flask(__name__,
-            template_folder='Frontend',
-            static_folder='Frontend',
-            static_url_path='/static') # Добавь этот параметр обязательно!
+            template_folder='Frontend', # Где лежат .html
+            static_folder='Frontend',   # Где лежат папки read, lk и т.д.
+            static_url_path='')         # Позволяет обращаться /read/... вместо /static/read/... # Добавь этот параметр обязательно!
 
 # Прямое указание ключа
 app.secret_key = "chichiwichki"
@@ -197,6 +203,40 @@ def update_book():
     finally:
         db.close()
 
+
+@app.route('/read/<int:book_id>')
+def read_page(book_id):
+    if 'user_id' not in session:
+        return "Пожалуйста, войдите в систему", 401
+
+    db = get_db_connection()
+    book = db.execute('SELECT * FROM Books WHERE id = ?', (book_id,)).fetchone()
+    db.close()
+
+    if not book:
+        return "Книга не найдена", 404
+
+    file_url = book['file_url']
+    extension = file_url.split('.')[-1].lower()
+
+    try:
+        response = requests.get(file_url)
+        doc = fitz.open(stream=response.content, filetype="pdf")
+        page_images = []
+
+        # Рендерим каждую страницу в четкую картинку (zoom=2 для качества)
+        mat = fitz.Matrix(2, 2)
+        for page in doc:
+            pix = page.get_pixmap(matrix=mat)
+            img_bytes = pix.tobytes("png")
+            # Кодируем в base64, чтобы вставить в тег <img>
+            base64_img = base64.b64encode(img_bytes).decode('utf-8')
+            page_images.append(base64_img)
+
+        doc.close()
+        return render_template('read/read_page.html', book=book, page_images=page_images, is_pdf=True)
+    except Exception as e:
+        return f"Ошибка: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
