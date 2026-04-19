@@ -603,7 +603,7 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding-top: 5px;
+    min-width: 0; 
 }
 
 .p-book-info h3 {
@@ -611,6 +611,13 @@ body.modal-open {
     font-weight: 700;
     color: var(--dark);
     margin-bottom: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Количество строк */
+    line-clamp: 2;         /* Стандартное свойство для будущего */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word; 
 }
 
 .p-author {
@@ -618,6 +625,10 @@ body.modal-open {
     color: var(--primary);
     font-weight: 600;
     margin-bottom: 12px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .p-desc {
@@ -625,9 +636,14 @@ body.modal-open {
     line-height: 1.5;
     color: rgba(44, 45, 28, 0.8);
     margin-bottom: 20px;
+
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Кнопка */
