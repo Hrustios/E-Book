@@ -1,0 +1,480 @@
+:root {
+    --primary: #84592B;
+    --secondary: #9D9167;
+    --accent: #E8D1A7;
+    --dark: #442D1C;
+    --light: #F5F1ED;
+    --white: #FFFFFF;
+
+    /* Светлая тема (Книжный стиль) */
+    --reader-bg: #F5F1ED;        /* Фон вокруг листа */
+    --page-bg: #FFFFFF;          /* Сам лист бумаги */
+    --page-text: #2C1E14;        /* Текст на листе */
+    --panel-bg: rgba(132, 89, 43, 0.95);
+    --panel-border: rgba(232, 209, 167, 0.3);
+}
+
+body.dark-theme {
+    /* Настоящая Темная тема (Ночной режим) */
+    --reader-bg: #1A120B;        /* Глубокий темный фон вокруг */
+    --page-bg: #2C1E14;          /* Темный шоколад (цвет листа) */
+
+    /* ВАЖНО: Делаем текст чисто белым, как ты просил */
+    --page-text: #FFFFFF;
+
+    --panel-bg: rgba(26, 18, 11, 0.95);
+    --panel-border: rgba(132, 89, 43, 0.4);
+}
+
+/* --- БАЗОВЫЕ СТИЛИ --- */
+.reader-body {
+    background-color: var(--reader-bg);
+    color: var(--page-text);
+    font-family: 'Verdana', sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+
+/* --- ПАРЯЩЕЕ МЕНЮ (TOOLBAR) --- */
+.reader-toolbar {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    min-width: 280px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Эффект скрытия при скролле */
+.reader-toolbar.hidden {
+    top: -100px;
+    opacity: 0;
+}
+
+.toolbar-container {
+    background-color: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Группировка кнопок */
+.tool-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 2px;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 4px;
+}
+
+/* Кнопки управления */
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--light);
+    cursor: pointer;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 12px;
+}
+
+.tool-btn span {
+    font-size: 18px;
+    margin-right: 1px;
+}
+
+.tool-btn small {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Стили для изображений-иконок */
+.tool-btn img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    /* Делаем иконки светлыми (под цвет --light), если исходники черные */
+    filter: brightness(0) invert(0.9); 
+    transition: all 0.2s ease;
+}
+
+/* Эффект при наведении на любую кнопку */
+.tool-btn:hover {
+    color: var(--accent);
+}
+
+.tool-btn:hover img {
+    /* Фильтр для окрашивания в золотистый --accent (#E8D1A7) */
+    filter: sepia(100%) saturate(400%) hue-rotate(350deg) brightness(95%);
+    transform: translateY(-1px);
+}
+
+/* Состояние активной закладки (через класс active) */
+.bookmark-btn.active img {
+    /* Оставляем фильтр акцента постоянно, когда закладка активна */
+    filter: sepia(100%) saturate(500%) hue-rotate(350deg) brightness(90%);
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+/* --- КОНТЕНТ --- */
+.reader-content {
+    padding: 140px 24px 100px;
+    display: flex;
+    flex-direction: column; /* Страницы одна под другой */
+    align-items: center;
+    background-color: var(--reader-bg); /* Применяем фон темы */
+    min-height: 100vh;
+    overflow-x: hidden;
+    justify-content: center;
+}
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+}
+
+.toast {
+    background: var(--panel-bg);
+    color: var(--white);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--panel-border);
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    font-size: 14px;
+    animation: slideUp 0.3s ease-out, fadeOut 0.3s ease-in 2s forwards;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Обертка для позиционирования ярлыка */
+.page-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Ярлык закладки сбоку страницы */
+.page-bookmark-tab {
+    position: absolute;
+    left: -40px; /* Вынос влево */
+    top: 20px;
+    width: 30px;
+    height: 40px;
+    background: var(--secondary);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%);
+    cursor: pointer;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+
+.page-bookmark-tab:hover, .page-bookmark-tab.active {
+    opacity: 1;
+    background: var(--accent);
+    transform: scale(1.1);
+}
+
+/* Меню закладок в тулбаре */
+.bookmarks-menu {
+    position: fixed;
+    top: 80px;
+    right: 50%;
+    transform: translateX(180px); /* Смещение относительно центра */
+    width: 250px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--panel-border);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1001;
+    color: white;
+}
+
+.bookmarks-menu.hidden { display: none; }
+
+.bookmarks-menu h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; }
+
+.bookmarks-menu ul { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; }
+
+.bookmarks-menu li {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.bookmarks-menu li:hover { background: rgba(255,255,255,0.1); }
+
+/* Повернутый ярлык (горизонтальный) */
+.note-tab {
+    position: absolute;
+    left: -45px;
+    top: 30px;
+    width: 45px;
+    height: 25px;
+    background: var(--secondary);
+    /* Поворот и форма ярлыка */
+    clip-path: polygon(0% 50%, 20% 0%, 100% 0%, 100% 100%, 20% 100%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+}
+
+.note-tab:hover, .note-tab.active {
+    opacity: 1;
+    background: var(--primary);
+    left: -40px;
+}
+
+/* Форма ввода заметки */
+.note-input-container {
+    position: absolute;
+    left: -260px; /* Выплывает слева */
+    top: 30px;
+    width: 240px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 10px;
+    z-index: 10;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.2);
+}
+
+.note-input-container textarea {
+    width: 100%;
+    height: 80px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    resize: none;
+    font-size: 13px;
+    outline: none;
+}
+
+.note-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.save-note-btn, .del-note-btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.save-note-btn { background: var(--primary); color: white; }
+.del-note-btn { background: #cc3300; color: white; }
+
+.hidden { display: none !important; }
+
+.readable-area {
+    /* Переменная масштаба по умолчанию 1 (100%) */
+    --zoom-level: 1;
+
+    max-width: 850px;
+    width: 100%;
+    margin: 0 auto;
+
+    /* Применяем трансформацию масштаба */
+    transform: scale(var(--zoom-level));
+    /* Важно: масштаб идет от центра сверху, чтобы текст не улетал за края */
+    transform-origin: top center;
+
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.readable-area h1 {
+    font-size: 2.2em;
+    margin-bottom: 1.5em;
+    color: var(--primary);
+    text-align: center;
+}
+
+.readable-area p {
+    margin-bottom: 1.6em;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.book-text-content {
+    margin-top: 40px;
+}
+
+
+.book-text-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 30px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.book-text-content h2, .book-text-content h3 {
+    color: var(--primary);
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+/* Для списков внутри книги */
+.book-text-content ul, .book-text-content ol {
+    margin-bottom: 1.6em;
+    padding-left: 20px;
+}
+
+.book-text-content p {
+    margin-bottom: 1.5em;
+    text-align: justify; /* Выравнивание по ширине как в книгах */
+    text-indent: 2em;    /* Красная строка */
+    font-size: 1.1em;
+    line-height: 1.8;
+}
+
+/* Контейнер для SVG страницы */
+.pdf-container {
+    background-color: var(--reader-bg);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.pdf-page-img {
+    width: 100%;
+    max-width: 850px;
+    display: block;
+    /* Убираем тени, если хочешь полного слияния, или оставляем очень мягкие */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    transition: all 0.4s ease;
+
+    /* Магия слияния фона */
+    mix-blend-mode: multiply;
+}
+
+/* --- ИДЕАЛЬНАЯ ТЕМНАЯ ТЕМА --- */
+body.dark-theme .pdf-page-img {
+    /* Сначала инвертируем (текст белый, фон черный) */
+    filter: invert(1) hue-rotate(180deg);
+
+    /* В темной теме используем screen, чтобы черный фон картинки стал прозрачным
+       и пропустил цвет твоей переменной --page-bg */
+    mix-blend-mode: screen;
+
+    opacity: 0.85; /* Немного приглушаем яркость для комфорта глаз */
+}
+
+/* Чтобы фон самой страницы в темной теме не конфликтовал с инверсией */
+body.dark-theme .pdf-container {
+    background-color: var(--reader-bg);
+}
+
+/* Находим все текстовые элементы внутри SVG и меняем им цвет на белый */
+body.dark-theme .pdf-page-svg svg * {
+    /* 1. Всё, что было черным или очень темным, становится БЕЛЫМ */
+    fill: var(--page-text) !important;
+}
+
+/* 2. Находим и перекрашиваем все фоновые подложки (белые прямоугольники) */
+body.dark-theme .pdf-page-svg svg rect,
+body.dark-theme .pdf-page-svg svg path {
+    /* Если у элемента заливка похожа на белую, меняем её на цвет листа */
+    fill: var(--page-bg);
+}
+
+/* 3. Исключение: если заливка была прозрачной (none), не трогаем её */
+body.dark-theme .pdf-page-svg svg [fill="none"] {
+    fill: none !important;
+}
+
+/* 4. Исправляем линии и обводку таблиц */
+body.dark-theme .pdf-page-svg svg [stroke] {
+    stroke: var(--page-text) !important;
+}
+
+body.dark-theme .pdf-page-svg svg image {
+    /* Инвертируем черный QR в белый и убираем его белый фон */
+    filter: invert(1) hue-rotate(180deg) brightness(1.5);
+}
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .reader-toolbar {
+        top: auto;
+        bottom: 30px; /* На мобильных меню удобнее снизу */
+        width: 92%;
+    }
+    
+    .reader-toolbar.hidden {
+        top: auto;
+        bottom: -100px;
+    }
+
+    .readable-area {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar-container {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+    
+    .tool-btn {
+        padding: 10px 12px;
+    }
+    
+    .readable-area h1 {
+        font-size: 1.8em;
+    }
+}

@@ -1,0 +1,513 @@
+:root {
+    --primary: #84592B;
+    --secondary: #9D9167;
+    --accent: #E8D1A7;
+    --dark: #442D1C;
+    --light: #F5F1ED;
+    --white: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Verdana', sans-serif;
+    background-color: var(--white);
+    color: var(--dark);
+} 
+
+/*  ШАПКА  */
+.main-header {
+    position: fixed;
+    top: 25px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+}
+
+.header-container {
+    width: 92%;
+    max-width: 1400px;
+    background-color: var(--primary);
+    border-radius: 60px;
+    padding: 12px 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    color: var(--light);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 35px;
+}
+
+/* АНИМАЦИИ МЕНЮ  */
+.nav-link {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+    opacity: 0.8;
+    position: relative; /* Нужно для позиционирования линии */
+    padding: 4px 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0; 
+    height: 2px;
+    background-color: var(--accent); 
+    transition: width 0.3s ease; 
+    border-radius: 2px;
+}
+
+/* Эффект при наведении */
+.nav-link:hover {
+    opacity: 1;
+    transform: translateY(-1px); 
+}
+
+.nav-link:hover::after {
+    width: 100%; 
+}
+
+/* Состояние активной ссылки (Главная) */
+.nav-link.active {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.nav-link.active::after {
+    width: 100%; 
+}
+
+.profile-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.header-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 190px;
+    /* Используем твои основные цвета: темный шоколад / дерево */
+    background: #2D1B0E;
+    border: 1px solid #4A3528;
+    border-radius: 8px;
+    padding: 6px;
+    display: none; /* Скрыто */
+    flex-direction: column;
+    z-index: 3000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.header-dropdown.active {
+    display: flex;
+}
+
+/* Пункты меню */
+.header-dropdown .dropdown-item {
+    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.header-dropdown .dropdown-item:hover {
+    background: #3D2819;
+}
+
+/* Разделитель */
+.dropdown-divider {
+    height: 1px;
+    background: #4A3528;
+    margin: 4px 0;
+}
+
+/* Кнопка выхода */
+.header-dropdown .logout-link {
+    color: #FF5E5E !important; /* Яркий красный для выхода */
+}
+
+.header-dropdown .logout-link:hover {
+    background: rgba(255, 94, 94, 0.1);
+}
+
+.profile-text {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile-avatar:hover { transform: scale(1.1); }
+
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
+
+.contacts-page {
+    background-color: var(--white);
+    padding-top: 120px;
+    font-family: 'Verdana', sans-serif;
+}
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Заголовки */
+.intro-section {
+    margin-bottom: 50px;
+}
+
+.page-title {
+    font-size: 36px;
+    color: var(--dark);
+    margin-bottom: 15px;
+}
+
+.page-subtitle {
+    font-size: 18px;
+    color: var(--primary);
+}
+
+/* --- КАРТОЧКА ОБРАТНОЙ СВЯЗИ (КОРРЕКТИРОВКА РАЗМЕРОВ) --- */
+
+.feedback-card {
+    background-color: var(--dark);
+    border-radius: 40px;
+    padding: 70px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: start;
+    box-sizing: border-box;
+}
+
+/* Увеличенный бэйдж */
+.badge {
+    background-color: var(--accent);
+    color: var(--dark);
+    display: inline-block;
+    /* Увеличены padding для массивности */
+    padding: 18px 80px; 
+    border-radius: 18px;
+    font-weight: 800;
+    /* Шрифт чуть крупнее */
+    font-size: 18px; 
+    margin-bottom: 40px;
+    transform: rotate(-3.5deg); 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Уменьшенный заголовок "Будем на связи!" */
+.feedback-info h3 {
+    font-size: 20px; /* Размер уменьшен для соответствия дизайну */
+    color: var(--white);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.feedback-info p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--white);
+    opacity: 0.8;
+    max-width: 400px;
+}
+
+/* Поля формы */
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.form-group {
+    position: relative;
+    border-bottom: 1.5px solid rgba(232, 209, 167, 0.3); 
+    transition: all 0.3s ease;
+}
+
+.form-group:focus-within {
+    border-bottom-color: var(--accent);
+}
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    background: transparent !important; /* Убирает системный серый фон */
+    border: none !important;
+    box-shadow: none !important;
+    padding: 15px 0 10px 0;
+    color: var(--white);
+    font-size: 16px;
+    outline: none;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: none;
+}
+
+/* Floating Labels */
+.form-group label {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    color: var(--accent);
+    opacity: 0.5;
+    font-size: 16px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus ~ label,
+.form-group input:not(:placeholder-shown) ~ label,
+.form-group textarea:focus ~ label,
+.form-group textarea:not(:placeholder-shown) ~ label {
+    top: -12px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* Кнопка отправки */
+.btn-submit {
+    background-color: var(--accent);
+    color: var(--dark);
+    border: none;
+    padding: 18px 30px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Нижний блок */
+/* Нижний блок — выравнивание по верхней границе картинки */
+.bottom-contacts {
+    display: flex;
+    justify-content: space-between;
+    /* Изменено с flex-end на flex-start */
+    align-items: flex-start; 
+    margin-top: 80px;
+    padding-bottom: 40px;
+}
+
+.contacts-text h2 {
+    font-size: 32px;
+    color: var(--dark);
+    margin-bottom: 40px;
+}
+
+.contact-item {
+    font-size: 18px;
+    color: var(--dark);
+    margin-bottom: 20px;
+}
+
+.contacts-illustration img {
+    max-width: 450px;
+    display: block;
+}
+
+/* Адаптив для мобильных устройств */
+@media (max-width: 850px) {
+    .feedback-card {
+        grid-template-columns: 1fr;
+        padding: 30px;
+    }
+    .bottom-contacts {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .contacts-illustration {
+        margin-top: 40px;
+        align-self: center;
+    }
+}
+
+
+/* ФУТЕР */
+.main-footer {
+    background-color: var(--dark);
+    padding: 80px 0 40px 0;
+    color: var(--light);
+    border-radius: 50px 50px 0 0;
+    margin-top: 0;
+}
+
+.footer-container {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: flex-start; 
+    align-items: flex-start;
+    margin-bottom: 60px;
+}
+
+.footer-left {
+    min-width: 250px; 
+}
+
+.footer-logo {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 30px;
+}
+
+.social-links { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.social-item {
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Плавная анимация подъема */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.social-item:hover { 
+    transform: translateY(-8px); 
+}
+
+.social-item img {
+    width: 22px;
+    height: auto;
+}
+
+/*НАВИГАЦИЯ*/
+.footer-nav { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+    margin-left: 80px; 
+}
+
+.footer-nav a {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-nav a:hover { 
+    opacity: 1; 
+    color: var(--accent); 
+}
+
+/*КНОПКА НАВЕРХ  */
+.footer-right {
+    margin-left: auto; 
+}
+
+.btn-up {
+    width: 55px;
+    height: 55px;
+    background-color: var(--accent);
+    color: var(--dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.4s ease;
+}
+
+.btn-up:hover { 
+    transform: rotate(-360deg) scale(1.1); 
+    background-color: var(--white); 
+}
+
+/*ЛИНИЯ ФУТЕРА */
+.footer-line {
+    width: 100%;
+    height: 2px; 
+    background-color: var(--light);
+    opacity: 0.2; /* Сделали заметнее */
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .collection-grid { grid-template-columns: 1fr; }
+    .user-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
+    .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 40px; }
+}

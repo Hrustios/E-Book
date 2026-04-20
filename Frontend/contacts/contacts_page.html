@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты | E-Book</title>
+
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='contacts/contacts_style.css') }}">
+    <script type="module" src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}"></script>
+
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+            <nav class="nav-menu">
+                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
+                <a href="#" class="nav-link">О продукте</a>
+                <a href="#" class="nav-link">Каталог</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+            </nav>
+
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">Личный кабинет</span>
+
+                <div class="profile-avatar-letter">
+                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="contacts-page">
+        <div class="container">
+            <section class="intro-section">
+                <h1 class="page-title">Свяжитесь с нами!</h1>
+                <p class="page-subtitle">Наша команда всегда открыта к предложениям от авторов и читателей</p>
+            </section>
+
+            <section class="feedback-card">
+                <div class="feedback-info">
+                    <div class="badge">Обратная связь</div>
+                    <h3 class="feedback-title">Будем на связи!</h3>
+                    <p class="feedback-text">
+                        Есть идеи по улучшению сервиса или вы автор, который хочет опубликовать свои книги?
+                        Пишите нам! Мы всегда открыты для предложений, которые сделают наше книжное сообщество еще лучше.
+                    </p>
+                </div>
+
+                <form class="feedback-form">
+                    <div class="form-group">
+                        <input type="text" id="user-name" placeholder=" " required>
+                        <label for="user-name">Ваше имя / Никнейм</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="user-email" placeholder=" " required>
+                        <label for="user-email">Ваш Email</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="user-subject" placeholder=" " required>
+                        <label for="user-subject">Тема обращения</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="user-message" placeholder=" " required>
+                        <label for="user-message">Сообщение или описание вашей идеи</label>
+                    </div>
+                    <button type="submit" class="btn-submit">Отправить сообщение</button>
+                </form>
+            </section>
+
+            <section class="bottom-contacts">
+                <div class="contacts-text">
+                    <h2>Наши контакты</h2>
+                    <div class="contact-item">
+                        <span>e-mail: wolfy7406@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>Телефон: +7 (9xx) xxx-xx-xx</span>
+                    </div>
+                </div>
+                <div class="contacts-illustration">
+                    <img src="{{ url_for('static', filename='contacts/images/books.png') }}" alt="Books and leaves">
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-left">
+                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
+                    <div class="social-links">
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/tg.svg') }}" alt="tg"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/inst.svg') }}" alt="inst"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/vk.svg') }}" alt="vk"></div>
+                    </div>
+                </div>
+                <nav class="footer-nav">
+                    <a href="{{ url_for('index') }}">Главная</a>
+                    <a href="#">О продукте</a>
+                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
+                </nav>
+
+                <div class="footer-right">
+                    <a href="#" class="btn-up" title="Наверх">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-line"></div>
+        </div>
+    </footer>
+</body>
+</html>

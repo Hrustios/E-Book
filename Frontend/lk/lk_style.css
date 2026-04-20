@@ -1,0 +1,1649 @@
+/* --- БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ --- */
+:root {
+    --primary: #84592B;
+    --secondary: #9D9167;
+    --accent: #E8D1A7;
+    --dark: #442D1C;
+    --light: #F5F1ED;
+    --white: #FFFFFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Verdana', sans-serif;
+    background-color: var(--white);
+    color: var(--dark);
+}
+
+
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 
+}
+
+/*  ШАПКА  */
+.main-header {
+    position: fixed;
+    top: 0;
+    padding-top: 25px; /* Сохраняем твой отступ от верха экрана */
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+}
+
+.header-container {
+    width: 92%;
+    max-width: 1400px;
+    background-color: var(--primary);
+    border-radius: 60px;
+    padding: 12px 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    color: var(--light);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 35px;
+}
+
+/* АНИМАЦИИ МЕНЮ  */
+.nav-link {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+    opacity: 0.8;
+    position: relative; /* Нужно для позиционирования линии */
+    padding: 4px 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0; 
+    height: 2px;
+    background-color: var(--accent); 
+    transition: width 0.3s ease; 
+    border-radius: 2px;
+}
+
+/* Эффект при наведении */
+.nav-link:hover {
+    opacity: 1;
+    transform: translateY(-1px); 
+}
+
+.nav-link:hover::after {
+    width: 100%; 
+}
+
+/* Состояние активной ссылки (Главная) */
+.nav-link.active {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.nav-link.active::after {
+    width: 100%; 
+}
+
+.profile-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.header-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 190px;
+    /* Используем твои основные цвета: темный шоколад / дерево */
+    background: #2D1B0E;
+    border: 1px solid #4A3528;
+    border-radius: 8px;
+    padding: 6px;
+    display: none; /* Скрыто */
+    flex-direction: column;
+    z-index: 3000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.header-dropdown.active {
+    display: flex;
+}
+
+/* Пункты меню */
+.header-dropdown .dropdown-item {
+    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.header-dropdown .dropdown-item:hover {
+    background: #3D2819;
+}
+
+/* Разделитель */
+.dropdown-divider {
+    height: 1px;
+    background: #4A3528;
+    margin: 4px 0;
+}
+
+/* Кнопка выхода */
+.header-dropdown .logout-link {
+    color: #FF5E5E !important; /* Яркий красный для выхода */
+}
+
+.header-dropdown .logout-link:hover {
+    background: rgba(255, 94, 94, 0.1);
+}
+
+.profile-text {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile-avatar:hover { transform: scale(1.1); }
+
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
+
+/* --- ОСНОВНОЙ КОНТЕНТ ЛК --- */
+.lk-main {
+    /* padding: 140px 0 80px; <-- УБИРАЕМ старый огромный паддинг */
+    padding: 0 0 80px;
+}
+.lk-container {
+    width: 92%;           /* Ширина контента относительно экрана */
+    max-width: 1240px;    /* Максимальная ширина по макету */
+    margin: 0 auto;       /* Центрирует блок по горизонтали */
+    padding: 20px 0;      /* Внутренние отступы сверху и снизу */
+}
+
+/* Блок юзера */
+/* Контейнер всей секции */
+
+.user-name {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.user-header {
+    width: 92%; /* Чтобы ширина совпадала с контейнером шапки */
+    max-width: 1400px;
+    margin: 50px auto 80px auto; /* 50px — это твой фиксированный отступ от шапки */
+    position: relative;
+    margin-top: 150px;
+}
+
+/* Баннер с закруглением как в Figma */
+.user-banner {
+    width: 100%;
+    height: 320px; /* Высота согласно пропорциям макета */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Строка с аватаром и инфо - ключевое позиционирование */
+.user-info-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 0 60px;
+    margin-top: -110px; /* Выносит аватар на баннер */
+    gap: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Аватар: оливковый фон и белая обводка */
+.user-avatar-large {
+    width: 230px;
+    height: 230px;
+    background-color: #9D9167; /* Твой оливковый цвет */
+    border: 10px solid var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.avatar-letter-big {
+    font-size: 100px; /* Размер буквы */
+    font-weight: 800;
+    color: var(--white);
+    font-family: 'Verdana', sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Легкий объем */
+    user-select: none;
+}
+
+.avatar-placeholder img {
+    width: 120px; /* Размер иконки внутри круга */
+    height: auto;
+    opacity: 0.9;
+}
+
+/* Группа статистики и кнопки */
+.user-stats-actions {
+    margin-top: 130px; /* Опускает текст под линию баннера */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stats-group {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px; 
+}
+
+.stat-item {
+    font-size: 16px;
+    color: var(--dark);
+}
+
+.stat-item strong {
+    font-size: 18px;
+    margin-right: 4px;
+}
+
+.stat-label {
+    font-size: 18px;
+    color: var(--dark);
+    font-weight: 500;
+}
+
+/* Кнопка: темно-коричневая, скругленная */
+/* Контейнер для выравнивания кнопок в ряд */
+.user-stats-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.actions-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Основная кнопка: Добавить книгу */
+.btn-add-book {
+    background-color: #5B351F; /* Насыщенный коричневый */
+    color: var(--white);
+    border: 2px solid #5B351F; /* Добавлена граница для выравнивания высоты с контурной кнопкой */
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.btn-add-book:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Второстепенная кнопка: Сформировать отчет */
+.btn-report {
+    background-color: transparent;
+    color: #5B351F; /* Используем тот же коричневый для текста */
+    border: 2px solid #5B351F; /* Контурная кнопка */
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.btn-report:hover {
+    background-color: rgba(91, 53, 31, 0.05); /* Легкий налет при наведении */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Активное состояние для обеих кнопок */
+.btn-add-book:active, .btn-report:active {
+    transform: translateY(0);
+}
+
+/* Контейнер */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 220px; /* Ширина как на макете */
+}
+
+.custom-select {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Главное поле (триггер) */
+.custom-select__trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #442D1C;
+    background: #ffffff;
+    border: 1.5px solid rgba(68, 45, 28, 0.2);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-select__trigger:hover {
+    border-color: #84592B;
+}
+
+/* Стрелочка */
+.arrow {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #442D1C;
+    border-bottom: 2px solid #442D1C;
+    transform: rotate(45deg);
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+/* Состояние при открытии */
+.custom-select.open .custom-select__trigger {
+    border-radius: 15px 15px 0 0;
+    border-bottom: 1px solid transparent;
+}
+
+.custom-select.open .arrow {
+    transform: rotate(-135deg);
+    margin-bottom: -4px;
+}
+
+/* Выпадающее меню */
+.custom-options {
+    position: absolute;
+    display: block;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1.5px solid rgba(68, 45, 28, 0.2);
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+    background: #fff;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+/* Пункты списка */
+.custom-option {
+    position: relative;
+    display: block;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #442D1C;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-option:hover {
+    background-color: #f8f5f0; /* Легкий бежевый фон при наведении */
+    color: #84592B;
+}
+
+.custom-option.selected {
+    color: #ffffff;
+    background-color: #A36E4D; /* Цвет как у твоих кнопок */
+}
+
+/* Скругление последнего элемента */
+.custom-option:last-child {
+    border-radius: 0 0 13px 13px;
+}
+/* Адаптация под мобильные устройства */
+@media (max-width: 768px) {
+    .user-info-row {
+        flex-direction: column;
+        align-items: center;
+        margin-top: -115px;
+        padding: 0 20px;
+        text-align: center;
+    }
+    
+    .user-stats-actions {
+        margin-top: 10px;
+        align-items: center;
+    }
+    
+    .user-banner {
+        height: 200px;
+    }
+    
+    .user-avatar-large {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+
+/* --- СЕКЦИЯ КОЛЛЕКЦИИ --- */
+.collection-section {
+    margin-top: 20px;      /* Уменьшено с 70px для сближения с верхним блоком */
+    margin-bottom: 100px; 
+    width: 100%;
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    /* Ограничиваем ширину шапки коллекции и центрируем */
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.collection-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.filter-dropdown select {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(68, 45, 28, 0.2);
+    background-color: var(--white);
+    font-family: 'Verdana', sans-serif;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Сетка карточек */
+.profile-book-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Ровно 2 колонки */
+    gap: 30px;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+/* Карточка */
+.profile-book-card {
+    background-color: #CABAA1; /* Твой оригинальный цвет */
+    border-radius: 25px;
+    padding: 25px;
+    display: flex; /* Горизонтальное расположение */
+    gap: 25px;
+    align-items: stretch;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.profile-book-card:hover {
+    transform: translateY(-5px);
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 50px;
+    padding-bottom: 50px;
+}
+
+.page-btn {
+    padding: 10px 18px;
+    border: 2px solid #995F47;
+    background: white;
+    color: #995F47;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-btn.active {
+    background: #995F47;
+    color: white;
+    box-shadow: 0 4px 12px rgba(132, 89, 43, 0.3);
+}
+
+.page-btn:hover:not(.active) {
+    background-color: #F4EFE6;
+    transform: translateY(-2px);
+}
+
+/* --- КОНСТРУКЦИЯ КНИГИ (КАК НА ГЛАВНОЙ) --- */
+.book-visual {
+    position: relative;
+    width: 145px; /* Фиксированная ширина для ЛК */
+    aspect-ratio: 1 / 1.4;
+    flex-shrink: 0;
+    box-shadow: 10px 10px 0px rgba(68, 45, 28, 0.05);
+    border-radius: 5px 25px 25px 5px;
+}
+
+.css-book-shape {
+    width: 100%;
+    height: 100%;
+    background-color: #995F47; 
+    border: 1.5px solid #442D1C; 
+    border-radius: 5px 25px 25px 5px; 
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Линия сгиба (корешок) */
+.css-book-shape::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(68, 45, 28, 0.2);
+    z-index: 3;
+}
+
+/* Обложка (занимает 86% ширины) */
+.book-cover-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 86%; 
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    border-radius: 0 25px 25px 0;
+}
+
+/* Инфо блок */
+.p-book-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0; 
+}
+
+.p-book-info h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Количество строк */
+    line-clamp: 2;         /* Стандартное свойство для будущего */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word; 
+}
+
+.p-author {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.p-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(44, 45, 28, 0.8);
+    margin-bottom: 20px;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Кнопка */
+.btn-read-more {
+    margin-top: auto;
+    align-self: flex-end;
+    background-color: #995F47;
+    color: #ECE7D4;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-read-more:hover {
+    background-color: var(--dark);
+}
+
+.form-input[readonly],
+.form-textarea[readonly] {
+    background-color: #F9F9F9 !important; /* Очень светлый фон */
+    color: #A0A0A0 !important;           /* Бледный цвет текста */
+    border: 1.5px solid #E0E0E0 !important; /* Тусклая граница */
+    cursor: not-allowed;                  /* Курсор "запрещено" */
+    pointer-events: none;                 /* Нельзя кликнуть или сфокусироваться */
+    box-shadow: none !important;          /* Убираем тени при наведении/фокусе */
+    user-select: none;                    /* Запрет выделения текста */
+}
+
+/* Приглушаем placeholder в readonly полях */
+.form-input[readonly]::placeholder,
+.form-textarea[readonly]::placeholder {
+    color: #D1D1D1 !important;
+}
+
+/* 2. Зона обложки (Dropzone) в режиме редактирования */
+.cover-dropzone.readonly {
+    background-color: #FAFAFA !important;
+    border: 2px solid #EAEAEA !important; /* Сплошная бледная линия вместо пунктира */
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.8;
+}
+
+/* Эффект бледности для самой картинки обложки */
+.cover-dropzone.readonly img {
+    filter: grayscale(0.3) contrast(0.8) opacity(0.7); /* Приглушаем цвета и яркость */
+}
+
+/* 3. Кнопка выбора файла книги (дизайн-ссылка) */
+/* Если ты добавишь этот класс в JS при открытии редактирования */
+.file-upload-design.readonly {
+    background-color: #F5F5F5 !important;
+    border-color: #DDD !important;
+    color: #B0B0B0 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    border-style: solid !important;
+}
+
+/* Убираем эффекты наведения для readonly элементов */
+.form-input[readonly]:hover,
+.cover-dropzone.readonly:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+
+/* Адаптивность для планшетов и мобильных */
+@media (max-width: 1024px) {
+    .profile-book-grid {
+        grid-template-columns: 1fr; /* Одна колонка на узких экранах */
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-book-card {
+        flex-direction: column; /* Элементы друг под другом на мобилках */
+        align-items: center;
+        text-align: center;
+    }
+    .btn-read-more {
+        align-self: center;
+    }
+}
+
+/* Адаптивность для узких экранов */
+@media (max-width: 1100px) {
+    .collection-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .collection-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .btn-read {
+        align-self: center;
+    }
+    
+    .book-preview {
+        width: 180px;
+    }
+}
+
+/* --- МОДАЛЬНОЕ ОКНО (АДАПТИВНОЕ) --- */
+
+.modal *, .modal *:before, .modal *:after {
+    box-sizing: border-box;
+}
+
+.modal {
+    display: flex; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto; 
+    padding: 40px;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh; 
+    overflow-y: auto; 
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    transform: translateY(30px) scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal.is-visible .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.close-modal {
+    position: absolute;
+    right: 25px;
+    top: 15px;
+    font-size: 35px;
+    cursor: pointer;
+    color: #442D1C;
+    z-index: 10;
+}
+
+.modal-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #442D1C;
+    padding-right: 40px; /* Чтобы текст не наезжал на крестик */
+}
+
+.modal-body {
+    display: grid;
+    /* Изменено: вторая колонка гибкая и не распирает окно */
+    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); 
+    gap: 40px;
+    align-items: start;
+}
+
+/* Левая часть */
+.modal-book-view {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Фикс для корректного сжатия контента */
+}
+
+.modal-book-view .book-visual.large {
+    width: 280px;
+    height: 400px;
+    margin: 0 auto;
+    box-shadow: 15px 15px 0px rgba(68, 45, 28, 0.05);
+}
+
+.form-group {
+    margin-bottom: 12px; /* Фиксированный отступ между полями */
+    display: flex;
+    flex-direction: column;
+    /* Убираем position: relative, если будем использовать этот метод */
+}
+
+.error-message {
+    color: #ff4d4d;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+
+    /* Секрет отсутствия прыжков и скролла: */
+    height: 0;            /* Ошибка не занимает места по вертикали */
+    overflow: visible;    /* Но текст при этом виден */
+    margin: 0;
+    padding: 2px 0 0 4px;
+
+    display: none;        /* Появляется только при ошибке */
+}
+
+.form-input.input-error,
+.form-textarea.input-error {
+    border-color: #ff4d4d !important;
+    /* Чтобы инпут не дергался при смене бордера,
+       убедись что у обычного инпута бордер тоже 1.5px или 2px */
+}
+
+/* Фикс для textarea, чтобы не залипала */
+.form-textarea {
+    resize: none;
+    min-height: 80px;
+}
+
+.modal-book-view .css-book-shape {
+    width: 100%;
+    height: 100%;
+    background-color: #995F47;
+    border: 1.5px solid #442D1C;
+    border-radius: 5px 35px 35px 5px; /* Чуть больше закругление для большой книги */
+    position: relative;
+    overflow: hidden;
+}
+.modal-book-view .book-cover-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 86%; /* Оставляем место под переплет слева */
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    border-radius: 0 35px 35px 0;
+}
+
+.modal-book-view .css-book-shape::before {
+    content: '';
+    position: absolute;
+    left: 20px; /* Немного шире для большой книги */
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(68, 45, 28, 0.2);
+    z-index: 3;
+}
+
+.modal-book-meta {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #A3907C;
+    font-size: 14px;
+    gap: 10px;
+}
+
+/* Правая часть: Инфо */
+.modal-book-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Важно для предотвращения распирания текстом */
+}
+
+#modal-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #442D1C;
+    margin-bottom: 6px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.more-options {
+    position: relative;
+    display: inline-block;
+}
+
+.options-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    width: max-content; /* Ширина по контенту */
+    min-width: 180px;
+    background-color: #ffffff;
+    border: 1px solid rgba(68, 45, 28, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+}
+
+.options-dropdown.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 14px;
+    color: #442D1C;
+    cursor: pointer;
+    border-radius: 8px;
+    white-space: nowrap; /* Текст в одну строку */
+}
+
+.dropdown-item:hover {
+    background-color: #F4EFE6;
+}
+
+.modal-author {
+    font-size: 18px;
+    color: #A3907C;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.modal-stats {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Чтобы статистика переносилась на узких экранах */
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #442D1C;
+    margin-bottom: 24px;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-star {
+    width: 16px;
+    height: 16px;
+    filter: invert(72%) sepia(86%) saturate(628%) hue-rotate(351deg) brightness(103%) contrast(104%);
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет кнопкам переноситься, а не вылетать */
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+}
+
+/* Описание */
+#modal-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(68, 45, 28, 0.8);
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Футер: Жанр и Звезды */
+.modal-footer-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(68, 45, 28, 0.1);
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.star-icon {
+    width: 26px;
+    height: 26px;
+    filter: grayscale(100%) brightness(0.8) opacity(0.3);
+    transition: all 0.2s ease;
+}
+
+.star-icon.active {
+    filter: none;
+    opacity: 1;
+}
+
+.star-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Кнопки */
+.btn-read {
+    background-color: #DCCFB8;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    color: #5B351F;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-read:hover {
+    background-color: #D1C0A3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(91, 53, 31, 0.15);
+}
+
+.btn-icon {
+    background-color: #DCCFB8;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background-color: #D1C0A3;
+    transform: translateY(-4px);
+}
+
+.tag {
+    border: 1px solid #ccc;
+    padding: 6px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #442D1C;
+    white-space: nowrap;
+}
+
+/* АДАПТИВНОСТЬ (Медиа-запросы) */
+
+@media (max-width: 850px) {
+    .modal-body {
+        grid-template-columns: 1fr; /* Переход в одну колонку */
+        gap: 20px;
+    }
+
+    .modal-book-view .book-visual.large {
+        height: 350px; /* Уменьшаем высоту обложки */
+        width: 100%;
+        max-width: 250px; /* Центрируем обложку на мобильных */
+        margin: 0 auto;
+    }
+
+    .modal-book-meta {
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .modal-content {
+        padding: 30px 20px;
+    }
+
+    .modal-book-info {
+        text-align: center;
+        align-items: center;
+    }
+
+    .modal-actions {
+        justify-content: center;
+    }
+
+    .modal-footer-line {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    #modal-name {
+        font-size: 22px;
+    }
+    
+    .btn-read {
+        width: 100%; /* Кнопка во всю ширину */
+    }
+    
+    .modal-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Стиль для заблокированных текстовых полей */
+.form-input[readonly],
+.form-textarea[readonly] {
+    background-color: #f5f5f5; /* Светло-серый фон */
+    color: #999;               /* Бледный текст */
+    border-color: #ddd;        /* Тусклая рамка */
+    cursor: not-allowed;       /* Иконка "запрещено" при наведении */
+    pointer-events: none;      /* Полное отключение кликов и выделения */
+}
+
+/* Стиль для заблокированной зоны обложки */
+.cover-dropzone.readonly {
+    opacity: 0.7;              /* Делаем светлее */
+    background-color: #fafafa;
+    cursor: not-allowed;
+    pointer-events: none;      /* Нельзя нажать и выбрать другой файл */
+    border-style: solid;       /* Убираем пунктир, если он был */
+}
+
+/* Если есть заблокированные кнопки выбора файлов */
+.btn-file-readonly {
+    filter: grayscale(1);      /* Делаем серой */
+    opacity: 0.5;
+    pointer-events: none;
+}
+/* --- СТИЛИ ОКНА ДОБАВЛЕНИЯ КНИГИ (ADD BOOK MODAL) --- */
+
+/* Конкретизируем ширину контента для этого окна */
+.add-book-content {
+    max-width: 950px !important;
+    max-height: 90vh;            /* Ограничиваем высоту окна до 90% высоты экрана */
+    overflow: hidden;            /* Прячем общий скролл */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Сетка формы */
+.add-book-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    align-items: stretch;
+    width: 100%;
+    /* Добавляем padding сверху, чтобы при hover карточка не уходила за границы */
+    padding-top: 10px; 
+    margin-top: -10px; /* Компенсируем отступ, чтобы визуально ничего не съехало */
+}
+
+/* Зона загрузки обложки (Dropzone) */
+.cover-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border: 2px dashed #DCCFB8;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgba(220, 207, 184, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    /* Убираем overflow: hidden здесь, чтобы тень и края при движении не резались */
+    overflow: visible; 
+    padding: 20px;
+}
+
+.cover-dropzone:hover {
+    background-color: rgba(220, 207, 184, 0.15);
+    border-color: #84592B;
+    /* Оставляем смещение, но добавляем запас в родительском контейнере */
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(68, 45, 28, 0.08);
+}
+
+/* ИКОНКА - ПРИНУДИТЕЛЬНЫЙ РАЗМЕР */
+.placeholder-icon {
+    width: 80px !important;  
+    height: 80px !important; 
+    object-fit: contain;     
+    margin-bottom: 20px;
+    opacity: 0.5;
+    filter: sepia(1) saturate(50%) hue-rotate(330deg) brightness(0.8);
+    transition: all 0.4s ease;
+}
+
+/* Эффект при наведении (БЕЗ ПОВОРОТА) */
+.cover-dropzone:hover .placeholder-icon {
+    transform: scale(1.05); 
+    opacity: 0.8;
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      
+    justify-content: center;   
+    width: 100%;
+    height: 100%;             
+    pointer-events: none;
+}
+
+/* Стили полей ввода */
+.add-book-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;                /* Немного уменьшен зазор для экономии места */
+    width: 100%;
+    min-width: 0; 
+    height: 100%;             /* Растягиваем на всю высоту сетки */
+}
+
+.form-input, 
+.form-textarea {
+    width: 100%;
+    padding: 12px 20px;       /* Немного уменьшены вертикальные отступы */
+    border: 1.5px solid rgba(68, 45, 28, 0.1);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #442D1C;
+    outline: none;
+    background-color: #fcfcfc;
+    transition: all 0.3s ease;
+}
+
+.form-input::placeholder, 
+.form-textarea::placeholder {
+    color: #A3907C;
+    opacity: 0.7;
+}
+
+.form-input:focus, 
+.form-textarea:focus {
+    border-color: #DCCFB8;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(220, 207, 184, 0.25);
+}
+
+/* Поле для выбора файла (пунктирное) */
+.file-upload-design {
+    display: block;
+    padding: 14px 20px; 
+    border: 1.5px dashed #DCCFB8;
+    border-radius: 12px;
+    text-align: center;
+    color: #84592B;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: rgba(220, 207, 184, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;           
+    white-space: nowrap;    
+    overflow: hidden;       
+    text-overflow: ellipsis; 
+}
+
+.file-upload-design:hover {
+    background-color: #F4EFE6;
+    border-style: solid;
+    transform: scale(1.01);
+}
+
+/* Описание - ГЛАВНЫЙ ФИКС ДЛЯ СКРОЛЛА */
+.form-textarea {
+    flex: 1;                  /* Поле забирает все оставшееся пространство */
+    min-height: 80px;         /* Минимум, чтобы не схлопнулось */
+    height: auto;             /* Убираем жесткие 140px */
+    resize: none; 
+    line-height: 1.6;
+}
+
+/* Нижняя строка и кнопка */
+.submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    flex-shrink: 0;           /* Запрещаем кнопке сжиматься */
+}
+
+.btn-submit-book {
+    background-color: #D9D9D9; 
+    border: 1px solid #442D1C;
+    padding: 12px 45px;
+    border-radius: 15px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: #442D1C;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-submit-book:hover {
+    background-color: #DCCFB8; 
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit-book:active {
+    transform: scale(0.96);
+}
+
+/* Стили для выбора жанра (Datalist) */
+.genre-input {
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+}
+
+/* Фикс для плавности при вставке изображения через JS */
+.cover-dropzone img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+.success-message {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 0;
+    animation: fadeInScale 0.5s ease forwards;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #DCCFB8;
+    color: #5B351F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 20px rgba(220, 207, 184, 0.4);
+}
+
+.success-message h2 {
+    color: #442D1C;
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    color: #A3907C;
+    margin-bottom: 30px;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+
+/* ФУТЕР */
+.main-footer {
+    background-color: var(--dark);
+    padding: 80px 0 40px 0;
+    color: var(--light);
+    border-radius: 50px 50px 0 0;
+    margin-top: 0;
+}
+
+.footer-container {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: flex-start; 
+    align-items: flex-start;
+    margin-bottom: 60px;
+}
+
+.footer-left {
+    min-width: 250px; 
+}
+
+.footer-logo {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 30px;
+}
+
+/* Стили валидации */
+.form-group {
+    position: relative; /* Важно для позиционирования ошибки */
+    margin-bottom: 18px; /* Резервируем место под ошибку */
+}
+
+.error-text {
+    color: #ff4d4d;
+    font-size: 10px;
+    position: absolute;
+    bottom: -15px; /* Выносим за пределы инпута */
+    left: 5px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.error-text.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Подсветка инпута */
+.form-input.invalid,
+.form-textarea.invalid,
+.file-upload-design.invalid {
+    border-color: #ff4d4d !important;
+    background-color: #fff8f8;
+}
+
+/* Для обложки отдельный стиль */
+.upload-cover-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#err-coverInput {
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.social-links { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.social-item {
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Плавная анимация подъема */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.social-item:hover { 
+    transform: translateY(-8px); 
+}
+
+.social-item img {
+    width: 22px;
+    height: auto;
+}
+
+/*НАВИГАЦИЯ*/
+.footer-nav { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+    margin-left: 80px; 
+}
+
+.footer-nav a {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-nav a:hover { 
+    opacity: 1; 
+    color: var(--accent); 
+}
+
+/*КНОПКА НАВЕРХ  */
+.footer-right {
+    margin-left: auto; 
+}
+
+.btn-up {
+    width: 55px;
+    height: 55px;
+    background-color: var(--accent);
+    color: var(--dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.4s ease;
+}
+
+.btn-up:hover { 
+    transform: rotate(-360deg) scale(1.1); 
+    background-color: var(--white); 
+}
+
+/*ЛИНИЯ ФУТЕРА */
+.footer-line {
+    width: 100%;
+    height: 2px; 
+    background-color: var(--light);
+    opacity: 0.2; /* Сделали заметнее */
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .collection-grid { grid-template-columns: 1fr; }
+    .user-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
+    .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 40px; }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Читаем: {{ book['title'] }} | E-Book</title>
+    <link rel="stylesheet" href="/read/read_style.css">
+    <script src="/read/assets/js/script_read.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
+</head>
+<body class="reader-body" data-book-id="{{ book['id'] }}">
+
+    <header class="reader-toolbar" id="readerToolbar">
+        <div class="toolbar-container">
+            <div class="tool-group">
+                <a href="{{ url_for('lk_page') }}" class="tool-btn" title="Назад">
+                    <span style="font-size: 20px;">←</span>
+                </a>
+            </div>
+
+            <div class="tool-group">
+                <button onclick="changeZoom(-0.1)" class="tool-btn"><span>A</span><small>-</small></button>
+                <div class="divider"></div>
+                <button onclick="changeZoom(0.1)" class="tool-btn"><span>A</span><small>+</small></button>
+            </div>
+
+            <div class="tool-group">
+                <button class="tool-btn theme-toggle" onclick="toggleTheme()">
+                    <img src="/read/images/sun.svg" id="themeIcon" alt="Тема" width="20" height="20">
+                </button>
+                <div class="divider"></div>
+                <button class="tool-btn bookmark-btn" id="bookmarkBtn" onclick="toggleBookmarkList()">
+                    <img src="/read/images/bookmark.svg" alt="Закладки" width="20" height="20">
+                </button>
+            </div>
+        </div>
+
+        <div id="bookmarks-menu" class="bookmarks-menu hidden">
+            <h3>Заметки и закладки</h3>
+            <ul id="bookmarks-ul"></ul>
+        </div>
+    </header>
+
+    <div id="toast-container"></div>
+
+    <main class="reader-content" id="readerText">
+        <article class="readable-area">
+            {% if is_pdf %}
+                <div class="pdf-container">
+                    {% for img in page_images %}
+                        <div class="page-wrapper" id="wrapper-{{ loop.index }}">
+                            <div class="note-tab" onclick="toggleNoteInput({{ loop.index }})" title="Написать заметку">
+                                <span>✎</span>
+                            </div>
+
+                            <div class="note-input-container hidden" id="note-form-{{ loop.index }}">
+                                <textarea placeholder="Ваша заметка..." id="textarea-{{ loop.index }}"></textarea>
+                                <div class="note-actions">
+                                    <button class="save-note-btn" onclick="saveNote({{ loop.index }})">Ок</button>
+                                    <button class="del-note-btn" onclick="deleteNote({{ loop.index }})">Удалить</button>
+                                </div>
+                            </div>
+
+                            <img src="data:image/png;base64,{{ img }}"
+                                 class="pdf-page-img"
+                                 id="page-{{ loop.index }}"
+                                 data-page="{{ loop.index }}">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </article>
+    </main>
+</body>
+</html>
