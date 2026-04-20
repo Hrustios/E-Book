@@ -4,40 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог книг | E-Book</title>
-    <link rel="stylesheet" href="catalog_style.css">
-    <script src="assets/js/script_catalog.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='catalog/catalog_style.css') }}">
+    <script src="{{ url_for('static', filename='catalog/assets/js/script_catalog.js') }}"></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
 </head>
 <body>
 
     <header class="main-header">
         <div class="header-container">
-            <a href="index.html" class="logo">E-Book</a>
+            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+
             <nav class="nav-menu">
-                <a href="index.html" class="nav-link">Главная</a>
-                <a href="#" class="nav-link">О продукте</a>
-                <a href="#" class="nav-link active">Каталог</a>
-                <a href="#" class="nav-link">Контакты</a>
+                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('catalog_page') }}" class="nav-link active">Каталог</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section">
-                <a href="lk_page.html" class="profile-text">Личный кабинет</a>
-                <div class="profile-avatar">
-                    <img src="images/Profile.svg" alt="Avatar">
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">Личный кабинет</span>
+
+                <div class="profile-avatar-letter">
+                    {% if session.get('username') %}
+                        {{ session['username'][0] | upper }}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='main/images/Profile.svg') }}" alt="?" class="avatar-img">
+                    {% endif %}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="container content-wrapper">
-        
         <section class="catalog-section">
             <div class="catalog-container">
                 <h2 class="catalog-title">Топ книг за неделю</h2>
-                
                 <div class="book-grid">
                     <div class="book-card">
                         <div class="book-visual">
                             <div class="css-book-shape">
-                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
+                                <img src="{{ url_for('static', filename='main/images/test.jpg') }}" alt="Обложка" class="book-cover-img">
                             </div>
                         </div>
                         <div class="book-info">
@@ -45,27 +56,8 @@
                             <h4 class="book-title">Идиот</h4>
                             <div class="book-rating">
                                 <span class="star">
-                                    <img src="images/star.svg" alt="Оценка" class="book-reit-img">
-                                </span> 
-                                4.9
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Фёдор Достоевский</p>
-                            <h4 class="book-title">Идиот</h4>
-                            <div class="book-rating">
-                                <span class="star">
-                                    <img src="images/star.svg" alt="Оценка" class="book-reit-img">
-                                </span> 
-                                4.9
+                                    <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img">
+                                </span> 4.9
                             </div>
                         </div>
                     </div>
@@ -76,10 +68,9 @@
         <section class="filter-section">
             <div class="catalog-container">
                 <div class="filter-controls">
-                    
                     <div class="search-bar">
-                        <img src="images/search.svg" alt="" class="search-icon">
-                        <input type="text" placeholder="Поиск">
+                        <img src="{{ url_for('static', filename='catalog/images/search.svg') }}" alt="" class="search-icon">
+                        <input type="text" id="search-input" placeholder="Поиск" value="{{ current_search }}">
                         <button class="search-btn">Найти</button>
                     </div>
 
@@ -87,65 +78,73 @@
                         <div class="custom-select-wrapper">
                             <div class="custom-select">
                                 <div class="custom-select__trigger">
-                                    <span>Жанр</span>
+                                    <span>
+                                        {% if current_genre == 'other' %}
+                                            Другое
+                                        {% elif current_genre %}
+                                            {{ current_genre }}
+                                        {% else %}
+                                            Жанр
+                                        {% endif %}
+                                    </span>
                                     <div class="arrow"></div>
                                 </div>
                                 <div class="custom-options">
-                                    <span class="custom-option selected" data-value="">Жанр</span>
-                                    <span class="custom-option" data-value="classic">Классика</span>
-                                    <span class="custom-option" data-value="fantasy">Фэнтези и фантастика</span>
-                                    <span class="custom-option" data-value="detective">Детективы и триллеры</span>
-                                    <span class="custom-option" data-value="modern">Современная проза</span>
-                                    <span class="custom-option" data-value="romance">Романы</span>
-                                    <span class="custom-option" data-value="other">Другое</span>
+                                    <span class="custom-option {{ 'selected' if not current_genre }}" data-value="">Жанр</span>
+                                    <span class="custom-option {{ 'selected' if current_genre == 'Классика' }}" data-value="Классика">Классика</span>
+                                    <span class="custom-option {{ 'selected' if current_genre == 'Фэнтези и фантастика' }}" data-value="Фэнтези и фантастика">Фэнтези и фантастика</span>
+                                    <span class="custom-option {{ 'selected' if current_genre == 'Детективы и триллеры' }}" data-value="Детективы и триллеры">Детективы и триллеры</span>
+                                    <span class="custom-option {{ 'selected' if current_genre == 'other' }}" data-value="other">Другое</span>
                                 </div>
                             </div>
                         </div>
-                        <input type="text" id="custom-genre-input" class="custom-input hidden" placeholder="Введите жанр">
+                        <input type="text" id="custom-genre-input"
+                           class="custom-input {{ 'hidden' if current_genre != 'other' and current_genre not in ['Классика', 'Фэнтези и фантастика', 'Детективы и триллеры'] or current_genre == '' }}"
+                           placeholder="Введите жанр"
+                           value="{{ '' if current_genre == 'other' else current_genre }}">
                     </div>
 
                     <div class="filter-field">
-                        <input type="text" class="custom-input" placeholder="Год">
+                        <input type="text" id="filter-year" class="custom-input" placeholder="Год" value="{{ current_year }}">
                     </div>
 
                     <div class="filter-field">
-                        <input type="text" class="custom-input" placeholder="Автор">
+                        <input type="text" id="filter-author" class="custom-input" placeholder="Автор" value="{{ current_author }}">
                     </div>
-
                 </div>
             </div>
         </section>
 
         <section class="catalog-main-section">
             <div class="catalog-main-grid">
+                {% for book in books %}
                 <div class="catalog-main-card">
                     <div class="catalog-main-visual">
-                        <div class="catalog-main-shape">
-                            <img src="images/test.jpg" alt="Cover" class="catalog-main-cover-img">
+                        <div class="css-book-shape">
+                            <img src="{{ book['cover_url'] }}"
+                                 alt="{{ book['title'] }}" class="book-cover-img">
                         </div>
                     </div>
                     <div class="catalog-main-info">
-                        <h3 class="catalog-main-title">Название книги</h3>
-                        <p class="catalog-main-author">Автор произведения</p>
-                        <p class="catalog-main-desc">Здесь будет описание книги, которое автоматически обрезается до трех строк, если оно слишком длинное, чтобы карточки выглядели аккуратно.</p>
-                        <a href="#" class="catalog-main-btn">Читать больше</a>
+                        <h3 class="catalog-main-title">{{ book['title'] }}</h3>
+                        <p class="catalog-main-author">{{ book['author_name'] }}</p>
+                        <p class="catalog-main-desc">{{ book['description'] | truncate(150) }}</p>
+                        <a href="{{ url_for('book_detail', book_id=book['id']) }}" class="catalog-main-btn">Читать больше</a>
                     </div>
                 </div>
-
-                <div class="catalog-main-card">
-                    <div class="catalog-main-visual">
-                        <div class="catalog-main-shape">
-                            <img src="images/test.jpg" alt="Cover" class="catalog-main-cover-img">
-                        </div>
-                    </div>
-                    <div class="catalog-main-info">
-                        <h3 class="catalog-main-title">Название книги</h3>
-                        <p class="catalog-main-author">Автор произведения</p>
-                        <p class="catalog-main-desc">Здесь будет описание книги, которое автоматически обрезается до трех строк, если оно слишком длинное, чтобы карточки выглядели аккуратно.</p>
-                        <a href="#" class="catalog-main-btn">Читать больше</a>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
+
+            {% if total_pages > 1 %}
+            <div class="pagination-container">
+                {% for p in range(1, total_pages + 1) %}
+                    <a href="{{ url_for('catalog_page', page=p, search=current_search, genre=current_genre, year=current_year, author=current_author) }}"
+                       class="page-btn {{ 'active' if p == page else '' }}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+            </div>
+            {% endif %}
         </section>
     </main>
 
@@ -153,26 +152,26 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="#" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
-                        <div class="social-item"><img src="images/tg.svg" alt="tg"></div>
-                        <div class="social-item"><img src="images/inst.svg" alt="inst"></div>
-                        <div class="social-item"><img src="images/vk.svg" alt="vk"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="tg"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="inst"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/vk.svg') }}" alt="vk"></div>
                     </div>
                 </div>
                 <nav class="footer-nav">
-                    <a href="#">Главная</a>
-                    <a href="#">О продукте</a>
-                    <a href="#">Контакты</a>
-                    <a href="#">Личный кабинет</a>
+                    <a href="{{ url_for('index') }}">Главная</a>
+                    <a href="{{ url_for('about_page') }}">О продукте</a>
+                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
                 </nav>
 
                 <div class="footer-right">
-                    <button class="btn-up" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Наверх">
+                    <a href="#" class="btn-up" title="Наверх">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 19V5M5 12l7-7 7 7"/>
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
             <div class="footer-line"></div>

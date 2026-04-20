@@ -7,8 +7,7 @@
 
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='contacts/contacts_style.css') }}">
-    <script type="module" src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}"></script>
-    <script src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}"></script>
+    <script src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}" defer></script>
 </head>
 <body>
 
@@ -18,7 +17,7 @@
             <nav class="nav-menu">
                 <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
                 <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
-                <a href="#" class="nav-link">Каталог</a>
+                <a href="{{ url_for('catalog_page') }}" class="nav-link">Каталог</a>
                 <a href="{{ url_for('contacts_page') }}" class="nav-link active">Контакты</a>
             </nav>
 

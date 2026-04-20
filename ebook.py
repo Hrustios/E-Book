@@ -286,5 +286,86 @@ def send_feedback():
 def about_page():
     return render_template('about/about_page.html')
 
+
+@app.route('/catalog')
+def catalog_page():
+    # 1. Получаем параметры из URL
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    offset = (page - 1) * per_page
+
+    search_query = request.args.get('search', '').strip()
+    genre = request.args.get('genre', '').strip()
+    year = request.args.get('year', '').strip()
+    author = request.args.get('author', '').strip()
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query_parts = ["WHERE 1=1"]
+        params = []
+
+        # 1. Поиск по тексту
+        if search_query:
+            query_parts.append("AND (title LIKE ? OR description LIKE ?)")
+            params.extend([f'%{search_query}%', f'%{search_query}%'])
+
+        # 2. Жанры
+        known_genres = ['Классика', 'Фэнтези и фантастика', 'Детективы и триллеры']
+        if genre:
+            if genre == 'other':
+                placeholders = ', '.join(['?'] * len(known_genres))
+                query_parts.append(f"AND genre NOT IN ({placeholders})")
+                params.extend(known_genres)
+            elif genre in known_genres:
+                query_parts.append("AND genre = ?")
+                params.append(genre)
+            else:
+                query_parts.append("AND genre LIKE ?")
+                params.append(f'%{genre}%')
+
+        # 3. Год (Применяется ВМЕСТЕ с другими)
+        if year:
+            query_parts.append("AND release_year = ?")
+            params.append(year)
+
+        # 4. Автор (Применяется ВМЕСТЕ с другими)
+        if author:
+            query_parts.append("AND author_name LIKE ?")
+            params.append(f'%{author}%')
+
+        where_clause = " ".join(query_parts)
+
+        # Считаем общее количество
+        cursor.execute(f"SELECT COUNT(*) FROM Books {where_clause}", params)
+        total_count = cursor.fetchone()[0]
+        total_pages = (total_count + per_page - 1) // per_page
+
+        # Получаем книги (params + limit + offset)
+        final_query = f"SELECT * FROM Books {where_clause} ORDER BY upload_date DESC LIMIT ? OFFSET ?"
+        cursor.execute(final_query, params + [per_page, offset])
+        books = cursor.fetchall()
+        conn.close()
+
+    except Exception as e:
+        print(f"Database Error: {e}")
+        books, total_pages = [], 0
+
+    return render_template('catalog/catalog_page.html',
+                           books=books,
+                           page=page,
+                           total_pages=total_pages,
+                           current_search=search_query,
+                           current_genre=genre,
+                           current_year=year,
+                           current_author=author)
+
+@app.route('/book/<int:book_id>')
+def book_detail(book_id):
+    # Пока просто возвращаем текст или пустой шаблон, чтобы не было ошибки
+    # Позже ты здесь сделаешь SELECT * FROM Books WHERE id = book_id
+    return f"Здесь будет страница книги с ID: {book_id}"
+
 if __name__ == '__main__':
     app.run(debug=True)

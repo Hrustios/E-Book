@@ -22,7 +22,7 @@ body {
     line-height: 1.5;
 }
 
-/*  ШАПКА  */
+/* ШАПКА  */
 .main-header {
     position: fixed;
     top: 25px;
@@ -64,7 +64,7 @@ body {
     text-decoration: none;
     font-size: 13px;
     opacity: 0.8;
-    position: relative; /* Нужно для позиционирования линии */
+    position: relative;
     padding: 4px 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -74,59 +74,258 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 0; 
+    width: 0;
     height: 2px;
-    background-color: var(--accent); 
-    transition: width 0.3s ease; 
+    background-color: var(--accent);
+    transition: width 0.3s ease;
     border-radius: 2px;
 }
 
-/* Эффект при наведении */
 .nav-link:hover {
     opacity: 1;
-    transform: translateY(-1px); 
+    transform: translateY(-1px);
 }
 
 .nav-link:hover::after {
-    width: 100%; 
+    width: 100%;
 }
 
-/* Состояние активной ссылки (Главная) */
 .nav-link.active {
     opacity: 1;
     font-weight: bold;
 }
 
 .nav-link.active::after {
-    width: 100%; 
+    width: 100%;
 }
 
+/* ПРОФИЛЬ И ВЫПАДАЮЩЕЕ МЕНЮ */
 .profile-section {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.header-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 190px;
+    background: #2D1B0E; /* Темный шоколад */
+    border: 1px solid #4A3528;
+    border-radius: 12px;
+    padding: 8px;
+    display: none; /* Скрыто по умолчанию, JS переключает класс .active */
+    flex-direction: column;
+    z-index: 3000;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.header-dropdown.active {
+    display: flex;
+    animation: fadeInDown 0.2s ease-out;
+}
+
+.header-dropdown .dropdown-item {
+    color: var(--accent);
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.header-dropdown .dropdown-item:hover {
+    background: #3D2819;
+    color: var(--white);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #4A3528;
+    margin: 6px 0;
+}
+
+.header-dropdown .logout-link {
+    color: #FF5E5E !important;
+}
+
+.header-dropdown .logout-link:hover {
+    background: rgba(255, 94, 94, 0.1) !important;
 }
 
 .profile-text {
     color: var(--light);
-    text-decoration: none;
     font-size: 13px;
+    user-select: none;
 }
 
-.profile-avatar {
+/* АВАТАРЫ */
+.profile-avatar-letter {
     width: 36px;
     height: 36px;
-    background-color: var(--light);
+    background-color: var(--accent);
+    color: var(--dark);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: bold;
+    font-size: 15px;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.profile-avatar:hover { transform: scale(1.1); }
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(232, 209, 167, 0.3);
+}
 
+.avatar-img {
+    width: 20px; /* Для иконки Profile.svg, если нет сессии */
+    height: 20px;
+    filter: invert(1); /* Сделает черную иконку светлой под стиль */
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Отступ для контента, чтобы он не уходил под фиксированную шапку */
+.content-wrapper {
+    padding-top: 60px; /* Высота шапки (~60px) + отступ от верха (25px) + свободное пространство */
+}
+
+/* Настройка контейнера для каталога */
+.container {
+    width: 92%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.catalog-main-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Ровно два столбца */
+    gap: 40px 25px; /* Отступы между карточками */
+}
+
+/* Описание книги — максимум 3 строки, остальное в "..." */
+.catalog-main-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    color: var(--dark);
+    opacity: 0.8;
+}
+
+/* 1. Сетка основного каталога 2x10 */
+.catalog-main-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Ровно 2 колонки */
+    gap: 40px 30px; /* Отступы: 40px между рядами, 30px между колонками */
+    margin-top: 40px;
+    margin-bottom: 50px;
+}
+
+/* 2. Адаптация карточки из ЛК под каталог */
+.catalog-main-card {
+    display: flex;
+    gap: 25px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.catalog-main-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Фикс размера обложки, чтобы все были одинаковыми */
+.catalog-main-visual {
+    flex-shrink: 0;
+    width: 140px; /* Фиксированная ширина для визуала */
+}
+
+.catalog-main-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.catalog-main-title {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.catalog-main-desc {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* 3. Пагинация (используем твой .pagination-container) */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 50px;
+    padding-bottom: 50px;
+}
+
+.page-btn {
+    padding: 10px 18px;
+    border: 2px solid #995F47;
+    background: white;
+    color: #995F47;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+}
+
+.page-btn.active {
+    background: #995F47;
+    color: white;
+    box-shadow: 0 4px 12px rgba(132, 89, 43, 0.3);
+}
+
+.page-btn:hover:not(.active) {
+    background-color: #F4EFE6;
+    transform: translateY(-2px);
+}
+
+/* Для мобилок — переводим в 1 колонку */
+@media (max-width: 992px) {
+    .catalog-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pagination {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
 
 .catalog-section {
     padding: 80px 0;
