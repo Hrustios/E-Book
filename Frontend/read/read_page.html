@@ -6,6 +6,7 @@
     <title>Читаем: {{ book['title'] }} | E-Book</title>
     <link rel="stylesheet" href="/read/read_style.css">
     <script src="/read/assets/js/script_read.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
 </head>
 <body class="reader-body" data-book-id="{{ book['id'] }}">
 
