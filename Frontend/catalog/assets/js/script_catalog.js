@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === 1. КАСТОМНЫЙ СЕЛЕКТ ===
+    // === 1. КАСТОМНЫЙ СЕЛЕКТ ЖАНРОВ ===
     const selectWrapper = document.querySelector('.custom-select-wrapper');
     const select = document.querySelector('.custom-select');
     const trigger = document.querySelector('.custom-select__trigger');
@@ -8,17 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const customInput = document.getElementById('custom-genre-input');
 
     if (selectWrapper && trigger) {
-        // Открытие/закрытие
         trigger.addEventListener('click', (e) => {
             select.classList.toggle('open');
             e.stopPropagation();
         });
 
-        // Выбор опции
         options.forEach(option => {
             option.addEventListener('click', function() {
                 const val = this.getAttribute('data-value');
-
                 const currentSelected = select.querySelector('.custom-option.selected');
                 if (currentSelected) currentSelected.classList.remove('selected');
                 this.classList.add('selected');
@@ -79,8 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === 4. ОБРАБОТКА ПОИСКА И ФИЛЬТРАЦИИ (Исправлено) ===
-    const searchInput = document.querySelector('.search-bar input');
+    // === 4. ОБРАБОТКА ПОИСКА И ФИЛЬТРАЦИИ ===
+    const searchInput = document.getElementById('search-input');
     const searchBtn = document.querySelector('.search-btn');
     const yearInput = document.getElementById('filter-year');
     const authorInput = document.getElementById('filter-author');
@@ -91,26 +88,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const year = yearInput ? yearInput.value.trim() : '';
             const author = authorInput ? authorInput.value.trim() : '';
 
-            const selectedOption = select.querySelector('.custom-option.selected');
+            const selectedOption = select ? select.querySelector('.custom-option.selected') : null;
             let genre = selectedOption ? selectedOption.getAttribute('data-value') : '';
 
-            if (genre === 'other') {
+            if (genre === 'other' && customInput) {
                 const manualGenre = customInput.value.trim();
-                if (manualGenre !== '') {
-                    genre = manualGenre;
-                }
+                if (manualGenre !== '') genre = manualGenre;
             }
 
             const url = new URL(window.location.origin + window.location.pathname);
-
-            // ОБЯЗАТЕЛЬНО добавляем все параметры в URL:
             if (query) url.searchParams.set('search', query);
             if (genre) url.searchParams.set('genre', genre);
-            if (year) url.searchParams.set('year', year);   // Было пропущено!
-            if (author) url.searchParams.set('author', author); // Было пропущено!
+            if (year) url.searchParams.set('year', year);
+            if (author) url.searchParams.set('author', author);
 
             url.searchParams.set('page', 1);
-
             window.location.href = url.href;
         };
 
@@ -119,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSearch();
         });
 
-        // Поиск по нажатию Enter в любом из полей
         [searchInput, yearInput, authorInput, customInput].forEach(el => {
             if (el) {
                 el.addEventListener('keypress', (e) => {
@@ -128,4 +119,214 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const showToast = (message) => {
+        const toast = document.createElement('div');
+        toast.className = 'status-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    };
+
+    // === 5. МОДАЛЬНОЕ ОКНО ПОДРОБНОСТЕЙ ===
+const modal = document.getElementById('book-modal');
+const closeModal = document.querySelector('.close-modal');
+const catalogGrid = document.querySelector('.catalog-main-grid');
+
+if (catalogGrid && modal) {
+    catalogGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.open-modal-btn');
+        if (!btn) return;
+        e.preventDefault();
+
+        // 1. Извлекаем данные из атрибутов кнопки
+        const bookId = btn.getAttribute('data-id');
+        const bookTitle = btn.getAttribute('data-title');
+        const fileUrl = btn.getAttribute('data-file-url');
+        const cover = btn.getAttribute('data-cover');
+
+        // Элементы внутри модалки
+        const statusOptions = document.querySelectorAll('#optionsDropdown .dropdown-item');
+        const noteTextarea = document.getElementById('book-note-text');
+        const noteContainer = document.getElementById('note-container');
+        const downloadBtn = document.getElementById('modal-download-btn');
+        const noteBtn = document.getElementById('modal-note-btn');
+        const saveNoteBtn = document.getElementById('save-note-btn');
+        const readBtn = document.getElementById('modal-read-btn');
+        const modalCover = modal.querySelector('.book-cover-img');
+
+        // 2. Сброс состояния перед показом
+        statusOptions.forEach(opt => opt.classList.remove('active-status'));
+        if (noteContainer) noteContainer.classList.add('hidden');
+        if (noteTextarea) noteTextarea.value = "Загрузка...";
+
+        // 3. Заполнение текстовых полей
+        const safeSetText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        };
+
+        safeSetText('modal-name', bookTitle);
+        safeSetText('modal-author', btn.getAttribute('data-author'));
+        safeSetText('modal-description', btn.getAttribute('data-desc'));
+        safeSetText('modal-pages', `Страницы: ${btn.getAttribute('data-pages') || '—'}`);
+        safeSetText('modal-year', `Год издания: ${btn.getAttribute('data-year') || '—'}`);
+        safeSetText('modal-genre', btn.getAttribute('data-genre'));
+        if (modalCover) modalCover.src = cover;
+
+        // 4. Загрузка данных пользователя (Заметка и Статус)
+        fetch(`/get_book_user_data/${bookId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (noteTextarea) {
+                    noteTextarea.value = (data.note === "Без заметки") ? "" : (data.note || "");
+                }
+                // Подсвечиваем только реальные статусы (не 'none')
+                if (data.status && data.status !== 'none') {
+                    statusOptions.forEach(opt => {
+                        if (opt.textContent.trim() === data.status) opt.classList.add('active-status');
+                    });
+                }
+            })
+            .catch(() => { if (noteTextarea) noteTextarea.value = ""; });
+
+        // 5. Логика СТАТУСОВ (с поддержкой удаления/toggle)
+        statusOptions.forEach(option => {
+            option.onclick = async function(event) {
+                event.preventDefault();
+                const selectedStatus = this.textContent.trim();
+
+                try {
+                    const response = await fetch('/update_library_status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ book_id: bookId, status: selectedStatus })
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'removed' || result.status === 'status_none') {
+                        this.classList.remove('active-status');
+                        showToast("Статус удален");
+                    } else {
+                        statusOptions.forEach(opt => opt.classList.remove('active-status'));
+                        this.classList.add('active-status');
+                        showToast(`Статус: ${selectedStatus}`);
+                    }
+                    document.getElementById('optionsDropdown').classList.remove('active');
+                } catch (err) { console.error("Ошибка обновления статуса:", err); }
+            };
+        });
+
+        // 6. Логика СКАЧИВАНИЯ
+        if (downloadBtn) {
+            downloadBtn.onclick = async function(event) {
+                event.preventDefault();
+                if (!fileUrl) return;
+
+                const originalContent = this.innerHTML;
+                this.innerHTML = "...";
+                this.style.pointerEvents = "none";
+
+                try {
+                    const res = await fetch(fileUrl);
+                    const blob = await res.blob();
+                    const extension = fileUrl.split('?')[0].split('.').pop().toLowerCase() || 'pdf';
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = `${bookTitle}.${extension}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    document.body.removeChild(a);
+                } catch (err) {
+                    window.open(fileUrl, '_blank');
+                } finally {
+                    this.innerHTML = originalContent;
+                    this.style.pointerEvents = "auto";
+                }
+            };
+        }
+
+        // 7. Логика ЗАМЕТОК (Независимое сохранение)
+        if (noteBtn) {
+            noteBtn.onclick = (event) => {
+                event.stopPropagation();
+                noteContainer.classList.toggle('hidden');
+                if (!noteContainer.classList.contains('hidden')) noteTextarea.focus();
+            };
+        }
+
+        if (saveNoteBtn) {
+            saveNoteBtn.onclick = async () => {
+                const text = noteTextarea.value.trim();
+                try {
+                    const response = await fetch('/save_book_note', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ book_id: bookId, note: text })
+                    });
+                    if (response.ok) {
+                        showToast("Заметка сохранена");
+                        noteContainer.classList.add('hidden');
+                    }
+                } catch (err) { console.error("Ошибка сохранения заметки:", err); }
+            };
+        }
+
+        // 8. Кнопка ЧТЕНИЯ
+        if (readBtn) {
+            readBtn.onclick = () => { window.location.href = `/read/${bookId}`; };
+        }
+
+        // Показываем модалку
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Обработчик закрытия по кнопке "X"
+    if (closeModal) {
+        closeModal.onclick = () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        };
+    }
+
+    // Обработчик кликов по окну (закрытие модалки по фону и скрытие заметки)
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        const noteContainer = document.getElementById('note-container');
+        const noteBtn = document.getElementById('modal-note-btn');
+        if (noteContainer && !noteContainer.classList.contains('hidden')) {
+            if (!noteContainer.contains(e.target) && !noteBtn.contains(e.target)) {
+                noteContainer.classList.add('hidden');
+            }
+        }
+    });
+}
+
+    // === 6. ДОПОЛНИТЕЛЬНОЕ МЕНЮ В МОДАЛКЕ (Options Dropdown) ===
+    // Используем ID, который прописан в HTML: moreOptionsBtn
+    const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+    const optionsDropdown = document.getElementById('optionsDropdown');
+
+    if (moreOptionsBtn && optionsDropdown) {
+        moreOptionsBtn.addEventListener('click', (e) => {
+            // Останавливаем всплытие, чтобы клик не дошел до окна и не закрыл его
+            e.stopPropagation();
+            optionsDropdown.classList.toggle('active');
+        });
+
+        // Закрываем выпадашку, если кликнули куда угодно еще
+        document.addEventListener('click', (e) => {
+            if (!moreOptionsBtn.contains(e.target)) {
+                optionsDropdown.classList.remove('active');
+            }
+        });
+    }
 });
+

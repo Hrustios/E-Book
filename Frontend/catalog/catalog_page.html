@@ -118,34 +118,53 @@
         </section>
 
         <section class="catalog-main-section">
-            <div class="catalog-main-grid">
-                {% for book in books %}
-                <div class="catalog-main-card">
-                    <div class="catalog-main-visual">
-                        <div class="css-book-shape">
-                            <img src="{{ book['cover_url'] }}"
-                                 alt="{{ book['title'] }}" class="book-cover-img">
+            {% if books %}
+                <div class="catalog-main-grid">
+                    {% for book in books %}
+                    <div class="catalog-main-card">
+                        <div class="catalog-main-visual">
+                            <div class="css-book-shape">
+                                <img src="{{ book['cover_url'] }}"
+                                     alt="{{ book['title'] }}" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="catalog-main-info">
+                            <h3 class="catalog-main-title">{{ book['title'] }}</h3>
+                            <p class="catalog-main-author">{{ book['author_name'] }}</p>
+                            <p class="catalog-main-desc">{{ book['description'] | truncate(150) }}</p>
+                            <a href="#"
+                               class="catalog-main-btn open-modal-btn"
+                               data-id="{{ book['id'] }}"
+                               data-title="{{ book['title'] }}"
+                               data-author="{{ book['author_name'] }}"
+                               data-desc="{{ book['description'] }}"
+                               data-cover="{{ book['cover_url'] }}"
+                               data-pages="{{ book['pages'] }}"
+                               data-year="{{ book['release_year'] }}"
+                               data-genre="{{ book['genre'] }}"
+                               data-file-url="{{ book['file_url'] }}"> Читать больше
+                            </a>
                         </div>
                     </div>
-                    <div class="catalog-main-info">
-                        <h3 class="catalog-main-title">{{ book['title'] }}</h3>
-                        <p class="catalog-main-author">{{ book['author_name'] }}</p>
-                        <p class="catalog-main-desc">{{ book['description'] | truncate(150) }}</p>
-                        <a href="{{ url_for('book_detail', book_id=book['id']) }}" class="catalog-main-btn">Читать больше</a>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
 
-            {% if total_pages > 1 %}
-            <div class="pagination-container">
-                {% for p in range(1, total_pages + 1) %}
-                    <a href="{{ url_for('catalog_page', page=p, search=current_search, genre=current_genre, year=current_year, author=current_author) }}"
-                       class="page-btn {{ 'active' if p == page else '' }}">
-                        {{ p }}
-                    </a>
-                {% endfor %}
-            </div>
+                {% if total_pages > 1 %}
+                <div class="pagination-container">
+                    {% for p in range(1, total_pages + 1) %}
+                        <a href="{{ url_for('catalog_page', page=p, search=current_search, genre=current_genre, year=current_year, author=current_author) }}"
+                           class="page-btn {{ 'active' if p == page else '' }}">
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            {% else %}
+                <div class="no-results-container">
+                    <h2 class="no-results-title">Книги не найдены</h2>
+                    <p class="no-results-text">Попробуйте изменить параметры поиска или фильтрации</p>
+                </div>
             {% endif %}
         </section>
     </main>
@@ -159,34 +178,46 @@
                 <div class="modal-book-view">
                     <div class="book-visual large">
                         <div class="css-book-shape">
-                            <img src="images/book_cover_1.jpg" alt="Cover" class="book-cover-img">
+                            <img src="" alt="Cover" class="book-cover-img">
                         </div>
                     </div>
                     <div class="modal-book-meta">
-                        <span>Страницы: 450</span>
-                        <span>Год издания: 2023</span>
+                        <span id="modal-pages">Страницы: —</span>
+                        <span id="modal-year">Год издания: —</span>
                     </div>
                 </div>
 
                 <div class="modal-book-info">
                     <h3 id="modal-name">Название</h3>
-                    <p class="modal-author">Автор</p>
+                    <p class="modal-author" id="modal-author">Автор</p>
 
                     <div class="modal-stats">
                         <span class="rating">
-                            4,9 <img src="images/star.svg" class="stat-star" alt="rating">
+                            4,9 <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="rating">
                         </span>
                         <span class="divider">|</span>
                         <span class="downloads">100 скачиваний</span>
                     </div>
 
                     <div class="modal-actions">
-                        <button class="btn-read">Читать книгу</button>
-                        <button class="btn-icon"><img src="images/load.svg" alt="Load"></button>
-                        <button class="btn-icon"><img src="images/note.svg" alt="Note"></button>
+                        <button class="btn-read" id="modal-read-btn">Читать книгу</button>
+                        <button class="btn-icon" id="modal-download-btn">
+                            <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
+                        </button>
+                        <div class="note-wrapper">
+                            <button class="btn-icon" id="modal-note-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
+                            </button>
 
+                            <div id="note-container" class="note-dropdown hidden">
+                                <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
+                                <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                            </div>
+                        </div>
                         <div class="more-options">
-                            <button class="btn-icon"><img src="images/more.svg"></button>
+                            <button class="btn-icon" id="moreOptionsBtn">
+                                <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
+                            </button>
                             <div class="options-dropdown" id="optionsDropdown">
                                 <button class="dropdown-item">Прочитана</button>
                                 <button class="dropdown-item">Читаю</button>
@@ -201,15 +232,15 @@
 
                     <div class="modal-footer-line">
                         <div class="modal-tags">
-                            <span class="tag">Жанр</span>
+                            <span class="tag" id="modal-genre">Жанр</span>
                         </div>
                         <div class="modal-footer-stars">
                             <div class="star-rating" id="interactive-rating">
-                                <img src="images/star.svg" alt="1" class="star-icon" data-value="1">
-                                <img src="images/star.svg" alt="2" class="star-icon" data-value="2">
-                                <img src="images/star.svg" alt="3" class="star-icon" data-value="3">
-                                <img src="images/star.svg" alt="4" class="star-icon" data-value="4">
-                                <img src="images/star.svg" alt="5" class="star-icon" data-value="5">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="1" class="star-icon" data-value="1">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="2" class="star-icon" data-value="2">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="3" class="star-icon" data-value="3">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="4" class="star-icon" data-value="4">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="5" class="star-icon" data-value="5">
                             </div>
                         </div>
                     </div>
