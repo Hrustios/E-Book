@@ -333,9 +333,15 @@ body {
     background: #ffffff;
     border: 1.5px solid rgba(68, 45, 28, 0.2);
     border-radius: 15px;
-    padding: 5px 5px 5px 20px;
+    
+    /* Синхронизация высоты */
+    height: 48px; 
+    box-sizing: border-box; 
+    
+    /* Оставляем отступ только слева для иконки, вертикальные отступы убираем */
+    padding: 0 5px 0 20px; 
     gap: 15px;
-    flex-grow: 1; /* Растягивается максимально */
+    flex-grow: 1;
     transition: 0.3s ease;
 }
 
@@ -347,10 +353,12 @@ body {
     width: 18px;
     height: 18px;
     opacity: 0.6;
+    flex-shrink: 0; /* Чтобы иконка не сжималась */
 }
 
 .search-bar input {
     flex-grow: 1;
+    height: 100%; /* Занимает всю высоту родителя */
     border: none;
     outline: none;
     font-family: 'Verdana', sans-serif;
@@ -363,41 +371,55 @@ body {
     background-color: #995F47;
     color: #ECE7D4;
     border: none;
-    padding: 10px 25px;
+    
+    /* Высота кнопки чуть меньше родителя, чтобы вписаться в padding search-bar */
+    height: 38px; 
+    padding: 0 25px;
+    
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-btn:hover {
     background-color: #442D1C;
 }
 
-/* --- ОБЩИЕ СТИЛИ ДЛЯ ИНПУТОВ (Год, Автор, Свой жанр) --- */
+/* --- ОБЩИЕ ПАРАМЕТРЫ ДЛЯ ВСЕХ ПОЛЕЙ ФИЛЬТРА --- */
 .filter-field {
     display: flex;
     align-items: center;
+    gap: 10px; /* Отступ между элементами */
 }
 
-.custom-input {
-    width: 180px; 
-    padding: 12px 20px; 
+/* Общий сброс высоты для всех элементов ввода */
+.custom-input, 
+.custom-select__trigger {
+    height: 48px; /* Фиксированная высота для всех полей */
+    background: #ffffff;
+    border: 1.5px solid rgba(68, 45, 28, 0.2);
+    border-radius: 15px;
     font-family: 'Verdana', sans-serif;
     font-size: 16px;
     font-weight: 500;
     color: #442D1C;
-    background: #ffffff;
-    border: 1.5px solid rgba(68, 45, 28, 0.2);
-    border-radius: 15px;
-    outline: none;
+    box-sizing: border-box; /* Гарантирует, что border входит в высоту 48px */
     transition: all 0.3s ease;
+    outline: none;
 }
 
-/* Специфичное поведение для поля "Свой жанр" */
+/* --- ТЕКСТОВЫЕ ИНПУТЫ --- */
+.custom-input {
+    width: 180px; 
+    padding: 0 20px; /* Убираем вертикальные паддинги, центрируем через height */
+}
+
 #custom-genre-input {
-    margin-left: 10px;
     width: 200px;
 }
 
@@ -419,7 +441,7 @@ body {
     font-weight: 400;
 }
 
-/* --- КАСТОМНЫЙ ВЫПАДАЮЩИЙ СПИСОК (Жанр) --- */
+/* --- КАСТОМНЫЙ СЕЛЕКТ (Жанр) --- */
 .custom-select-wrapper {
     position: relative;
     user-select: none;
@@ -433,19 +455,21 @@ body {
 }
 
 .custom-select__trigger {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #442D1C;
-    background: #ffffff;
-    border: 1.5px solid rgba(68, 45, 28, 0.2);
-    border-radius: 15px;
+    padding: 0 20px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    overflow: hidden; /* Защита контейнера */
+}
+
+/* Ограничение текста выбранного жанра в одну строку */
+.custom-select__trigger span {
+    white-space: nowrap;      /* Запрет переноса строки */
+    overflow: hidden;         /* Скрытие лишнего текста */
+    text-overflow: ellipsis;  /* Троеточие в конце */
+    margin-right: 10px;       /* Зазор перед стрелкой */
+    flex: 1;                  /* Текст занимает все свободное место */
 }
 
 .custom-select__trigger:hover {
@@ -458,6 +482,7 @@ body {
     border-right: 2px solid #442D1C;
     border-bottom: 2px solid #442D1C;
     transform: rotate(45deg);
+    flex-shrink: 0;           /* Стрелка не сжимается текстом */
     margin-bottom: 4px;
     transition: all 0.3s ease;
 }
@@ -465,7 +490,7 @@ body {
 /* Состояние при открытии */
 .custom-select.open .custom-select__trigger {
     border-radius: 15px 15px 0 0;
-    border-bottom: 1px solid transparent;
+    border-bottom-color: transparent;
 }
 
 .custom-select.open .arrow {
@@ -498,7 +523,7 @@ body {
     pointer-events: all;
 }
 
-/* Пункты списка */
+/* Пункты списка (здесь текст может переноситься, если нужно видеть полное название) */
 .custom-option {
     position: relative;
     display: block;
@@ -508,6 +533,11 @@ body {
     color: #442D1C;
     cursor: pointer;
     transition: all 0.2s ease;
+    /* Если хотите полное название в списке, оставляем стандартный перенос. 
+       Если в списке тоже нужна одна строка, раскомментируйте свойства ниже: */
+    /* white-space: nowrap; */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
 }
 
 .custom-option:hover {
@@ -943,12 +973,21 @@ body {
 .btn-read {
     background-color: #DCCFB8;
     border: none;
-    padding: 12px 25px;
+    
+    /* Заменяем padding на фиксированную высоту */
+    height: 45px; 
+    padding: 0 25px; /* Оставляем только боковые отступы */
+    
     border-radius: 12px;
     color: #5B351F;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    
+    /* Добавляем flex для центрирования текста внутри фиксированной высоты */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-read:hover {
@@ -960,8 +999,11 @@ body {
 .btn-icon {
     background-color: #DCCFB8;
     border: none;
+    
+    /* Высота совпадает с .btn-read */
     width: 45px;
-    height: 45px;
+    height: 45px; 
+    
     border-radius: 12px;
     display: flex;
     align-items: center;
