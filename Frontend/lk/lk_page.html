@@ -23,7 +23,11 @@
                 <span class="profile-text">Личный кабинет</span>
 
                 <div class="profile-avatar-letter">
-                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                    {% if session.get('username') %}
+                        {{ session['username'][0] | upper }}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='main/images/Profile.svg') }}" alt="?" class="avatar-img">
+                    {% endif %}
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">

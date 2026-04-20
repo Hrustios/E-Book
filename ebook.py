@@ -4,6 +4,7 @@ import os
 from pdfminer.high_level import extract_text
 import requests
 import base64
+from flask_mail import Message
 from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
 from Backend.extensions import mail
 from Backend.login_register.auth_reg import auth_reg_bp
@@ -241,6 +242,45 @@ def read_page(book_id):
         return render_template('read/read_page.html', book=book, page_images=page_images, is_pdf=True)
     except Exception as e:
         return f"Ошибка: {str(e)}", 500
+
+
+@app.route('/send_feedback', methods=['POST'])
+def send_feedback():
+    data = request.get_json()  # Получаем данные из JS (JSON)
+
+    name = data.get('name')
+    user_email = data.get('email')
+    subject = data.get('subject')
+    message_text = data.get('message')
+
+    if not all([name, user_email, subject, message_text]):
+        return jsonify({"status": "error", "message": "Все поля должны быть заполнены"}), 400
+
+    try:
+        # Формируем письмо
+        msg = Message(
+            subject=f"Feedback: {subject}",
+            sender=app.config['MAIL_DEFAULT_SENDER'],
+            recipients=[app.config['MAIL_DEFAULT_SENDER']],  # Шлем себе
+            reply_to=user_email  # Чтобы отвечать сразу пользователю
+        )
+
+        msg.body = f"""
+        Новое сообщение из формы обратной связи:
+        От кого: {name}
+        Email пользователя: {user_email}
+        Тема: {subject}
+
+        Сообщение:
+        {message_text}
+        """
+
+        mail.send(msg)
+        return jsonify({"status": "success", "message": "Сообщение отправлено!"}), 200
+
+    except Exception as e:
+        print(f"Ошибка отправки почты: {e}")
+        return jsonify({"status": "error", "message": "Ошибка при отправке письма"}), 500
 
 @app.route('/about')
 def about_page():

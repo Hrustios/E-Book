@@ -199,6 +199,21 @@ body {
     transform: scale(1.1);
 }
 
+/* Убираем системный фон при автозаполнении */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+    /* Тень внутри инпута перекрывает фоновый цвет */
+    -webkit-box-shadow: 0 0 0px 1000px var(--dark) inset !important;
+    /* Цвет текста */
+    -webkit-text-fill-color: var(--white) !important;
+    /* Плавный переход, чтобы цвет не моргал */
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .contacts-page {
     background-color: var(--white);
     padding-top: 120px;
@@ -374,6 +389,50 @@ body {
 .contacts-illustration img {
     max-width: 450px;
     display: block;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Темный полупрозрачный фон */
+    display: none; /* Скрыто по умолчанию */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px); /* Размытие заднего плана */
+}
+
+/* Сама карточка сообщения */
+.success-message-modal {
+    background-color: var(--dark);
+    padding: 50px 40px;
+    border-radius: 30px;
+    border: 1px solid var(--accent);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: fadeInScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.success-message-modal h2 { color: var(--white); margin-bottom: 10px; }
+.success-message-modal p { color: var(--accent); opacity: 0.8; margin-bottom: 25px; }
+
+/* Анимация появления */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Твой фикс для автозаполнения */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px var(--dark) inset !important;
+    -webkit-text-fill-color: var(--white) !important;
 }
 
 /* Адаптив для мобильных устройств */

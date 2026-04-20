@@ -24,7 +24,11 @@
                 <span class="profile-text">Личный кабинет</span>
 
                 <div class="profile-avatar-letter">
-                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                    {% if session.get('username') %}
+                        {{ session['username'][0] | upper }}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='main/images/Profile.svg') }}" alt="?" class="avatar-img">
+                    {% endif %}
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">
@@ -103,7 +107,7 @@
                             <p class="book-author">Фёдор Достоевский</p>
                             <h4 class="book-title">Идиот</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.9
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 4.9
                             </div>
                         </div>
                     </div>
@@ -118,7 +122,7 @@
                             <p class="book-author">Михаил Булгаков</p>
                             <h4 class="book-title">Мастер и Маргарита</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
                             </div>
                         </div>
                     </div>
@@ -133,7 +137,7 @@
                             <p class="book-author">Лев Толстой</p>
                             <h4 class="book-title">Война и мир</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.8
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 4.8
                             </div>
                         </div>
                     </div>
@@ -148,7 +152,7 @@
                             <p class="book-author">Антон Чехов</p>
                             <h4 class="book-title">Палата №6</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
                             </div>
                         </div>
                     </div>
@@ -163,7 +167,7 @@
                             <p class="book-author">Антон Чехов</p>
                             <h4 class="book-title">Палата №6</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
                             </div>
                         </div>
                     </div>
