@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Book — Читайте с удовольствием</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main/main_style.css') }}">
+    <script src="{{ url_for('static', filename='main/assets/js/script_main.js') }}"></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+
+            <nav class="nav-menu">
+                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
+                <a href="#" class="nav-link">О продукте</a>
+                <a href="#" class="nav-link">Каталог</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+            </nav>
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">Личный кабинет</span>
+
+                <div class="profile-avatar-letter">
+                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>Помните каждую прочитанную страницу</h1>
+                    <p>Списки желаний, личные заметки и наглядные отчеты — всё максимально просто и удобно.</p>
+                    <div class="hero-btns">
+                        {% if session.get('username') %}
+                            <a href="{{ url_for('lk_page') }}" class="btn-reg">Личный кабинет</a>
+                        {% else %}
+                            <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
+                            <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="leader-widget">
+                    <span class="widget-title">Лидер чтений</span>
+                    <div class="widget-main">
+                        <div class="book-placeholder">
+                             <img src="{{ url_for('static', filename='main/images/Vector.png') }}" alt="Book Icon">
+                        </div>
+                        <div class="widget-text">
+                            <h3>Название</h3>
+                            <p class="author">Автор</p>
+                            <p class="desc">Описание</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <div class="about-grid">
+                <div class="info-card main-info">
+                    <div class="main-info-content">
+                        <h2>О продукте</h2>
+                        <p>Простой инструмент для управления домашней библиотекой. Ведите учет книг, сохраняйте важные мысли в заметках и формируйте наглядные отчеты в пару кликов.</p>
+                    </div>
+                    <a href="#" class="btn-more">
+                        <span>Подробнее</span>
+                        <svg class="arrow-svg" width="100" height="12" viewBox="0 0 100 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 6H98M98 6L93 1M98 6L93 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="stat-card"><span class="stat-number">5000+</span><p class="stat-title">шедевров литературы</p></div>
+                <div class="stat-card"><span class="stat-number">03</span><p class="stat-title">Универсальных формата</p></div>
+                <div class="stat-card"><span class="stat-number">∞</span><p class="stat-title">Важных заметок</p></div>
+                <div class="stat-card"><span class="stat-number">100%</span><p class="stat-title">Точных отчетов</p></div>
+            </div>
+        </section>
+
+        <section class="catalog-section">
+            <div class="catalog-container">
+                <h2 class="catalog-title">Каталог книг</h2>
+                <div class="book-grid">
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Фёдор Достоевский</p>
+                            <h4 class="book-title">Идиот</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.9
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test2.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Михаил Булгаков</p>
+                            <h4 class="book-title">Мастер и Маргарита</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test3.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Лев Толстой</p>
+                            <h4 class="book-title">Война и мир</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 4.8
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Антон Чехов</p>
+                            <h4 class="book-title">Палата №6</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Антон Чехов</p>
+                            <h4 class="book-title">Палата №6</h4>
+                            <div class="book-rating">
+                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.png') }}" alt="Оценка" class="book-reit-img"></span> 5.0
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="catalog-footer">
+                    <div class="slider-nav">
+                        <button class="nav-btn prev">←</button>
+                        <button class="nav-btn next">→</button>
+                    </div>
+                    <a href="#" class="btn-all-catalog">Весь каталог</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-left">
+                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
+                    <div class="social-links">
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="Telegram">
+                        </div>
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="Instagram">
+                        </div>
+                        <div class="social-item">
+                            <img src="{{ url_for('static', filename='main/images/vk.svg') }}" alt="VK">
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="footer-nav">
+                    <a href="{{ url_for('index') }}">Главная</a>
+                    <a href="#">О продукте</a>
+                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
+                </nav>
+
+                <div class="footer-right">
+                    <a href="#" class="btn-up" title="Наверх">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-line"></div>
+        </div>
+    </footer>
+
+</body>
+</html>
