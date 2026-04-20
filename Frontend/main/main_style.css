@@ -612,13 +612,6 @@ body {
     transform: scale(1.1);
 }
 
-.book-rating {
-    display: flex;
-    align-items: center; /* Центрируем иконку и число 4.8 по вертикали */
-    gap: 6px; /* Расстояние между звездой и цифрами */
-    font-weight: bold;
-    color: var(--dark); 
-}
 
 /* НАВИГАЦИЯ ПОД КАТАЛОГОМ */
 .catalog-footer {

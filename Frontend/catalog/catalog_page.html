@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог книг | E-Book</title>
+    <link rel="stylesheet" href="catalog_style.css">
+    <script src="assets/js/script_catalog.js"></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <a href="index.html" class="logo">E-Book</a>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="#" class="nav-link">О продукте</a>
+                <a href="#" class="nav-link active">Каталог</a>
+                <a href="#" class="nav-link">Контакты</a>
+            </nav>
+            <div class="profile-section">
+                <a href="lk_page.html" class="profile-text">Личный кабинет</a>
+                <div class="profile-avatar">
+                    <img src="images/Profile.svg" alt="Avatar">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container content-wrapper">
+        
+        <section class="catalog-section">
+            <div class="catalog-container">
+                <h2 class="catalog-title">Топ книг за неделю</h2>
+                
+                <div class="book-grid">
+                    <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Фёдор Достоевский</p>
+                            <h4 class="book-title">Идиот</h4>
+                            <div class="book-rating">
+                                <span class="star">
+                                    <img src="images/star.svg" alt="Оценка" class="book-reit-img">
+                                </span> 
+                                4.9
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="book-card">
+                        <div class="book-visual">
+                            <div class="css-book-shape">
+                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <p class="book-author">Фёдор Достоевский</p>
+                            <h4 class="book-title">Идиот</h4>
+                            <div class="book-rating">
+                                <span class="star">
+                                    <img src="images/star.svg" alt="Оценка" class="book-reit-img">
+                                </span> 
+                                4.9
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-section">
+            <div class="catalog-container">
+                <div class="filter-controls">
+                    
+                    <div class="search-bar">
+                        <img src="images/search.svg" alt="" class="search-icon">
+                        <input type="text" placeholder="Поиск">
+                        <button class="search-btn">Найти</button>
+                    </div>
+
+                    <div class="filter-field">
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select">
+                                <div class="custom-select__trigger">
+                                    <span>Жанр</span>
+                                    <div class="arrow"></div>
+                                </div>
+                                <div class="custom-options">
+                                    <span class="custom-option selected" data-value="">Жанр</span>
+                                    <span class="custom-option" data-value="classic">Классика</span>
+                                    <span class="custom-option" data-value="fantasy">Фэнтези и фантастика</span>
+                                    <span class="custom-option" data-value="detective">Детективы и триллеры</span>
+                                    <span class="custom-option" data-value="modern">Современная проза</span>
+                                    <span class="custom-option" data-value="romance">Романы</span>
+                                    <span class="custom-option" data-value="other">Другое</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" id="custom-genre-input" class="custom-input hidden" placeholder="Введите жанр">
+                    </div>
+
+                    <div class="filter-field">
+                        <input type="text" class="custom-input" placeholder="Год">
+                    </div>
+
+                    <div class="filter-field">
+                        <input type="text" class="custom-input" placeholder="Автор">
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-main-section">
+            <div class="catalog-main-grid">
+                <div class="catalog-main-card">
+                    <div class="catalog-main-visual">
+                        <div class="catalog-main-shape">
+                            <img src="images/test.jpg" alt="Cover" class="catalog-main-cover-img">
+                        </div>
+                    </div>
+                    <div class="catalog-main-info">
+                        <h3 class="catalog-main-title">Название книги</h3>
+                        <p class="catalog-main-author">Автор произведения</p>
+                        <p class="catalog-main-desc">Здесь будет описание книги, которое автоматически обрезается до трех строк, если оно слишком длинное, чтобы карточки выглядели аккуратно.</p>
+                        <a href="#" class="catalog-main-btn">Читать больше</a>
+                    </div>
+                </div>
+
+                <div class="catalog-main-card">
+                    <div class="catalog-main-visual">
+                        <div class="catalog-main-shape">
+                            <img src="images/test.jpg" alt="Cover" class="catalog-main-cover-img">
+                        </div>
+                    </div>
+                    <div class="catalog-main-info">
+                        <h3 class="catalog-main-title">Название книги</h3>
+                        <p class="catalog-main-author">Автор произведения</p>
+                        <p class="catalog-main-desc">Здесь будет описание книги, которое автоматически обрезается до трех строк, если оно слишком длинное, чтобы карточки выглядели аккуратно.</p>
+                        <a href="#" class="catalog-main-btn">Читать больше</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-left">
+                    <a href="#" class="footer-logo">E-Book</a>
+                    <div class="social-links">
+                        <div class="social-item"><img src="images/tg.svg" alt="tg"></div>
+                        <div class="social-item"><img src="images/inst.svg" alt="inst"></div>
+                        <div class="social-item"><img src="images/vk.svg" alt="vk"></div>
+                    </div>
+                </div>
+                <nav class="footer-nav">
+                    <a href="#">Главная</a>
+                    <a href="#">О продукте</a>
+                    <a href="#">Контакты</a>
+                    <a href="#">Личный кабинет</a>
+                </nav>
+
+                <div class="footer-right">
+                    <button class="btn-up" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Наверх">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="footer-line"></div>
+        </div>
+    </footer>
+
+</body>
+</html>
