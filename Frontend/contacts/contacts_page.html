@@ -4,24 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Контакты | E-Book</title>
-    <link rel="stylesheet" href="contscts_style.css">
-    <script src="assets/js/script_contacts.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='contacts/contacts_style.css') }}">
+    <script type="module" src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}"></script>
 </head>
 <body>
 
     <header class="main-header">
         <div class="header-container">
-            <a href="index.html" class="logo">E-Book</a>
+            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
             <nav class="nav-menu">
-                <a href="index.html" class="nav-link">Главная</a>
+                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
                 <a href="#" class="nav-link">О продукте</a>
                 <a href="#" class="nav-link">Каталог</a>
-                <a href="contacts_page.html" class="nav-link active">Контакты</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section">
-                <a href="lk_page.html" class="profile-text">Личный кабинет</a>
-                <div class="profile-avatar">
-                    <img src="images/Profile.svg" alt="Avatar">
+
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">Личный кабинет</span>
+
+                <div class="profile-avatar-letter">
+                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
                 </div>
             </div>
         </div>
@@ -39,7 +47,7 @@
                     <div class="badge">Обратная связь</div>
                     <h3 class="feedback-title">Будем на связи!</h3>
                     <p class="feedback-text">
-                        Есть идеи по улучшению сервиса или вы автор, который хочет опубликовать свои книги? 
+                        Есть идеи по улучшению сервиса или вы автор, который хочет опубликовать свои книги?
                         Пишите нам! Мы всегда открыты для предложений, которые сделают наше книжное сообщество еще лучше.
                     </p>
                 </div>
@@ -58,7 +66,7 @@
                         <label for="user-subject">Тема обращения</label>
                     </div>
                     <div class="form-group">
-                        <textarea id="user-message" placeholder=" " required></textarea>
+                        <input type="text" id="user-message" placeholder=" " required>
                         <label for="user-message">Сообщение или описание вашей идеи</label>
                     </div>
                     <button type="submit" class="btn-submit">Отправить сообщение</button>
@@ -69,36 +77,35 @@
                 <div class="contacts-text">
                     <h2>Наши контакты</h2>
                     <div class="contact-item">
-                        <span>e-mail:</span>
+                        <span>e-mail: wolfy7406@gmail.com</span>
                     </div>
                     <div class="contact-item">
-                        <span>Телефон:</span>
+                        <span>Телефон: +7 (9xx) xxx-xx-xx</span>
                     </div>
                 </div>
                 <div class="contacts-illustration">
-                    <img src="images/books.png" alt="Books and leaves">
+                    <img src="{{ url_for('static', filename='contacts/images/books.png') }}" alt="Books and leaves">
                 </div>
             </section>
         </div>
     </main>
 
-
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="#" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
-                        <div class="social-item"><img src="images/tg.svg" alt="tg"></div>
-                        <div class="social-item"><img src="images/inst.svg" alt="inst"></div>
-                        <div class="social-item"><img src="images/vk.svg" alt="vk"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/tg.svg') }}" alt="tg"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/inst.svg') }}" alt="inst"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='contacts/images/vk.svg') }}" alt="vk"></div>
                     </div>
                 </div>
                 <nav class="footer-nav">
-                    <a href="#">Главная</a>
+                    <a href="{{ url_for('index') }}">Главная</a>
                     <a href="#">О продукте</a>
-                    <a href="#">Контакты</a>
-                    <a href="#">Личный кабинет</a>
+                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
                 </nav>
 
                 <div class="footer-right">

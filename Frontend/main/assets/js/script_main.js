@@ -22,6 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const profileTrigger = document.getElementById('profileDropdownTrigger');
+    const profileMenu = document.getElementById('headerProfileMenu');
+
+    if (profileTrigger && profileMenu) {
+        profileTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileTrigger.contains(e.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    }
+
     //2. СЛАЙДЕР КАТАЛОГа
     const grid = document.querySelector('.book-grid');
     const nextBtn = document.querySelector('.nav-btn.next');

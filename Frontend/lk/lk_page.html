@@ -13,18 +13,23 @@
         <div class="header-container">
             <a href="{{ url_for('index') }}" class="logo">E-Book</a>
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
                 <a href="#" class="nav-link">О продукте</a>
                 <a href="#" class="nav-link">Каталог</a>
-                <a href="#" class="nav-link">Контакты</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section">
-                <a href="{{ url_for('lk_page') }}" class="profile-text">Личный кабинет</a>
-                <a href="{{ url_for('lk_page') }}" style="text-decoration: none;">
-                    <div class="profile-avatar-letter">
-                        {{ session['username'][0] | upper if session.get('username') else '?' }}
-                    </div>
-                </a>
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">Личный кабинет</span>
+
+                <div class="profile-avatar-letter">
+                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                </div>
             </div>
         </div>
     </header>
@@ -308,7 +313,7 @@
                 <nav class="footer-nav">
                     <a href="{{ url_for('index') }}">Главная</a>
                     <a href="#">О продукте</a>
-                    <a href="#">Контакты</a>
+                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
                     <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
                 </nav>
                 <div class="footer-right">

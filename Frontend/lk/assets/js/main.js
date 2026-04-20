@@ -206,6 +206,23 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    const profileTrigger = document.getElementById('profileDropdownTrigger');
+    const profileMenu = document.getElementById('headerProfileMenu');
+
+    if (profileTrigger && profileMenu) {
+        profileTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Чтобы клик не уходил на документ
+            profileMenu.classList.toggle('active');
+        });
+
+        // Закрытие меню при клике в любое другое место
+        document.addEventListener('click', (e) => {
+            if (!profileTrigger.contains(e.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    }
+
     const addBtn = document.querySelector('.btn-add-book');
     if (addBtn) {
         addBtn.onclick = () => {

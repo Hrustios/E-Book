@@ -2,7 +2,6 @@
 const btnUp = document.querySelector('.btn-up');
 
 if (btnUp) {
-    // Показываем/скрываем кнопку при скролле
     window.addEventListener('scroll', () => {
         if (window.scrollY > 400) {
             btnUp.style.opacity = '1';
@@ -13,12 +12,25 @@ if (btnUp) {
         }
     });
 
-    // Плавный скролл при клике
     btnUp.addEventListener('click', (e) => {
         e.preventDefault();
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// === ВЫПАДАЮЩЕЕ МЕНЮ ПРОФИЛЯ ===
+const profileTrigger = document.getElementById('profileDropdownTrigger');
+const profileMenu = document.getElementById('headerProfileMenu');
+
+if (profileTrigger && profileMenu) {
+    profileTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!profileTrigger.contains(e.target)) {
+            profileMenu.classList.remove('active');
+        }
     });
 }

@@ -33,8 +33,9 @@ app.config['MAIL_DEFAULT_SENDER'] = 'wolfy7406@gmail.com'
 mail.init_app(app)
 
 # Регистрация блюпринтов
-app.register_blueprint(auth_reg_bp)
-app.register_blueprint(auth_login_bp)
+# Исправленный блок в ebook.py
+app.register_blueprint(auth_reg_bp, name='auth_reg')
+app.register_blueprint(auth_login_bp, name='auth_login')
 
 
 @app.route('/')
@@ -111,6 +112,9 @@ def add_book():
 
     return "Файлы книги или обложки не выбраны", 400
 
+@app.route('/contacts')
+def contacts_page():
+    return render_template('contacts/contacts_page.html')
 
 @app.route('/get_my_books')
 def get_my_books():
