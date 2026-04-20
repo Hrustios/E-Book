@@ -16,7 +16,7 @@
 
             <nav class="nav-menu">
                 <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
-                <a href="#" class="nav-link">О продукте</a>
+                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
                 <a href="#" class="nav-link">Каталог</a>
                 <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
@@ -202,7 +202,7 @@
 
                 <nav class="footer-nav">
                     <a href="{{ url_for('index') }}">Главная</a>
-                    <a href="#">О продукте</a>
+                    <a href="{{ url_for('about_page') }}">О продукте</a>
                     <a href="{{ url_for('contacts_page') }}">Контакты</a>
                     <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
                 </nav>

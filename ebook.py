@@ -242,5 +242,9 @@ def read_page(book_id):
     except Exception as e:
         return f"Ошибка: {str(e)}", 500
 
+@app.route('/about')
+def about_page():
+    return render_template('about/about_page.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
