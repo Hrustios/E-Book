@@ -45,24 +45,40 @@
         <section class="catalog-section">
             <div class="catalog-container">
                 <h2 class="catalog-title">Топ книг за неделю</h2>
-                
+
                 <div class="book-grid">
-                    <div class="book-card">
+                    {% for book in top_books %}
+                    <div class="book-card open-modal-btn"
+                         style="cursor: pointer;"
+                         data-id="{{ book['id'] }}"
+                         data-title="{{ book['title'] }}"
+                         data-author="{{ book['author_name'] }}"
+                         data-desc="{{ book['description'] }}"
+                         data-cover="{{ book['cover_url'] }}"
+                         data-pages="{{ book['pages'] }}"
+                         data-year="{{ book['release_year'] }}"
+                         data-genre="{{ book['genre'] }}"
+                         data-file-url="{{ book['file_url'] }}"
+                         data-avg-rating="{{ '%.1f'|format(book['average_rating'] or 0) }}"
+                         data-downloads="{{ book['download_count'] or 0 }}">
+
                         <div class="book-visual">
                             <div class="css-book-shape">
-                                <img src="{{ url_for('static', filename='main/images/test.jpg') }}" alt="Обложка" class="book-cover-img">
+                                <img src="{{ book['cover_url'] }}" alt="Обложка" class="book-cover-img">
                             </div>
                         </div>
                         <div class="book-info">
-                            <p class="book-author">Фёдор Достоевский</p>
-                            <h4 class="book-title">Идиот</h4>
+                            <p class="book-author">{{ book['author_name'] }}</p>
+                            <h4 class="book-title">{{ book['title'] }}</h4>
                             <div class="book-rating">
                                 <span class="star">
                                     <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img">
-                                </span> 4.9
+                                </span>
+                                {{ "%.1f"|format(book['average_rating'] or 0) }}
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </section>
@@ -208,26 +224,38 @@
                         <button class="btn-icon" id="modal-download-btn">
                             <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
                         </button>
-                        <div class="note-wrapper">
-                            <button class="btn-icon" id="modal-note-btn">
-                                <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
-                            </button>
 
-                            <div id="note-container" class="note-dropdown hidden">
-                                <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
-                                <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                        <div id="reader-tools" style="display: flex; gap: 10px;">
+                            <div class="note-wrapper">
+                                <button class="btn-icon" id="modal-note-btn">
+                                    <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
+                                </button>
+
+                                <div id="note-container" class="note-dropdown hidden">
+                                    <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
+                                    <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                                </div>
+                            </div>
+                            <div class="more-options">
+                                <button class="btn-icon" id="moreOptionsBtn">
+                                    <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
+                                </button>
+                                <div class="options-dropdown" id="optionsDropdown">
+                                    <button class="dropdown-item">Прочитана</button>
+                                    <button class="dropdown-item">Читаю</button>
+                                    <button class="dropdown-item">В отложенные</button>
+                                    <button class="dropdown-item">В желаемые</button>
+                                </div>
                             </div>
                         </div>
-                        <div class="more-options">
-                            <button class="btn-icon" id="moreOptionsBtn">
-                                <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
+
+                        <div id="author-tools" style="display: none; gap: 10px;">
+                            <button class="btn-icon" id="modal-edit-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/edit.svg') }}" alt="Edit">
                             </button>
-                            <div class="options-dropdown" id="optionsDropdown">
-                                <button class="dropdown-item">Прочитана</button>
-                                <button class="dropdown-item">Читаю</button>
-                                <button class="dropdown-item">В отложенные</button>
-                                <button class="dropdown-item">В желаемые</button>
-                            </div>
+                            <button class="btn-icon" id="modal-delete-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/delete.svg') }}" alt="Delete">
+                            </button>
                         </div>
                     </div>
 
@@ -238,7 +266,8 @@
                         <div class="modal-tags">
                             <span class="tag" id="modal-genre">Жанр</span>
                         </div>
-                        <div class="modal-footer-stars">
+
+                        <div class="modal-footer-stars" id="user-rating-section">
                             <div class="star-rating" id="interactive-rating">
                                 <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="1" class="star-icon" data-value="1">
                                 <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="2" class="star-icon" data-value="2">

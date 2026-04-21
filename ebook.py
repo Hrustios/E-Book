@@ -108,6 +108,7 @@ def catalog_page():
     query_parts = ["WHERE 1=1"]
     params = []
 
+    # --- Фильтрация (твой существующий код) ---
     if search_query:
         query_parts.append("AND (title LIKE ? OR description LIKE ?)")
         params.extend([f'%{search_query}%', f'%{search_query}%'])
@@ -134,6 +135,25 @@ def catalog_page():
 
     try:
         with get_db_connection() as conn:
+            # 1. ЗАПРОС ДЛЯ ТОП-4 ЗА НЕДЕЛЮ
+            # Ищем книги, у которых были оценки за последние 7 дней
+            top_books = conn.execute('''
+                                     SELECT b.*, AVG(ul.rating) as weekly_avg
+                                     FROM Books b
+                                              JOIN User_Library ul ON b.id = ul.book_id
+                                     WHERE ul.rating > 0
+                                       AND ul.read_date >= date ('now'
+                                         , '-7 days')
+                                     GROUP BY b.id
+                                     ORDER BY weekly_avg DESC
+                                         LIMIT 4
+                                     ''').fetchall()
+
+            # Подстраховка: если за неделю никто ничего не оценивал, берем просто лучшие
+            if not top_books:
+                top_books = conn.execute('SELECT * FROM Books ORDER BY average_rating DESC LIMIT 4').fetchall()
+
+            # 2. ОСНОВНОЙ КАТАЛОГ (твой код)
             total_count = conn.execute(f"SELECT COUNT(*) FROM Books {where_clause}", params).fetchone()[0]
             total_pages = (total_count + per_page - 1) // per_page
 
@@ -141,11 +161,13 @@ def catalog_page():
                 f"SELECT * FROM Books {where_clause} ORDER BY upload_date DESC LIMIT ? OFFSET ?",
                 params + [per_page, offset]
             ).fetchall()
+
     except Exception as e:
         print(f"Ошибка каталога: {e}")
-        books, total_pages = [], 0
+        top_books, books, total_pages = [], [], 0
 
     return render_template('catalog/catalog_page.html',
+                           top_books=top_books,  # ПЕРЕДАЕМ ТОП
                            books=books, page=page, total_pages=total_pages,
                            current_search=search_query, current_genre=genre,
                            current_year=year, current_author=author)
@@ -341,22 +363,55 @@ def get_book_note(book_id):
 @app.route('/get_book_user_data/<int:book_id>')
 def get_book_user_data(book_id):
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"note": "", "status": "none", "user_rating": 0})
-
     with get_db_connection() as conn:
-        row = conn.execute(
-            'SELECT note, status, rating FROM User_Library WHERE user_id = ? AND book_id = ?',
-            (user_id, book_id)
-        ).fetchone()
+        # 1. Получаем данные о самой книге (средний рейтинг и автор)
+        book_info = conn.execute('SELECT author_id, average_rating FROM Books WHERE id = ?', (book_id,)).fetchone()
 
-    if row:
-        return jsonify({
-            "note": row['note'],
-            "status": row['status'] or 'none',
-            "user_rating": row['rating'] or 0
-        })
-    return jsonify({"note": "", "status": "none", "user_rating": 0})
+        # 2. Получаем данные пользователя
+        user_data = None
+        if user_id:
+            user_data = conn.execute('SELECT note, status, rating FROM User_Library WHERE user_id = ? AND book_id = ?',
+                                     (user_id, book_id)).fetchone()
+
+    return jsonify({
+        "is_author": book_info['author_id'] == user_id if user_id else False,
+        "avg_rating": book_info['average_rating'] or 0.0,  # ОТПРАВЛЯЕМ СРЕДНИЙ
+        "note": user_data['note'] if user_data else "",
+        "status": user_data['status'] if user_data else "none",
+        "user_rating": user_data['rating'] if user_data else 0
+    })
+
+
+@app.route('/delete_book/<int:book_id>', methods=['DELETE'])
+def delete_book(book_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+
+    try:
+        with get_db_connection() as conn:
+            # 1. Сначала проверяем, существует ли книга и принадлежит ли она пользователю
+            book = conn.execute('SELECT author_id FROM Books WHERE id = ?', (book_id,)).fetchone()
+
+            if not book:
+                return jsonify({"status": "error", "message": "Книга не найдена"}), 404
+
+            if book['author_id'] != user_id:
+                return jsonify({"status": "error", "message": "У вас нет прав на удаление этой книги"}), 403
+
+            # 2. Удаляем связанные записи из User_Library (чтобы не нарушить целостность)
+            conn.execute('DELETE FROM User_Library WHERE book_id = ?', (book_id,))
+
+            # 3. Удаляем саму книгу
+            conn.execute('DELETE FROM Books WHERE id = ?', (book_id,))
+
+            # 4. ОБЯЗАТЕЛЬНО фиксируем изменения
+            conn.commit()
+
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"Ошибка при удалении книги: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/save_book_note', methods=['POST'])
 def save_book_note():
