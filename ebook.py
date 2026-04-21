@@ -151,6 +151,34 @@ def catalog_page():
                            current_year=year, current_author=author)
 
 
+@app.route('/track_download', methods=['POST'])
+def track_download():
+    data = request.get_json()
+    user_id = session.get('user_id')
+    book_id = data.get('book_id')
+
+    if not user_id:
+        return jsonify({"status": "error", "message": "Нужна авторизация"}), 401
+
+    with get_db_connection() as conn:
+        # Проверяем, качал ли уже этот пользователь эту книгу
+        existing = conn.execute('SELECT id FROM Downloads WHERE user_id = ? AND book_id = ?',
+                                (user_id, book_id)).fetchone()
+
+        if not existing:
+            # 1. Записываем факт уникального скачивания
+            conn.execute('INSERT INTO Downloads (user_id, book_id) VALUES (?, ?)', (user_id, book_id))
+
+            # 2. Обновляем счетчик в таблице Books
+            conn.execute('UPDATE Books SET download_count = download_count + 1 WHERE id = ?', (book_id,))
+            conn.commit()
+
+            # Получаем новое число для фронтенда
+            new_count = conn.execute('SELECT download_count FROM Books WHERE id = ?', (book_id,)).fetchone()[0]
+            return jsonify({"status": "counted", "new_count": new_count})
+
+    return jsonify({"status": "already_downloaded"})
+
 @app.route('/get_my_books')
 def get_my_books():
     user_id = session.get('user_id')
@@ -251,15 +279,20 @@ def update_library_status():
     status_map = {"Прочитана": "read", "Читаю": "reading", "В отложенные": "dropped", "В желаемые": "wish"}
     db_status = status_map.get(status_text)
 
+    # SQL-функция для локального времени
+    current_time_sql = "datetime('now', 'localtime')"
+
     with get_db_connection() as conn:
-        existing = conn.execute('SELECT status, note FROM User_Library WHERE user_id = ? AND book_id = ?',
+        existing = conn.execute('SELECT status, note, read_date FROM User_Library WHERE user_id = ? AND book_id = ?',
                                 (user_id, book_id)).fetchone()
 
         if existing:
             if existing['status'] == db_status:
-                # Если нажали на тот же статус — «сбрасываем» его в 'none'
-                # Книга остается в таблице только если там есть заметка
-                if existing['note'] and existing['note'] != "Без заметки":
+                # Кликнули по той же кнопке — снимаем статус
+                # Но read_date НЕ трогаем (сохраняем историю прочтения)
+                new_status = "none" if (existing['note'] and existing['note'] != "Без заметки") else None
+
+                if new_status:
                     conn.execute('UPDATE User_Library SET status = "none" WHERE user_id = ? AND book_id = ?',
                                  (user_id, book_id))
                     result = "status_none"
@@ -268,13 +301,25 @@ def update_library_status():
                                  (user_id, book_id))
                     result = "removed"
             else:
-                conn.execute('UPDATE User_Library SET status = ? WHERE user_id = ? AND book_id = ?',
-                             (db_status, user_id, book_id))
+                # Смена статуса на другой
+                if db_status == 'read':
+                    # Обновляем дату только при переходе в "Прочитана"
+                    conn.execute(
+                        f'UPDATE User_Library SET status = ?, read_date = {current_time_sql} WHERE user_id = ? AND book_id = ?',
+                        (db_status, user_id, book_id))
+                else:
+                    # При смене на другой статус (например, "Читаю") дату ОСТАВЛЯЕМ старой
+                    conn.execute('UPDATE User_Library SET status = ? WHERE user_id = ? AND book_id = ?',
+                                 (db_status, user_id, book_id))
                 result = "updated"
         else:
-            conn.execute('INSERT INTO User_Library (user_id, book_id, status, note, rating) VALUES (?, ?, ?, ?, ?)',
+            # Первая вставка
+            read_date_val = current_time_sql if db_status == 'read' else "NULL"
+            conn.execute(f'''INSERT INTO User_Library (user_id, book_id, status, note, rating, read_date) 
+                             VALUES (?, ?, ?, ?, ?, {read_date_val})''',
                          (user_id, book_id, db_status, "Без заметки", 0))
             result = "inserted"
+
         conn.commit()
     return jsonify({"status": result})
 
@@ -295,28 +340,23 @@ def get_book_note(book_id):
 
 @app.route('/get_book_user_data/<int:book_id>')
 def get_book_user_data(book_id):
-    if 'user_id' not in session:
-        return jsonify({"note": "", "status": None})
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"note": "", "status": "none", "user_rating": 0})
 
     with get_db_connection() as conn:
         row = conn.execute(
-            'SELECT note, status FROM User_Library WHERE user_id = ? AND book_id = ?',
-            (session['user_id'], book_id)
+            'SELECT note, status, rating FROM User_Library WHERE user_id = ? AND book_id = ?',
+            (user_id, book_id)
         ).fetchone()
 
     if row:
-        # Обратный маппинг, чтобы JS понимал, какой текст подсветить
-        status_map_rev = {
-            "read": "Прочитана",
-            "reading": "Читаю",
-            "dropped": "В отложенные",
-            "wish": "В желаемые"
-        }
         return jsonify({
             "note": row['note'],
-            "status": status_map_rev.get(row['status'])
+            "status": row['status'] or 'none',
+            "user_rating": row['rating'] or 0
         })
-    return jsonify({"note": "", "status": None})
+    return jsonify({"note": "", "status": "none", "user_rating": 0})
 
 @app.route('/save_book_note', methods=['POST'])
 def save_book_note():
@@ -337,6 +377,43 @@ def save_book_note():
                          (user_id, book_id, 'none', note_text, 0))
         conn.commit()
     return jsonify({"status": "success"})
+
+
+@app.route('/rate_book', methods=['POST'])
+def rate_book():
+    try:
+        data = request.get_json()
+        user_id = session.get('user_id')
+        book_id = data.get('book_id')
+        rating = int(data.get('rating'))
+
+        if not user_id:
+            return jsonify({"status": "error", "message": "Войдите в аккаунт"}), 401
+
+        with get_db_connection() as conn:
+            # 1. Обновляем личную оценку
+            existing = conn.execute('SELECT id FROM User_Library WHERE user_id = ? AND book_id = ?',
+                                    (user_id, book_id)).fetchone()
+            if existing:
+                conn.execute('UPDATE User_Library SET rating = ? WHERE user_id = ? AND book_id = ?',
+                             (rating, user_id, book_id))
+            else:
+                conn.execute('INSERT INTO User_Library (user_id, book_id, status, rating, note) VALUES (?, ?, ?, ?, ?)',
+                             (user_id, book_id, 'none', rating, "Без заметки"))
+
+            # 2. Считаем средний рейтинг (только тех, кто реально голосовал)
+            avg_row = conn.execute('SELECT AVG(rating) FROM User_Library WHERE book_id = ? AND rating > 0',
+                                   (book_id,)).fetchone()
+            new_avg = round(avg_row[0], 1) if avg_row[0] else 0.0
+
+            # 3. Пишем средний балл в таблицу книг
+            conn.execute('UPDATE Books SET average_rating = ? WHERE id = ?', (new_avg, book_id))
+            conn.commit()
+
+        return jsonify({"status": "success", "new_average": new_avg})
+    except Exception as e:
+        print(f"Error in rate_book: {e}") # Увидишь ошибку в консоли Python
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

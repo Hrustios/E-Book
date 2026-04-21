@@ -1219,6 +1219,24 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     animation: fadeInOut 2.5s ease forwards;
 }
+
+.star-icon {
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+    width: 25px; /* Подбери под свой дизайн */
+    margin: 0 2px;
+}
+
+.star-icon:hover {
+    transform: scale(1.2); /* Немного увеличиваем при наведении */
+}
+
+#interactive-rating {
+    display: flex;
+    gap: 5px;
+    padding: 10px 0;
+}
+
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translateY(20px); }
     15% { opacity: 1; transform: translateY(0); }

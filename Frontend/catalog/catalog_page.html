@@ -142,7 +142,9 @@
                                data-pages="{{ book['pages'] }}"
                                data-year="{{ book['release_year'] }}"
                                data-genre="{{ book['genre'] }}"
-                               data-file-url="{{ book['file_url'] }}"> Читать больше
+                               data-file-url="{{ book['file_url'] }}"
+                               data-avg-rating="{{ '%.1f'|format(book['average_rating'] or 0) }}"
+                               data-downloads="{{ book['download_count'] or 0 }}"> Читать больше
                             </a>
                         </div>
                     </div>
@@ -193,10 +195,12 @@
 
                     <div class="modal-stats">
                         <span class="rating">
-                            4,9 <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="rating">
+                            <span id="modal-avg-rating">0.0</span>
+                            <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="rating">
                         </span>
+
                         <span class="divider">|</span>
-                        <span class="downloads">100 скачиваний</span>
+                        <span class="downloads" id="modal-downloads">0 скачиваний</span>
                     </div>
 
                     <div class="modal-actions">
