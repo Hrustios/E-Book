@@ -7,8 +7,7 @@
 
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='contacts/contacts_style.css') }}">
-    <script type="module" src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='contacts/assets/js/script_contacts.js') }}" defer></script>
 </head>
 <body>
 
@@ -16,17 +15,21 @@
         <div class="header-container">
             <a href="{{ url_for('index') }}" class="logo">E-Book</a>
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
-                <a href="#" class="nav-link">О продукте</a>
-                <a href="#" class="nav-link">Каталог</a>
-                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('catalog_page') }}" class="nav-link">Каталог</a>
+                <a href="{{ url_for('contacts_page') }}" class="nav-link active">Контакты</a>
             </nav>
 
             <div class="profile-section" id="profileDropdownTrigger">
                 <span class="profile-text">Личный кабинет</span>
 
                 <div class="profile-avatar-letter">
-                    {{ session['username'][0] | upper if session.get('username') else '?' }}
+                    {% if session.get('username') %}
+                        {{ session['username'][0] | upper }}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='main/images/Profile.svg') }}" alt="?" class="avatar-img">
+                    {% endif %}
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">
@@ -55,7 +58,7 @@
                     </p>
                 </div>
 
-                <form class="feedback-form">
+                <form class="feedback-form" id="feedbackFormMain">
                     <div class="form-group">
                         <input type="text" id="user-name" placeholder=" " required>
                         <label for="user-name">Ваше имя / Никнейм</label>
@@ -74,6 +77,14 @@
                     </div>
                     <button type="submit" class="btn-submit">Отправить сообщение</button>
                 </form>
+                <div id="modalOverlay" class="modal-overlay" style="display: none;">
+                    <div id="successMessage" class="success-message-modal">
+                        <div class="success-icon">✓</div>
+                        <h2>Отправлено!</h2>
+                        <p>Мы получили ваше сообщение и ответим в ближайшее время.</p>
+                        <button class="btn-submit" onclick="closeSuccessModal()">Закрыть</button>
+                    </div>
+                </div>
             </section>
 
             <section class="bottom-contacts">
@@ -106,7 +117,7 @@
                 </div>
                 <nav class="footer-nav">
                     <a href="{{ url_for('index') }}">Главная</a>
-                    <a href="#">О продукте</a>
+                    <a href="{{ url_for('about_page') }}">О продукте</a>
                     <a href="{{ url_for('contacts_page') }}">Контакты</a>
                     <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
                 </nav>

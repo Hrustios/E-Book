@@ -182,6 +182,26 @@ body {
 
 .profile-avatar:hover { transform: scale(1.1); }
 
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
+
 /* HERO СЕКЦИЯ */
 .hero-section {
     height: 100vh;
@@ -592,13 +612,6 @@ body {
     transform: scale(1.1);
 }
 
-.book-rating {
-    display: flex;
-    align-items: center; /* Центрируем иконку и число 4.8 по вертикали */
-    gap: 6px; /* Расстояние между звездой и цифрами */
-    font-weight: bold;
-    color: var(--dark); 
-}
 
 /* НАВИГАЦИЯ ПОД КАТАЛОГОМ */
 .catalog-footer {
@@ -754,28 +767,6 @@ body {
     align-items: center;
     justify-content: center;
     transition: 0.4s ease;
-}
-
-.profile-avatar-letter {
-    width: 36px;          /* Такой же размер, как у обычной аватарки */
-    height: 36px;
-    background-color: var(--accent); /* Используем золотистый из твоих переменных */
-    color: var(--dark);              /* Темный текст для контраста */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;      /* Подходящий размер шрифта */
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Легкая рамка */
-}
-
-.profile-avatar-letter:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(232, 209, 167, 0.4);
 }
 
 .btn-up:hover { 
