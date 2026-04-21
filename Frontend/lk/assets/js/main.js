@@ -1,243 +1,250 @@
 // main.js
-import { initModalSystem, openModal, closeModal } from './modals.js';
-import { validateForm, initValidationListeners, clearErrors } from './validation.js';
-import { renderBooks, renderPagination, initSearch, openFullBookModal } from './books_ui.js';
-import { fetchMyBooks, downloadBook } from './api_handlers.js';
-import { initCustomSelect } from './select.js';
+import { openFullBookModal, renderBooks, renderPagination, initSearch } from './books_ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // === 1. ГЛОБАЛЬНЫЕ ПРИВЯЗКИ ===
-    // Прокидываем функции в window, чтобы они были доступны из HTML (onclick) и других скриптов (select.js)
+    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+    const bookGrid = document.querySelector('.profile-book-grid');
+    const paginationContainer = document.getElementById('pagination');
+    const filterOptions = document.querySelectorAll('.custom-option');
+    const filterTrigger = document.querySelector('.custom-select__trigger span');
+
+    let currentPage = 1;
+    let currentFilter = 'all';
+
+    // Сделаем функцию доступной глобально для onclick в HTML
     window.openFullBookModal = openFullBookModal;
-    window.closeModal = closeModal;
 
-    const infoModal = document.getElementById("book-modal");
-    const editModal = document.getElementById('editBookModal');
-    const uploadForm = document.getElementById('uploadBookForm');
-    const editForm = document.getElementById('editBookForm');
+    // --- 1. ЗАГРУЗКА ДАННЫХ ---
+    async function loadData(page = 1, filter = 'all') {
+        try {
+            const res = await fetch(`/get_my_books?page=${page}&filter=${filter}`);
+            const data = await res.json();
 
-    const coverInput = document.getElementById('coverInput');
-    const coverDropzone = document.getElementById('dropzoneContent');
-    const fileInput = document.getElementById('fileInput');
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-
-    // === 2. ИНИЦИАЛИЗАЦИЯ СИСТЕМ ===
-    initModalSystem();
-    initValidationListeners();
-    initSearch(document.getElementById('search-books'));
-    initCustomSelect();
-
-    /**
-     * Основная функция загрузки данных.
-     * Теперь поддерживает фильтрацию.
-     */
-    const loadData = (page = 1, filter = 'all') => {
-        fetchMyBooks(page, filter).then(data => {
-            const container = document.querySelector('.profile-book-grid');
-            if (container) {
-                renderBooks(data.books, container);
-                renderPagination(
-                    data.total_pages,
-                    data.current_page,
-                    document.getElementById('pagination'),
-                    (p) => loadData(p, filter)
-                );
-            }
-        }).catch(err => console.error("Ошибка загрузки данных:", err));
-    };
-
-    // Делаем loadData доступной для select.js
-    window.loadData = loadData;
-
-    // === 3. ПРЕДПРОСМОТР ФАЙЛОВ (ЗАГРУЗКА) ===
-    if (coverInput) {
-        coverInput.onchange = function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    coverDropzone.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:28px;">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        };
+            renderBooks(data.books, bookGrid);
+            renderPagination(data.total_pages, data.current_page, paginationContainer, (newPage) => {
+                currentPage = newPage;
+                loadData(currentPage, currentFilter);
+            });
+        } catch (err) {
+            console.error("Ошибка загрузки коллекции:", err);
+        }
     }
 
-    if (fileInput) {
-        fileInput.onchange = function() {
-            if (this.files[0]) {
-                fileNameDisplay.textContent = `Выбрано: ${this.files[0].name}`;
-                fileNameDisplay.style.color = "#27ae60";
-            }
-        };
-    }
+    // --- 2. ФИЛЬТРАЦИЯ (Кастомный селект) ---
+    filterOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            filterOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
 
-    // === 4. КНОПКИ В МОДАЛКЕ ПОДРОБНОСТЕЙ (INFO) ===
+            currentFilter = this.getAttribute('data-value');
+            filterTrigger.textContent = this.textContent;
+            currentPage = 1;
 
-    // Кнопка Чтения (Новая логика перехода)
-    const readBtn = infoModal ? infoModal.querySelector('.btn-read') : null;
-    if (readBtn) {
-        readBtn.onclick = function(e) {
-            e.preventDefault();
-            // Получаем ID из атрибута, который прописывает books_ui.js при открытии
-            const currentId = infoModal.getAttribute('data-current-id');
-            if (currentId) {
-                console.log("Переход к чтению книги ID:", currentId);
-                // Редирект на роут Flask (папка Frontend/read/read_page.html)
-                window.location.href = `/read/${currentId}`;
-            } else {
-                console.error("ID книги не найден в атрибутах модалки!");
-            }
-        };
-    }
+            loadData(currentPage, currentFilter);
+        });
+    });
 
-    // Кнопка Скачивания
-    const downloadBtn = document.getElementById('btn-download');
+    // --- 3. ЛОГИКА МОДАЛЬНОГО ОКНА КНИГИ (Кнопки внутри) ---
+
+    // === СКАЧАТЬ (Исправлено для принудительной загрузки) ===
+    const downloadBtn = document.getElementById('modal-download-btn');
     if (downloadBtn) {
-        downloadBtn.onclick = function(e) {
-            e.preventDefault();
-            const url = infoModal.getAttribute('data-file-url');
-            const title = document.getElementById("modal-name").textContent;
-            downloadBook(url, title, this);
+        downloadBtn.onclick = async function() {
+            const modal = document.getElementById('book-modal');
+            const fileUrl = modal.getAttribute('data-file-url');
+            const bookId = modal.getAttribute('data-current-id');
+            const bookTitle = document.getElementById('modal-name').textContent;
+
+            if (fileUrl && fileUrl !== 'null') {
+                try {
+                    // Используем fetch, чтобы получить файл как Blob
+                    // Это позволяет обойти настройки браузера "открывать в новой вкладке"
+                    const response = await fetch(fileUrl);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+
+                    // Задаем имя файла (название книги + расширение)
+                    a.download = `${bookTitle || 'book'}.pdf`;
+
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Чистим за собой
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                    // Трекаем скачивание в БД
+                    fetch('/track_download', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ book_id: bookId })
+                    });
+
+                    if (window.showToast) window.showToast("Загрузка началась...");
+                } catch (error) {
+                    console.error("Ошибка при скачивании:", error);
+                    // Если fetch не прошел (например, CORS), пробуем обычный способ
+                    const link = document.createElement('a');
+                    link.href = fileUrl;
+                    link.target = '_blank';
+                    link.download = '';
+                    link.click();
+                }
+            } else {
+                if (window.showToast) window.showToast("Файл книги не найден");
+            }
         };
     }
 
-    // Кнопка Перехода к редактированию
-    const editBtnInInfo = infoModal.querySelector('img[alt="Edit"]')?.closest('.btn-icon');
-    if (editBtnInInfo) {
-        editBtnInInfo.onclick = function() {
-            const currentId = infoModal.getAttribute('data-current-id');
+    // ЧТЕНИЕ
+    const readBtn = document.getElementById('modal-read-btn');
+    if (readBtn) {
+        readBtn.onclick = () => {
+            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
+            if (bookId) window.open(`/read/${bookId}`, '_blank');
+        };
+    }
 
-            closeModal(infoModal);
+    // ЗАМЕТКИ (Сохранение)
+    const saveNoteBtn = document.getElementById('save-note-btn');
+    if (saveNoteBtn) {
+        saveNoteBtn.onclick = async () => {
+            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
+            const noteText = document.getElementById('book-note-text').value;
 
-            const idInput = document.getElementById('edit-book-id');
-            if (idInput) {
-                idInput.value = currentId;
-            }
-
-            document.getElementById('edit-book-title').value = document.getElementById("modal-name").textContent.trim();
-
-            const authorEl = infoModal.querySelector(".modal-author");
-            document.getElementById('edit-book-author').value = authorEl ? authorEl.textContent.trim() : "";
-
-            document.getElementById('edit-book-year').value = document.getElementById("modal-year").textContent.trim();
-
-            const genreEl = infoModal.querySelector(".tag");
-            document.getElementById('edit-book-genre').value = genreEl ? genreEl.textContent.trim() : "";
-
-            document.getElementById('edit-book-description').value = document.getElementById("modal-description").textContent.trim();
-
-            document.getElementById('edit-cover-preview').src = infoModal.querySelector(".book-cover-img").src;
-
-            const readonlyFields = ['edit-book-title', 'edit-book-author'];
-            readonlyFields.forEach(fieldId => {
-                const el = document.getElementById(fieldId);
-                if (el) {
-                    el.setAttribute('readonly', true);
-                    el.style.opacity = '0.7';
-                    el.style.pointerEvents = 'none';
-                }
+            const res = await fetch('/save_book_note', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ book_id: bookId, note: noteText })
             });
 
-            setTimeout(() => {
-                clearErrors();
-                openModal(editModal);
-            }, 450);
+            if (res.ok && window.showToast) {
+                window.showToast("Заметка сохранена!");
+                document.getElementById('note-container').classList.add('hidden');
+            }
         };
     }
 
-    // === 5. ОБРАБОТКА ОТПРАВКИ ФОРМ ===
+    // УДАЛЕНИЕ КНИГИ
+    const deleteBtn = document.getElementById('modal-delete-btn');
+    if (deleteBtn) {
+        deleteBtn.onclick = async () => {
+            if (!confirm("Вы уверены, что хотите удалить свою книгу?")) return;
 
-    if (uploadForm) {
-        uploadForm.onsubmit = async function(e) {
-            e.preventDefault();
-            if (!validateForm('uploadBookForm')) return;
+            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
+            const res = await fetch(`/delete_book/${bookId}`, { method: 'DELETE' });
 
-            const btn = this.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = "Загрузка...";
-
-            const res = await fetch('/add_book', { method: 'POST', body: new FormData(this) });
             if (res.ok) {
-                document.getElementById('addBookFormGrid').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'flex';
-                loadData();
+                location.reload();
             } else {
-                alert("Ошибка при сохранении книги");
-            }
-            btn.disabled = false;
-            btn.textContent = "Добавить книгу";
-        };
-    }
-
-    if (editForm) {
-        editForm.onsubmit = async function(e) {
-            e.preventDefault();
-            if (!validateForm('editBookForm')) return;
-
-            const btn = document.getElementById('submitEditBook');
-            btn.disabled = true;
-            btn.textContent = "Сохранение...";
-
-            const formData = new FormData(editForm);
-
-            try {
-                const res = await fetch('/update_book', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await res.json();
-
-                if (res.ok && result.status === 'success') {
-                    closeModal(editModal);
-                    const currentFilter = document.querySelector('.custom-option.selected')?.getAttribute('data-value') || 'all';
-                    loadData(1, currentFilter);
-                } else {
-                    alert("Ошибка: " + (result.message || "Неизвестная ошибка"));
-                }
-            } catch (err) {
-                console.error("Ошибка сети:", err);
-                alert("Ошибка сети. Проверьте соединение.");
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Сохранить изменения";
+                alert("Ошибка при удалении");
             }
         };
     }
 
+    // РЕДАКТИРОВАНИЕ (Открытие формы)
+    const editBtn = document.getElementById('modal-edit-btn');
+    if (editBtn) {
+        editBtn.onclick = () => {
+            const infoModal = document.getElementById('book-modal');
+            const editModal = document.getElementById('editBookModal');
+
+            // Переносим данные из инфо-модалки в форму редактирования
+            document.getElementById('edit-book-id').value = infoModal.getAttribute('data-current-id');
+            document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
+            document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
+            document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, '');
+            document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
+            document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
+            document.getElementById('edit-cover-preview').src = infoModal.querySelector('.book-cover-img').src;
+
+            infoModal.style.display = 'none';
+            editModal.style.display = 'flex';
+        };
+    }
+
+    // --- 4. ДОПОЛНИТЕЛЬНЫЕ ИНТЕРФЕЙСНЫЕ ФИШКИ ---
+
+    // Переключатель выпадающего списка профиля в хедере
     const profileTrigger = document.getElementById('profileDropdownTrigger');
-    const profileMenu = document.getElementById('headerProfileMenu');
-
-    if (profileTrigger && profileMenu) {
-        profileTrigger.addEventListener('click', (e) => {
-            e.stopPropagation(); // Чтобы клик не уходил на документ
-            profileMenu.classList.toggle('active');
-        });
-
-        // Закрытие меню при клике в любое другое место
-        document.addEventListener('click', (e) => {
-            if (!profileTrigger.contains(e.target)) {
-                profileMenu.classList.remove('active');
-            }
-        });
-    }
-
-    const addBtn = document.querySelector('.btn-add-book');
-    if (addBtn) {
-        addBtn.onclick = () => {
-            uploadForm.reset();
-            clearErrors();
-            coverDropzone.innerHTML = `<img src="/lk/images/place.svg" class="placeholder-icon"><p>Загрузить обложку</p>`;
-            fileNameDisplay.textContent = 'Добавить файл книги';
-            fileNameDisplay.style.color = "";
-
-            document.getElementById('addBookFormGrid').style.display = 'grid';
-            document.getElementById('successMessage').style.display = 'none';
-            openModal(document.getElementById('addBookModal'));
+    if (profileTrigger) {
+        profileTrigger.onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById('headerProfileMenu').classList.toggle('active');
         };
     }
 
-    // Первоначальная загрузка
+    // Переключатель заметки в модалке
+    const noteBtn = document.getElementById('modal-note-btn');
+    if (noteBtn) {
+        noteBtn.onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById('note-container').classList.toggle('hidden');
+        };
+    }
+
+    // Переключатель статусов (More options)
+    const moreBtn = document.getElementById('moreOptionsBtn');
+    if (moreBtn) {
+        moreBtn.onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById('optionsDropdown').classList.toggle('active');
+        };
+    }
+
+    // Клик по статусу (смена статуса в БД)
+    document.querySelectorAll('.options-dropdown .dropdown-item').forEach(item => {
+        item.onclick = async function() {
+            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
+            const status = this.textContent.trim();
+
+            const res = await fetch('/update_library_status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ book_id: bookId, status: status })
+            });
+
+            if (res.ok) {
+                document.querySelectorAll('.options-dropdown .dropdown-item').forEach(i => i.classList.remove('active-status'));
+                this.classList.add('active-status');
+                if (window.showToast) window.showToast(`Статус: ${status}`);
+                loadData(currentPage, currentFilter); // Обновляем сетку
+            }
+        };
+    });
+
+    // Закрытие всего при клике вне окон
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        // Закрываем дропдауны
+        const drops = document.querySelectorAll('.options-dropdown, .header-dropdown, .note-dropdown');
+        drops.forEach(d => {
+            if (!d.contains(e.target)) d.classList.remove('active');
+            if (d.id === 'note-container' && !d.contains(e.target)) d.classList.add('hidden');
+        });
+    });
+
+    // Универсальный Toast
+    window.showToast = (message) => {
+        let toast = document.getElementById('toast-notification');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast-notification';
+            toast.className = 'toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    };
+
+    // --- СТАРТ ---
     loadData();
 });

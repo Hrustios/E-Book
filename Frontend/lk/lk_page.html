@@ -69,7 +69,7 @@
                     </div>
             </section>
 
-            <div class="lk-container">
+           <div class="lk-container">
                 <section class="collection-section">
                     <div class="collection-header">
                         <h2>Моя коллекция</h2>
@@ -91,20 +91,8 @@
                     </div>
 
                     <div class="profile-book-grid">
-                        <div class="profile-book-card">
-                            <div class="book-visual">
-                                <div class="css-book-shape">
-                                    <img src="{{ url_for('static', filename='lk/images/test.jpg') }}" alt="Cover" class="book-cover-img">
-                                </div>
-                            </div>
-                            <div class="p-book-info">
-                                <h3>Название</h3>
-                                <p class="p-author">Автор</p>
-                                <p class="p-desc">Описание книги</p>
-                                <a href="#" class="btn-read-more" onclick="openFullBookModal(this); return false;">Читать больше</a>
-                            </div>
                         </div>
-                    </div>
+
                     <div id="pagination" class="pagination-container"></div>
                 </section>
             </div>
@@ -119,59 +107,81 @@
                 <div class="modal-book-view">
                     <div class="book-visual large">
                         <div class="css-book-shape">
-                            <img src="{{ url_for('static', filename='lk/images/test.jpg') }}" alt="Cover" class="book-cover-img">
+                            <img src="" alt="Cover" class="book-cover-img">
                         </div>
                     </div>
                     <div class="modal-book-meta">
-                        <p>Кол-во страниц: <span id="modal-pages">0</span></p>
-                        <p>Год выпуска: <span id="modal-year">----</span></p>
+                        <span id="modal-pages">Страницы: —</span>
+                        <span id="modal-year">Год издания: —</span>
                     </div>
                 </div>
 
                 <div class="modal-book-info">
                     <h3 id="modal-name">Название</h3>
-                    <p class="modal-author">Автор</p>
+                    <p class="modal-author" id="modal-author">Автор</p>
 
                     <div class="modal-stats">
                         <span class="rating">
-                            0.0 <img src="{{ url_for('static', filename='lk/images/star.svg') }}" class="stat-star" alt="rating">
+                            <span id="modal-avg-rating">0.0</span>
+                            <img src="{{ url_for('static', filename='catalog/images/star_reit.svg') }}" alt="rating">
                         </span>
                         <span class="divider">|</span>
-                        <span class="downloads">0 скачиваний</span>
+                        <span class="downloads" id="modal-downloads">0 скачиваний</span>
                     </div>
 
                     <div class="modal-actions">
-                        <button class="btn-read">Читать книгу</button>
-                        <button class="btn-icon" id="btn-download">
-                            <img src="{{ url_for('static', filename='lk/images/load.svg') }}" alt="Load">
+                        <button class="btn-read" id="modal-read-btn">Читать книгу</button>
+                        <button class="btn-icon" id="modal-download-btn">
+                            <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
                         </button>
-                        <button class="btn-icon"><img src="{{ url_for('static', filename='lk/images/edit.svg') }}" alt="Edit"></button>
 
-                        <div class="more-options">
-                            <button class="btn-icon btn-more" id="moreBtn">...</button>
-                            <div class="options-dropdown" id="optionsDropdown">
-                                <button class="dropdown-item">Прочитана</button>
-                                <button class="dropdown-item">Читаю</button>
-                                <button class="dropdown-item">В отложенные</button>
-                                <button class="dropdown-item">В желаемые</button>
+                        <div id="reader-tools" style="display: flex; gap: 10px;">
+                            <div class="note-wrapper">
+                                <button class="btn-icon" id="modal-note-btn">
+                                    <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
+                                </button>
+                                <div id="note-container" class="note-dropdown hidden">
+                                    <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
+                                    <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                                </div>
                             </div>
+                            <div class="more-options">
+                                <button class="btn-icon" id="moreOptionsBtn">
+                                    <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
+                                </button>
+                                <div class="options-dropdown" id="optionsDropdown">
+                                    <button class="dropdown-item">Прочитана</button>
+                                    <button class="dropdown-item">Читаю</button>
+                                    <button class="dropdown-item">В отложенные</button>
+                                    <button class="dropdown-item">В желаемые</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="author-tools" style="display: none; gap: 10px;">
+                            <button class="btn-icon" id="modal-edit-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/edit.svg') }}" alt="Edit">
+                            </button>
+                            <button class="btn-icon" id="modal-delete-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/delete.svg') }}" alt="Delete">
+                            </button>
                         </div>
                     </div>
 
                     <h4>Описание</h4>
-                    <p id="modal-description">Описание появится здесь...</p>
+                    <p id="modal-description">Полное описание книги...</p>
 
                     <div class="modal-footer-line">
                         <div class="modal-tags">
-                            <span class="tag">Жанр</span>
+                            <span class="tag" id="modal-genre">Жанр</span>
                         </div>
-                        <div class="modal-footer-stars">
+                        <div class="modal-footer-stars" id="user-rating-section">
                             <div class="star-rating" id="interactive-rating">
-                                <img src="{{ url_for('static', filename='lk/images/star.svg') }}" alt="1" class="star-icon" data-value="1">
-                                <img src="{{ url_for('static', filename='lk/images/star.svg') }}" alt="2" class="star-icon" data-value="2">
-                                <img src="{{ url_for('static', filename='lk/images/star.svg') }}" alt="3" class="star-icon" data-value="3">
-                                <img src="{{ url_for('static', filename='lk/images/star.svg') }}" alt="4" class="star-icon" data-value="4">
-                                <img src="{{ url_for('static', filename='lk/images/star.svg') }}" alt="5" class="star-icon" data-value="5">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="1" class="star-icon" data-value="1">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="2" class="star-icon" data-value="2">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="3" class="star-icon" data-value="3">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="4" class="star-icon" data-value="4">
+                                <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="5" class="star-icon" data-value="5">
                             </div>
                         </div>
                     </div>
@@ -193,7 +203,7 @@
                             <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
 
                             <div class="dropzone-content" id="dropzoneContent">
-                                <img src="/lk/images/place.svg" class="placeholder-icon" alt="Обложка">
+                                <img src="lk/images/place.svg" class="placeholder-icon" alt="Обложка">
                                 <p>Загрузить обложку книги</p>
                             </div>
                         </label>

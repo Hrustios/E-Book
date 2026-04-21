@@ -16,9 +16,9 @@ from Backend.login_register.db_utils import get_db_connection
 from Backend.utils.parser_utils import get_page_count
 
 app = Flask(__name__,
-            template_folder='Frontend',
+            template_folder='Frontend',      # Ставим общую папку для всех HTML
             static_folder='Frontend',
-            static_url_path='')
+            static_url_path='')            # Тот самый "летающий" режим       # Обязательно с префиксом!
 
 app.secret_key = "chichiwichki"
 
@@ -43,8 +43,28 @@ app.register_blueprint(auth_login_bp)
 
 @app.route('/')
 def index():
-    return render_template('main/index.html')
+    try:
+        with get_db_connection() as conn:
+            # 1. Топ-7 книг по рейтингу и скачиваниям
+            # Используем точные названия: average_rating и download_count
+            top_books = conn.execute('''
+                                     SELECT id, title, author_name, average_rating, cover_url
+                                     FROM Books
+                                     ORDER BY average_rating DESC, download_count DESC LIMIT 7
+                                     ''').fetchall()
 
+            # 2. Лидер чтений (самая скачиваемая книга)
+            leader = conn.execute('''
+                                  SELECT id, title, author_name, description, cover_url
+                                  FROM Books
+                                  ORDER BY download_count DESC LIMIT 1
+                                  ''').fetchone()
+
+        return render_template('main/index.html', top_books=top_books, leader=leader)
+    except Exception as e:
+        print(f"Ошибка в роуте index: {e}")
+        # Возвращаем пустые списки, чтобы страница не падала при ошибке БД
+        return render_template('index.html', top_books=[], leader=None)
 
 @app.route('/lk')
 def lk_page():
@@ -201,10 +221,12 @@ def track_download():
 
     return jsonify({"status": "already_downloaded"})
 
+
 @app.route('/get_my_books')
 def get_my_books():
     user_id = session.get('user_id')
-    if not user_id: return jsonify({"error": "Unauthorized"}), 401
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
 
     page = request.args.get('page', 1, type=int)
     filter_type = request.args.get('filter', 'all')
@@ -212,12 +234,45 @@ def get_my_books():
     offset = (page - 1) * per_page
 
     with get_db_connection() as db:
-        query = "WHERE author_id = ?"
+        base_query = '''
+            FROM Books b
+            LEFT JOIN User_Library ul ON b.id = ul.book_id AND ul.user_id = ?
+        '''
         params = [user_id]
+        where_clause = ""
 
-        books = db.execute(f'SELECT * FROM Books {query} ORDER BY upload_date DESC LIMIT ? OFFSET ?',
-                           (*params, per_page, offset)).fetchall()
-        total_books = db.execute(f'SELECT COUNT(*) FROM Books {query}', params).fetchone()[0]
+        if filter_type == 'my-books':
+            # Только книги, загруженные текущим пользователем
+            where_clause = "WHERE b.author_id = ?"
+            params.append(user_id)
+
+        elif filter_type == 'all':
+            # ИЗМЕНЕНО: Книги со статусом, но загруженные НЕ этим пользователем
+            where_clause = "WHERE ul.status IS NOT NULL AND ul.status != 'none' AND b.author_id != ?"
+            params.append(user_id)
+
+        else:
+            # Фильтрация по конкретному статусу
+            status_map = {
+                "read": "read",
+                "later": "dropped",
+                "wishlist": "wish"
+            }
+            db_status = status_map.get(filter_type, filter_type)
+            where_clause = "WHERE ul.status = ?"
+            params.append(db_status)
+
+        # Считаем общее количество для пагинации
+        total_books = db.execute(f"SELECT COUNT(*) {base_query} {where_clause}", params).fetchone()[0]
+
+        # Получаем книги
+        books = db.execute(f'''
+            SELECT b.*, ul.status as user_status 
+            {base_query} 
+            {where_clause} 
+            ORDER BY b.upload_date DESC 
+            LIMIT ? OFFSET ?
+        ''', (*params, per_page, offset)).fetchall()
 
     return jsonify({
         "books": [dict(b) for b in books],
@@ -381,6 +436,20 @@ def get_book_user_data(book_id):
         "user_rating": user_data['rating'] if user_data else 0
     })
 
+
+@app.route('/get_leader_book')
+def get_leader_book():
+    with get_db_connection() as conn:
+        # Берем книгу с максимальным количеством скачиваний
+        leader = conn.execute('''
+                              SELECT id, title, author_name, description, cover_url
+                              FROM Books
+                              ORDER BY download_count DESC LIMIT 1
+                              ''').fetchone()
+
+    if leader:
+        return jsonify(dict(leader))
+    return jsonify({"error": "No books found"}), 404
 
 @app.route('/delete_book/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):

@@ -1136,16 +1136,7 @@ body {
     visibility: visible;
     transform: translateY(0);
 }
-/*.options-dropdown {*/
-/*    display: none;*/
-/*    position: absolute;*/
-/*    !* твои стили позиционирования *!*/
-/*    z-index: 10010; !* выше контента модалки *!*/
-/*}*/
 
-/*.options-dropdown.active {*/
-/*    display: block;*/
-/*}*/
 .dropdown-item {
     background: none;
     border: none;

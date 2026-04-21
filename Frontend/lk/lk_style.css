@@ -817,53 +817,56 @@ body.modal-open {
 }
 
 .modal {
-    display: flex; 
+    display: none; /* Скрыта по умолчанию, JS меняет на flex */
     position: fixed;
-    z-index: 1000;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(5px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон */
+    z-index: 9999; /* Очень важно! Должна быть выше всего остального */
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px); /* Эффект размытия заднего фона */
 }
 
 .modal-content {
     background-color: #fff;
-    margin: auto; 
-    padding: 40px;
-    border-radius: 30px;
-    width: 100%;
-    max-width: 900px;
-    max-height: 90vh; 
-    overflow-y: auto; 
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 850px;
+    max-height: 90vh; /* Чтобы не вылезала за экран на ноутах */
+    overflow-y: auto; /* Скролл внутри модалки, если описание длинное */
     position: relative;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    transform: translateY(30px) scale(0.95);
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    animation: fadeIn 0.3s ease-out; /* Плавное появление */
+}
+
+.stat-star {
+    width: 16px;
+    height: 16px;
+    filter: invert(72%) sepia(86%) saturate(628%) hue-rotate(351deg) brightness(103%) contrast(104%);
 }
 
 .modal.is-visible {
-    opacity: 1;
-    visibility: visible;
+    display: flex; /* или то, что делает её видимой */
 }
 
-.modal.is-visible .modal-content {
-    transform: translateY(0) scale(1);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
+/* Кнопка закрытия (крестик) */
 .close-modal {
     position: absolute;
-    right: 25px;
-    top: 15px;
-    font-size: 35px;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
     cursor: pointer;
-    color: #442D1C;
-    z-index: 10;
+    color: #333;
+    z-index: 10001;
 }
 
 .modal-title {
@@ -876,7 +879,7 @@ body.modal-open {
 .modal-body {
     display: grid;
     /* Изменено: вторая колонка гибкая и не распирает окно */
-    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); 
+    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
     gap: 40px;
     align-items: start;
 }
@@ -889,45 +892,20 @@ body.modal-open {
 }
 
 .modal-book-view .book-visual.large {
-    width: 280px;
+    width: 100%;
     height: 400px;
-    margin: 0 auto;
-    box-shadow: 15px 15px 0px rgba(68, 45, 28, 0.05);
+    flex-shrink: 0;
 }
 
-.form-group {
-    margin-bottom: 12px; /* Фиксированный отступ между полями */
-    display: flex;
-    flex-direction: column;
-    /* Убираем position: relative, если будем использовать этот метод */
-}
-
-.error-message {
-    color: #ff4d4d;
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1;
-
-    /* Секрет отсутствия прыжков и скролла: */
-    height: 0;            /* Ошибка не занимает места по вертикали */
-    overflow: visible;    /* Но текст при этом виден */
-    margin: 0;
-    padding: 2px 0 0 4px;
-
-    display: none;        /* Появляется только при ошибке */
-}
-
-.form-input.input-error,
-.form-textarea.input-error {
-    border-color: #ff4d4d !important;
-    /* Чтобы инпут не дергался при смене бордера,
-       убедись что у обычного инпута бордер тоже 1.5px или 2px */
-}
-
-/* Фикс для textarea, чтобы не залипала */
-.form-textarea {
-    resize: none;
-    min-height: 80px;
+.modal-book-view .book-visual.large img {
+    /* width: 100%;  <-- УДАЛИ ЭТО ИЛИ ЗАМЕНИ НА НИЖЕУКАЗАННОЕ */
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 88%; /* Оставляем место под корешок */
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0 25px 25px 0; /* Скругляем только правую часть как у книги */
 }
 
 .modal-book-view .css-book-shape {
@@ -935,30 +913,9 @@ body.modal-open {
     height: 100%;
     background-color: #995F47;
     border: 1.5px solid #442D1C;
-    border-radius: 5px 35px 35px 5px; /* Чуть больше закругление для большой книги */
+    border-radius: 5px 25px 25px 5px;
     position: relative;
     overflow: hidden;
-}
-.modal-book-view .book-cover-img {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 86%; /* Оставляем место под переплет слева */
-    height: 100%;
-    object-fit: cover;
-    z-index: 2;
-    border-radius: 0 35px 35px 0;
-}
-
-.modal-book-view .css-book-shape::before {
-    content: '';
-    position: absolute;
-    left: 20px; /* Немного шире для большой книги */
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: rgba(68, 45, 28, 0.2);
-    z-index: 3;
 }
 
 .modal-book-meta {
@@ -977,6 +934,30 @@ body.modal-open {
     min-width: 0; /* Важно для предотвращения распирания текстом */
 }
 
+/* Специально для модалки */
+.modal-book-view .book-visual.large {
+    width: 100%;
+    height: 420px; /* Можно подстроить под себя */
+    position: relative;
+    box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
+    border-radius: 5px 25px 25px 5px;
+}
+
+/* Убедись, что псевдоэлемент корешка работает и здесь */
+.modal-book-view .css-book-shape::before {
+    content: '';
+    position: absolute;
+    left: 20px; /* Сдвиг для большой книги в модалке */
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: rgba(68, 45, 28, 0.3);
+    z-index: 3;
+}
+
+.book-visual.large .book-cover-img {
+    width: 88%; /* Подгоняем ширину обложки */
+}
 #modal-name {
     font-size: 28px;
     font-weight: 700;
@@ -1013,7 +994,7 @@ body.modal-open {
     transition: all 0.2s ease;
 }
 
-.options-dropdown.is-open {
+.options-dropdown.active {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -1034,6 +1015,56 @@ body.modal-open {
 .dropdown-item:hover {
     background-color: #F4EFE6;
 }
+
+.note-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.note-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 250px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 15px;
+    z-index: 100;
+    border: 1px solid #eee;
+    animation: slideDown 0.2s ease-out;
+}
+
+.note-dropdown.hidden { display: none; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.note-dropdown textarea {
+    width: 100%;
+    height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    resize: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.btn-save-note {
+    width: 100%;
+    background: #995F47;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-save-note:hover { background: #442D1C; }
 
 .modal-author {
     font-size: 18px;
@@ -1059,11 +1090,52 @@ body.modal-open {
     gap: 5px;
 }
 
-.stat-star {
-    width: 16px;
-    height: 16px;
-    filter: invert(72%) sepia(86%) saturate(628%) hue-rotate(351deg) brightness(103%) contrast(104%);
+.dropdown-item.active-status {
+    background-color: #995F47; /* Твой основной коричневый */
+    color: white !important;
+    font-weight: 600;
 }
+
+/* Стили для уведомления вместо алертов */
+.status-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #442D1C;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    /* z-index должен быть больше, чем у модального окна */
+    z-index: 9999;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: fadeInOut 2.5s ease forwards;
+}
+
+.star-icon {
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+    width: 25px; /* Подбери под свой дизайн */
+    margin: 0 2px;
+}
+
+.star-icon:hover {
+    transform: scale(1.2); /* Немного увеличиваем при наведении */
+}
+
+#interactive-rating {
+    display: flex;
+    gap: 5px;
+    padding: 10px 0;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
 
 .modal-actions {
     display: flex;
@@ -1120,12 +1192,21 @@ body.modal-open {
 .btn-read {
     background-color: #DCCFB8;
     border: none;
-    padding: 12px 25px;
+
+    /* Заменяем padding на фиксированную высоту */
+    height: 45px;
+    padding: 0 25px; /* Оставляем только боковые отступы */
+
     border-radius: 12px;
     color: #5B351F;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+
+    /* Добавляем flex для центрирования текста внутри фиксированной высоты */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-read:hover {
@@ -1137,8 +1218,11 @@ body.modal-open {
 .btn-icon {
     background-color: #DCCFB8;
     border: none;
+
+    /* Высота совпадает с .btn-read */
     width: 45px;
     height: 45px;
+
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -1152,6 +1236,8 @@ body.modal-open {
     transform: translateY(-4px);
 }
 
+
+
 .tag {
     border: 1px solid #ccc;
     padding: 6px 18px;
@@ -1160,6 +1246,7 @@ body.modal-open {
     color: #442D1C;
     white-space: nowrap;
 }
+
 
 /* АДАПТИВНОСТЬ (Медиа-запросы) */
 

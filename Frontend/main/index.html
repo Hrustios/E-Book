@@ -57,16 +57,15 @@
                     </div>
                 </div>
 
-                <div class="leader-widget">
-                    <span class="widget-title">Лидер чтений</span>
+                <div class="leader-widget" id="leader-widget"> <span class="widget-title">Лидер чтений</span>
                     <div class="widget-main">
-                        <div class="book-placeholder">
-                             <img src="{{ url_for('static', filename='main/images/Vector.png') }}" alt="Book Icon">
+                        <div class="book-placeholder" id="leader-cover-parent">
+                             <img src="{{ url_for('static', filename='/') }}" id="leader-cover" alt="Book Icon">
                         </div>
                         <div class="widget-text">
-                            <h3>Название</h3>
-                            <p class="author">Автор</p>
-                            <p class="desc">Описание</p>
+                            <h3 id="leader-title">Загрузка...</h3>
+                            <p class="author" id="leader-author">Автор</p>
+                            <p class="desc" id="leader-desc">Описание</p>
                         </div>
                     </div>
                 </div>
@@ -80,7 +79,7 @@
                         <h2>О продукте</h2>
                         <p>Простой инструмент для управления домашней библиотекой. Ведите учет книг, сохраняйте важные мысли в заметках и формируйте наглядные отчеты в пару кликов.</p>
                     </div>
-                    <a href="#" class="btn-more">
+                    <a href="{{ url_for('about_page') }}" class="btn-more">
                         <span>Подробнее</span>
                         <svg class="arrow-svg" width="100" height="12" viewBox="0 0 100 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 6H98M98 6L93 1M98 6L93 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -96,84 +95,31 @@
 
         <section class="catalog-section">
             <div class="catalog-container">
-                <h2 class="catalog-title">Каталог книг</h2>
+                <h2 class="catalog-title">Топ книг по оценкам</h2>
                 <div class="book-grid">
-                    <div class="book-card">
-                        <div class="book-visual">
+                    {% for book in top_books %}
+                    <div class="book-card"> <div class="book-visual">
                             <div class="css-book-shape">
-                                <img src="images/test.jpg" alt="Обложка" class="book-cover-img">
+                                <img src="{{ book.cover_url if book.cover_url else url_for('static', filename='main/images/default_cover.jpg') }}"
+                                     alt="Обложка" class="book-cover-img">
                             </div>
                         </div>
                         <div class="book-info">
-                            <p class="book-author">Фёдор Достоевский</p>
-                            <h4 class="book-title">Идиот</h4>
+                            <p class="book-author">{{ book.author_name }}</p>
+                            <h4 class="book-title">{{ book.title }}</h4>
                             <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 4.9
+                                <span class="star">
+                                    <img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img">
+                                </span>
+                                {{ "%.1f"|format(book.average_rating or 0.0) }}
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
 
-                    <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="images/test2.jpg" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Михаил Булгаков</p>
-                            <h4 class="book-title">Мастер и Маргарита</h4>
-                            <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="images/test3.jpg" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Лев Толстой</p>
-                            <h4 class="book-title">Война и мир</h4>
-                            <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 4.8
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Антон Чехов</p>
-                            <h4 class="book-title">Палата №6</h4>
-                            <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="book-card">
-                        <div class="book-visual">
-                            <div class="css-book-shape">
-                                <img src="images/test4.jpg" alt="Обложка" class="book-cover-img">
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <p class="book-author">Антон Чехов</p>
-                            <h4 class="book-title">Палата №6</h4>
-                            <div class="book-rating">
-                                <span class="star"><img src="{{ url_for('static', filename='main/images/star.svg') }}" alt="Оценка" class="book-reit-img"></span> 5.0
-                            </div>
-                        </div>
-                    </div>
-
-
+                    {% if not top_books %}
+                        <p>Книги пока не добавлены.</p>
+                    {% endif %}
                 </div>
 
                 <div class="catalog-footer">
@@ -181,7 +127,7 @@
                         <button class="nav-btn prev">←</button>
                         <button class="nav-btn next">→</button>
                     </div>
-                    <a href="#" class="btn-all-catalog">Весь каталог</a>
+                    <a href="{{ url_for('catalog_page') }}" class="btn-all-catalog">Весь каталог</a>
                 </div>
             </div>
         </section>
