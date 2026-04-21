@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет | E-Book</title>
-    <link rel="stylesheet" href="lk_style.css">
+    <link rel="stylesheet" href="user_style.css">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
-    <script src="assets/js/script_lk.js"></script>
+    <script src="assets/js/script_user.js"></script>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
             <div class="profile-section">
                 <a href="lk_page.html" class="profile-text">Личный кабинет</a>
                 <div class="profile-avatar">
-                    <img src="images/Profile.png" alt="Avatar">
+                    <img src="images/Profile.svg" alt="Avatar">
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 <div class="user-info-row">
                     <div class="user-avatar-large">
                         <div class="avatar-placeholder">
-                            <img src="images/Profile.png" alt="User Icon">
+                            <img src="images/Profile.svg" alt="User Icon">
                         </div>
                     </div>
                     <div class="user-stats-actions">
@@ -52,8 +52,11 @@
                             </div>
                         </div>
                         <div class="actions-row">
-                            <button class="btn-add-book">Добавить книгу</button>
-                            <button class="btn-report">Сформировать отчет</button>
+                            <button class="btn-subscribe">Подписаться</button>
+                            
+                            <button class="btn-notice js-toggle-icon" data-active-icon="images/bell_on.svg">
+                                <img src="images/bell_off.svg" alt="Icon" class="icon-img">
+                            </button>
                         </div>
                     </div>
             </section>
@@ -61,7 +64,7 @@
             <div class="lk-container">
                 <section class="collection-section">
                     <div class="collection-header">
-                        <h2>Моя коллекция</h2>
+                        <h2>Коллекция пользователя</h2>
                         <div class="custom-select-wrapper">
                             <div class="custom-select">
                                 <div class="custom-select__trigger">
@@ -70,7 +73,7 @@
                                 </div>
                                 <div class="custom-options">
                                     <span class="custom-option selected" data-value="all">Все</span>
-                                    <span class="custom-option" data-value="my-books">Мои книги</span>
+                                    <span class="custom-option" data-value="my-books">Опубликованные книги</span>
                                     <span class="custom-option" data-value="read">Прочитанные</span>
                                     <span class="custom-option" data-value="later">Отложенные</span>
                                     <span class="custom-option" data-value="wishlist">Желаемые</span>
@@ -166,62 +169,7 @@
         </div>
     </div>
 
-    <div id="addBookModal" class="modal">
-        <div class="modal-content add-book-content">
-            <span class="close-modal" id="closeAddBook">&times;</span>
-            
-            <h2 class="modal-title" id="addModalTitle">Добавление новой книги</h2>
-            
-            <div class="modal-body add-book-grid" id="addBookFormGrid">
-                <div class="upload-cover-section">
-                    <label for="coverInput" class="cover-dropzone">
-                        <input type="file" id="coverInput" accept="image/*" hidden>
-                        <div class="dropzone-content" id="dropzoneContent">
-                            <img src="images/place.svg" class="placeholder-icon" alt="">
-                            <p>Загрузить обложку книги</p>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="add-book-form">
-                    <input type="text" placeholder="Введите название книги" class="form-input">
-                    <input type="text" placeholder="Введите автора книги" class="form-input">
-                    <input type="number" placeholder="Введите год издания книги" class="form-input">
-                    
-                    <div class="genre-group">
-                        <input type="text" list="genre-list" placeholder="Жанр" class="form-input genre-input">
-                        <datalist id="genre-list">
-                            <option value="Классика">
-                            <option value="Фэнтези и фантастика">
-                            <option value="Детективы и триллеры">
-                            <option value="Современная проза">
-                            <option value="Романы">
-                        </datalist>
-                    </div>
-
-                    <label for="fileInput" class="file-upload-label">
-                        <input type="file" id="fileInput" accept=".pdf,.epub,.txt" hidden>
-                        <span class="file-upload-design" id="fileNameDisplay">Добавить файл книги</span>
-                    </label>
-
-                    <textarea placeholder="Описание для Вашей книги" class="form-textarea"></textarea>
-
-                    <div class="submit-row">
-                        <button type="button" class="btn-submit-book" id="submitBook">Добавить книгу</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="successMessage" class="success-message" style="display: none;">
-                <div class="success-icon">✔</div>
-                <h2 class="modal-title">Книга успешно добавлена!</h2>
-                <p>Ваша книга появится в библиотеке после модерации.</p>
-                <button type="button" class="btn-read" id="closeSuccess">Отлично</button>
-            </div>
-
-        </div>
-    </div>
-
+    
 
     <footer class="main-footer">
         <div class="footer-container">
