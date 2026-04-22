@@ -187,11 +187,6 @@ body {
     box-shadow: 0 0 10px rgba(232, 209, 167, 0.3);
 }
 
-.avatar-img {
-    width: 20px; /* Для иконки Profile.svg, если нет сессии */
-    height: 20px;
-    filter: invert(1); /* Сделает черную иконку светлой под стиль */
-}
 
 @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-10px); }

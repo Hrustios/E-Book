@@ -7,22 +7,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='main/main_style.css') }}">
     <script src="{{ url_for('static', filename='main/assets/js/script_main.js') }}"></script>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
-
 </head>
 <body>
 
     <header class="main-header">
         <div class="header-container">
-            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+            <a href="{{ url_for('main.index') }}" class="logo">E-Book</a>
 
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link active">Главная</a>
-                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
-                <a href="{{ url_for('catalog_page') }}" class="nav-link">Каталог</a>
-                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+                <a href="{{ url_for('main.index') }}" class="nav-link active">Главная</a>
+                <a href="{{ url_for('main.about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('book.catalog_page') }}" class="nav-link">Каталог</a>
+                <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
+
             <div class="profile-section" id="profileDropdownTrigger">
-                <span class="profile-text">Личный кабинет</span>
+                <span class="profile-text">
+                    {% if session.get('username') %}
+                        Личный кабинет
+                    {% else %}
+                        Войти в аккаунт
+                    {% endif %}
+                </span>
 
                 <div class="profile-avatar-letter">
                     {% if session.get('username') %}
@@ -33,9 +39,14 @@
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">
-                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% if session.get('username') %}
+                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% else %}
+                        <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>
+                        <a href="{{ url_for('auth_reg.register') }}" class="dropdown-item">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -49,7 +60,7 @@
                     <p>Списки желаний, личные заметки и наглядные отчеты — всё максимально просто и удобно.</p>
                     <div class="hero-btns">
                         {% if session.get('username') %}
-                            <a href="{{ url_for('lk_page') }}" class="btn-reg">Личный кабинет</a>
+                            <a href="{{ url_for('main.lk_page') }}" class="btn-reg">Личный кабинет</a>
                         {% else %}
                             <a href="{{ url_for('auth_reg.register') }}" class="btn-reg">Зарегистрироваться</a>
                             <a href="{{ url_for('auth_login.login') }}" class="btn-login">Войти</a>
@@ -57,7 +68,8 @@
                     </div>
                 </div>
 
-                <div class="leader-widget" id="leader-widget"> <span class="widget-title">Лидер чтений</span>
+                <div class="leader-widget" id="leader-widget">
+                    <span class="widget-title">Лидер чтений</span>
                     <div class="widget-main">
                         <div class="book-placeholder" id="leader-cover-parent">
                              <img src="{{ url_for('static', filename='/') }}" id="leader-cover" alt="Book Icon">
@@ -79,7 +91,7 @@
                         <h2>О продукте</h2>
                         <p>Простой инструмент для управления домашней библиотекой. Ведите учет книг, сохраняйте важные мысли в заметках и формируйте наглядные отчеты в пару кликов.</p>
                     </div>
-                    <a href="{{ url_for('about_page') }}" class="btn-more">
+                    <a href="{{ url_for('main.about_page') }}" class="btn-more">
                         <span>Подробнее</span>
                         <svg class="arrow-svg" width="100" height="12" viewBox="0 0 100 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 6H98M98 6L93 1M98 6L93 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -98,7 +110,8 @@
                 <h2 class="catalog-title">Топ книг по оценкам</h2>
                 <div class="book-grid">
                     {% for book in top_books %}
-                    <div class="book-card"> <div class="book-visual">
+                    <div class="book-card">
+                        <div class="book-visual">
                             <div class="css-book-shape">
                                 <img src="{{ book.cover_url if book.cover_url else url_for('static', filename='main/images/default_cover.jpg') }}"
                                      alt="Обложка" class="book-cover-img">
@@ -127,7 +140,7 @@
                         <button class="nav-btn prev">←</button>
                         <button class="nav-btn next">→</button>
                     </div>
-                    <a href="{{ url_for('catalog_page') }}" class="btn-all-catalog">Весь каталог</a>
+                    <a href="{{ url_for('book.catalog_page') }}" class="btn-all-catalog">Весь каталог</a>
                 </div>
             </div>
         </section>
@@ -137,25 +150,20 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('main.index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
-                        <div class="social-item">
-                            <img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="Telegram">
-                        </div>
-                        <div class="social-item">
-                            <img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="Instagram">
-                        </div>
-                        <div class="social-item">
-                            <img src="{{ url_for('static', filename='main/images/vk.svg') }}" alt="VK">
-                        </div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="Telegram"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="Instagram"></div>
+                        <div class="social-item"><img src="{{ url_for('static', filename='main/images/vk.svg') }}" alt="VK"></div>
                     </div>
                 </div>
 
                 <nav class="footer-nav">
-                    <a href="{{ url_for('index') }}">Главная</a>
-                    <a href="{{ url_for('about_page') }}">О продукте</a>
-                    <a href="{{ url_for('catalog_page') }}">Каталог</a> <a href="{{ url_for('contacts_page') }}">Контакты</a>
-                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
+                    <a href="{{ url_for('main.index') }}">Главная</a>
+                    <a href="{{ url_for('main.about_page') }}">О продукте</a>
+                    <a href="{{ url_for('book.catalog_page') }}">Каталог</a>
+                    <a href="{{ url_for('main.contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('main.lk_page') }}">Личный кабинет</a>
                 </nav>
 
                 <div class="footer-right">

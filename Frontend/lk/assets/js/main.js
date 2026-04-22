@@ -7,7 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1, currentFilter = 'all';
     const editForm = document.getElementById('editBookForm');
     const editModal = document.getElementById('editBookModal');
+    const btnUp = document.querySelector('.btn-up');
 
+        if (btnUp) {
+            // Показываем/скрываем кнопку при скролле
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) {
+                    btnUp.style.opacity = '1';
+                    btnUp.style.visibility = 'visible';
+                } else {
+                    btnUp.style.opacity = '0';
+                    btnUp.style.visibility = 'hidden';
+                }
+            });
+
+            // Плавный скролл при клике
+            btnUp.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
     if (editForm) {
         editForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -347,15 +369,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 3. Сама процедура скачивания файла (Blob метод)
                 const res = await fetch(fileUrl);
                 const blob = await res.blob();
+
+                // ОПРЕДЕЛЯЕМ РАСШИРЕНИЕ ИЗ URL
+                // fileUrl обычно выглядит как .../files/uuid.epub
+                const extension = fileUrl.split('.').pop().split(/\#|\?/)[0] || 'pdf';
+
                 const a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
-                a.download = `${bookTitle}.pdf`;
+
+                // Формируем имя файла с правильным расширением
+                a.download = `${bookTitle}.${extension}`;
+
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
 
                 window.showToast("Книга скачана!");
-
             } catch (err) {
                 console.error("Ошибка:", err);
                 window.open(fileUrl, '_blank');

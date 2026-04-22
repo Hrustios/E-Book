@@ -8,20 +8,26 @@
     <script src="{{ url_for('static', filename='catalog/assets/js/script_catalog.js') }}"></script>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='general_images/e-book-icon.ico') }}">
 </head>
-<body>
+<body data-authenticated="{{ 'true' if session.get('username') else 'false' }}">
 
     <header class="main-header">
         <div class="header-container">
-            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+            <a href="{{ url_for('main.index') }}" class="logo">E-Book</a>
 
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
-                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
-                <a href="{{ url_for('catalog_page') }}" class="nav-link active">Каталог</a>
-                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+                <a href="{{ url_for('main.index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('main.about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('book.catalog_page') }}" class="nav-link active">Каталог</a>
+                <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
             <div class="profile-section" id="profileDropdownTrigger">
-                <span class="profile-text">Личный кабинет</span>
+                <span class="profile-text">
+                    {% if session.get('username') %}
+                        Личный кабинет
+                    {% else %}
+                        Войти в аккаунт
+                    {% endif %}
+                </span>
 
                 <div class="profile-avatar-letter">
                     {% if session.get('username') %}
@@ -32,16 +38,21 @@
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">
-                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% if session.get('username') %}
+                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% else %}
+                        <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>
+                        <a href="{{ url_for('auth_reg.register') }}" class="dropdown-item">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </header>
 
     <main class="container content-wrapper">
-        
+
         <section class="catalog-section">
             <div class="catalog-container">
                 <h2 class="catalog-title">Топ книг за неделю</h2>
@@ -91,7 +102,6 @@
                         <input type="text" id="search-input" placeholder="Поиск" value="{{ current_search }}">
                         <button class="search-btn">Найти</button>
                     </div>
-
                     <div class="filter-field">
                         <div class="custom-select-wrapper">
                             <div class="custom-select">
@@ -170,7 +180,7 @@
                 {% if total_pages > 1 %}
                 <div class="pagination-container">
                     {% for p in range(1, total_pages + 1) %}
-                        <a href="{{ url_for('catalog_page', page=p, search=current_search, genre=current_genre, year=current_year, author=current_author) }}"
+                        <a href="{{ url_for('book.catalog_page', page=p, search=current_search, genre=current_genre, year=current_year, author=current_author) }}"
                            class="page-btn {{ 'active' if p == page else '' }}">
                             {{ p }}
                         </a>
@@ -214,40 +224,47 @@
                             <span id="modal-avg-rating">0.0</span>
                             <img src="{{ url_for('static', filename='catalog/images/star_reit.svg') }}" alt="rating">
                         </span>
-
                         <span class="divider">|</span>
                         <span class="downloads" id="modal-downloads">0 скачиваний</span>
                     </div>
 
                     <div class="modal-actions">
-                        <button class="btn-read" id="modal-read-btn">Читать книгу</button>
-                        <button class="btn-icon" id="modal-download-btn">
-                            <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
-                        </button>
+                        {% if session.get('username') %}
+                            <button class="btn-read" id="modal-read-btn">Читать книгу</button>
+                            <button class="btn-icon" id="modal-download-btn">
+                                <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
+                            </button>
 
-                        <div id="reader-tools" style="display: flex; gap: 10px;">
-                            <div class="note-wrapper">
-                                <button class="btn-icon" id="modal-note-btn">
-                                    <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
-                                </button>
-
-                                <div id="note-container" class="note-dropdown hidden">
-                                    <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
-                                    <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                            <div id="reader-tools" style="display: flex; gap: 10px;">
+                                <div class="note-wrapper">
+                                    <button class="btn-icon" id="modal-note-btn">
+                                        <img src="{{ url_for('static', filename='catalog/images/note.svg') }}" alt="Note">
+                                    </button>
+                                    <div id="note-container" class="note-dropdown hidden">
+                                        <textarea id="book-note-text" placeholder="Заметка о книге..."></textarea>
+                                        <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                                    </div>
+                                </div>
+                                <div class="more-options">
+                                    <button class="btn-icon" id="moreOptionsBtn">
+                                        <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
+                                    </button>
+                                    <div class="options-dropdown" id="optionsDropdown">
+                                        <button class="dropdown-item">Прочитана</button>
+                                        <button class="dropdown-item">Читаю</button>
+                                        <button class="dropdown-item">В отложенные</button>
+                                        <button class="dropdown-item">В желаемые</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="more-options">
-                                <button class="btn-icon" id="moreOptionsBtn">
-                                    <img src="{{ url_for('static', filename='catalog/images/more.svg') }}" alt="More">
-                                </button>
-                                <div class="options-dropdown" id="optionsDropdown">
-                                    <button class="dropdown-item">Прочитана</button>
-                                    <button class="dropdown-item">Читаю</button>
-                                    <button class="dropdown-item">В отложенные</button>
-                                    <button class="dropdown-item">В желаемые</button>
-                                </div>
-                            </div>
-                        </div>
+                        {% else %}
+                            <a href="{{ url_for('auth_login.login') }}" class="btn-read" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                Войти, чтобы читать
+                            </a>
+                            <a href="{{ url_for('auth_login.login') }}" class="btn-icon" title="Войти, чтобы скачать">
+                                <img src="{{ url_for('static', filename='catalog/images/load.svg') }}" alt="Load">
+                            </a>
+                        {% endif %}
 
                         <div id="author-tools" style="display: none; gap: 10px;">
                             <button class="btn-icon" id="modal-edit-btn">
@@ -260,13 +277,12 @@
                     </div>
 
                     <h4>Описание</h4>
-                    <p id="modal-description">Полное описание книги будет отображаться здесь...</p>
+                    <p id="modal-description">Полное описание книги...</p>
 
                     <div class="modal-footer-line">
                         <div class="modal-tags">
                             <span class="tag" id="modal-genre">Жанр</span>
                         </div>
-
                         <div class="modal-footer-stars" id="user-rating-section">
                             <div class="star-rating" id="interactive-rating">
                                 <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" alt="1" class="star-icon" data-value="1">
@@ -286,10 +302,8 @@
         <div class="modal-content add-book-modal">
             <button class="close-modal" id="closeEditBook">&times;</button>
             <h2 id="editModalTitle">Редактировать книгу</h2>
-
             <form id="editBookForm">
                 <input type="hidden" id="edit-book-id" name="book_id">
-
                 <div class="add-book-grid" id="editBookFormGrid">
                     <div class="upload-cover-section">
                         <div class="cover-dropzone readonly">
@@ -298,28 +312,14 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="book-info-inputs">
-                        <div class="form-group">
-                            <input type="text" id="edit-book-title" class="form-input" readonly placeholder="Название">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="edit-book-author" class="form-input" readonly placeholder="Автор">
-                        </div>
+                        <div class="form-group"><input type="text" id="edit-book-title" class="form-input" readonly placeholder="Название"></div>
+                        <div class="form-group"><input type="text" id="edit-book-author" class="form-input" readonly placeholder="Автор"></div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год">
-                                <span class="error-text" id="err-edit-book-year"></span>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр">
-                                <span class="error-text" id="err-edit-book-genre"></span>
-                            </div>
+                            <div class="form-group"><input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год"></div>
+                            <div class="form-group"><input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр"></div>
                         </div>
-                        <div class="form-group">
-                            <textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание"></textarea>
-                            <span class="error-text" id="err-edit-book-description"></span>
-                        </div>
+                        <div class="form-group"><textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание"></textarea></div>
                         <button type="submit" class="btn-submit-book" id="submitEditBook">Сохранить изменения</button>
                     </div>
                 </div>
@@ -331,7 +331,7 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('main.index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
                         <div class="social-item"><img src="{{ url_for('static', filename='main/images/tg.svg') }}" alt="tg"></div>
                         <div class="social-item"><img src="{{ url_for('static', filename='main/images/inst.svg') }}" alt="inst"></div>
@@ -339,12 +339,11 @@
                     </div>
                 </div>
                 <nav class="footer-nav">
-                    <a href="{{ url_for('index') }}">Главная</a>
-                    <a href="{{ url_for('about_page') }}">О продукте</a>
-                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
-                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
+                    <a href="{{ url_for('main.index') }}">Главная</a>
+                    <a href="{{ url_for('main.about_page') }}">О продукте</a>
+                    <a href="{{ url_for('main.contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('main.lk_page') }}">Личный кабинет</a>
                 </nav>
-
                 <div class="footer-right">
                     <a href="#" class="btn-up" title="Наверх">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -356,19 +355,5 @@
             <div class="footer-line"></div>
         </div>
     </footer>
-    <div id="confirmDeleteModal" class="modal">
-        <div class="modal-content confirm-modal">
-            <div class="confirm-modal-header">
-                <h3>Удаление книги</h3>
-            </div>
-            <div class="confirm-modal-body">
-                <p>Вы уверены, что хотите удалить эту книгу? <br> Это действие нельзя будет отменить.</p>
-            </div>
-            <div class="confirm-modal-footer">
-                <button id="cancelDeleteBtn" class="btn-secondary-custom">Отмена</button>
-                <button id="confirmDeleteBtn" class="btn-danger-custom">Удалить</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

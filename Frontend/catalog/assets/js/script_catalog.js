@@ -421,6 +421,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (downloadBtn) {
             downloadBtn.onclick = async function(e) {
                 e.preventDefault();
+
+                const isAuthenticated = document.body.getAttribute('data-authenticated') === 'true';
+
+                if (!isAuthenticated) {
+                    // В JS нельзя использовать url_for, поэтому пишем путь текстом
+                    window.location.href = "/login";
+                    return;
+                }
                 const original = this.innerHTML;
                 this.innerHTML = "...";
                 try {
@@ -435,10 +443,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     const res = await fetch(fileUrl);
                     const blob = await res.blob();
+
+                    // ОПРЕДЕЛЯЕМ РАСШИРЕНИЕ ИЗ URL
+                    // fileUrl обычно выглядит как .../files/uuid.epub
+                    const extension = fileUrl.split('.').pop().split(/\#|\?/)[0] || 'pdf';
+
                     const a = document.createElement('a');
                     a.href = window.URL.createObjectURL(blob);
-                    a.download = `${bookTitle}.pdf`;
+
+                    // Формируем имя файла с правильным расширением
+                    a.download = `${bookTitle}.${extension}`;
+
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
+
+                    window.showToast("Книга скачана!");
                 } catch (err) { window.open(fileUrl, '_blank'); }
                 finally { this.innerHTML = original; }
             };

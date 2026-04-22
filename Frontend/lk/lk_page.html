@@ -12,15 +12,21 @@
 
     <header class="main-header">
         <div class="header-container">
-            <a href="{{ url_for('index') }}" class="logo">E-Book</a>
+            <a href="{{ url_for('main.index') }}" class="logo">E-Book</a>
             <nav class="nav-menu">
-                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
-                <a href="{{ url_for('about_page') }}" class="nav-link">О продукте</a>
-                <a href="{{ url_for('catalog_page') }}" class="nav-link">Каталог</a>
-                <a href="{{ url_for('contacts_page') }}" class="nav-link">Контакты</a>
+                <a href="{{ url_for('main.index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('main.about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('book.catalog_page') }}" class="nav-link">Каталог</a>
+                <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
             <div class="profile-section" id="profileDropdownTrigger">
-                <span class="profile-text">Личный кабинет</span>
+                <span class="profile-text">
+                    {% if session.get('username') %}
+                        Личный кабинет
+                    {% else %}
+                        Войти в аккаунт
+                    {% endif %}
+                </span>
 
                 <div class="profile-avatar-letter">
                     {% if session.get('username') %}
@@ -31,9 +37,14 @@
                 </div>
 
                 <div class="header-dropdown" id="headerProfileMenu">
-                    <a href="{{ url_for('lk_page') }}" class="dropdown-item">Профиль</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% if session.get('username') %}
+                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% else %}
+                        <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>
+                        <a href="{{ url_for('auth_reg.register') }}" class="dropdown-item">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -67,7 +78,7 @@
                             <button class="btn-report">Сформировать отчет</button>
                         </div>
                     </div>
-            </section>
+                </div> </section>
 
            <div class="lk-container">
                 <section class="collection-section">
@@ -90,9 +101,7 @@
                         </div>
                     </div>
 
-                    <div class="profile-book-grid">
-                        </div>
-
+                    <div class="profile-book-grid"></div>
                     <div id="pagination" class="pagination-container"></div>
                 </section>
             </div>
@@ -195,13 +204,11 @@
             <span class="close-modal" id="closeAddBook">&times;</span>
             <h2 class="modal-title" id="addModalTitle">Добавление новой книги</h2>
 
-            <form id="uploadBookForm" action="/add_book" method="POST" enctype="multipart/form-data" novalidate>
+            <form id="uploadBookForm" action="{{ url_for('book.add_book') }}" method="POST" enctype="multipart/form-data" novalidate>
                 <div class="modal-body add-book-grid" id="addBookFormGrid">
-
                    <div class="upload-cover-section">
                         <label for="coverInput" class="cover-dropzone" id="coverDropzone">
                             <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
-
                             <div class="dropzone-content" id="dropzoneContent">
                                 <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="Обложка">
                                 <p>Загрузить обложку книги</p>
@@ -215,31 +222,21 @@
                             <input type="text" name="title" id="book-title" placeholder="Введите название книги" class="form-input">
                             <span class="error-text" id="err-book-title"></span>
                         </div>
-
                         <div class="form-group">
                             <input type="text" name="author" id="book-author" placeholder="Введите автора книги" class="form-input">
                             <span class="error-text" id="err-book-author"></span>
                         </div>
-
                         <div class="form-group">
                             <input type="number" name="year" id="book-year" placeholder="Введите год издания книги" class="form-input" max="2026">
                             <span class="error-text" id="err-book-year"></span>
                         </div>
-
                         <div class="form-group">
-                            <div class="genre-group">
-                                <input type="text" name="genre" id="book-genre" list="genre-list" placeholder="Жанр" class="form-input genre-input">
-                                <datalist id="genre-list">
-                                    <option value="Классика">
-                                    <option value="Фэнтези и фантастика">
-                                    <option value="Детективы и триллеры">
-                                    <option value="Современная проза">
-                                    <option value="Романы">
-                                </datalist>
-                            </div>
+                            <input type="text" name="genre" id="book-genre" list="genre-list" placeholder="Жанр" class="form-input genre-input">
+                            <datalist id="genre-list">
+                                <option value="Классика"><option value="Фэнтези и фантастика"><option value="Детективы и триллеры"><option value="Современная проза"><option value="Романы">
+                            </datalist>
                             <span class="error-text" id="err-book-genre"></span>
                         </div>
-
                         <div class="form-group">
                             <label for="fileInput" class="file-upload-label">
                                 <input type="file" name="book_file" id="fileInput" accept=".pdf,.docx,.fb2" hidden>
@@ -247,21 +244,17 @@
                             </label>
                             <span class="error-text" id="err-fileInput"></span>
                         </div>
-
                         <div class="form-group">
                             <textarea name="description" id="book-description" placeholder="Описание для Вашей книги" class="form-textarea"></textarea>
                             <span class="error-text" id="err-book-description"></span>
                         </div>
-
                         <div class="submit-row">
                             <button type="submit" class="btn-submit-book" id="submitBook">Добавить книгу</button>
                         </div>
                     </div>
                 </div>
             </form>
-
             <div id="successMessage" class="success-wrapper hidden">
-
                 <div class="success-content-centered">
                     <div class="success-icon">✓</div>
                     <h2>Успешно!</h2>
@@ -272,56 +265,11 @@
         </div>
     </div>
 
-    <div id="editBookModal" class="modal">
-        <div class="modal-content add-book-modal">
-            <button class="close-modal" id="closeEditBook">&times;</button>
-            <h2 id="editModalTitle">Редактировать книгу</h2>
-
-            <form id="editBookForm">
-                <input type="hidden" id="edit-book-id" name="book_id">
-
-                <div class="add-book-grid" id="editBookFormGrid">
-                    <div class="upload-cover-section">
-                        <div class="cover-dropzone readonly">
-                            <div class="dropzone-content" id="editDropzoneContent">
-                                <img id="edit-cover-preview" src="" style="width:100%; height:100%; object-fit:cover;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="book-info-inputs">
-                        <div class="form-group">
-                            <input type="text" id="edit-book-title" class="form-input" readonly placeholder="Название">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="edit-book-author" class="form-input" readonly placeholder="Автор">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год">
-                                <span class="error-text" id="err-edit-book-year"></span>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр">
-                                <span class="error-text" id="err-edit-book-genre"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание"></textarea>
-                            <span class="error-text" id="err-edit-book-description"></span>
-                        </div>
-                        <button type="submit" class="btn-submit-book" id="submitEditBook">Сохранить изменения</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="toast-container"></div>
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-left">
-                    <a href="{{ url_for('index') }}" class="footer-logo">E-Book</a>
+                    <a href="{{ url_for('main.index') }}" class="footer-logo">E-Book</a>
                     <div class="social-links">
                         <div class="social-item"><img src="{{ url_for('static', filename='lk/images/tg.svg') }}" alt="tg"></div>
                         <div class="social-item"><img src="{{ url_for('static', filename='lk/images/inst.svg') }}" alt="inst"></div>
@@ -329,10 +277,10 @@
                     </div>
                 </div>
                 <nav class="footer-nav">
-                    <a href="{{ url_for('index') }}">Главная</a>
-                    <a href="{{ url_for('about_page') }}">О продукте</a>
-                    <a href="{{ url_for('contacts_page') }}">Контакты</a>
-                    <a href="{{ url_for('lk_page') }}">Личный кабинет</a>
+                    <a href="{{ url_for('main.index') }}">Главная</a>
+                    <a href="{{ url_for('main.about_page') }}">О продукте</a>
+                    <a href="{{ url_for('main.contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('main.lk_page') }}">Личный кабинет</a>
                 </nav>
                 <div class="footer-right">
                     <a href="#" class="btn-up" title="Наверх">
@@ -345,19 +293,5 @@
             <div class="footer-line"></div>
         </div>
     </footer>
-    <div id="confirmDeleteModal" class="modal">
-        <div class="modal-content confirm-modal">
-            <div class="confirm-modal-header">
-                <h3>Удаление книги</h3>
-            </div>
-            <div class="confirm-modal-body">
-                <p>Вы уверены, что хотите удалить эту книгу? <br> Это действие нельзя будет отменить.</p>
-            </div>
-            <div class="confirm-modal-footer">
-                <button id="cancelDeleteBtn" class="btn-secondary-custom">Отмена</button>
-                <button id="confirmDeleteBtn" class="btn-danger-custom">Удалить</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
