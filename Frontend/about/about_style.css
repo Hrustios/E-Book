@@ -391,3 +391,194 @@ body {
     opacity: 0.2; /* Сделали заметнее */
 }
 
+/* --- АДАПТИВНОСТЬ СТРАНИЦЫ "О ПРОДУКТЕ" --- */
+
+@media (max-width: 992px) {
+    :root {
+        --section-gap: 80px; /* Уменьшаем отступы на средних экранах */
+    }
+
+    .about-hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .about-text h1 {
+        font-size: 36px;
+    }
+
+    .about-text p {
+        margin: 0 auto;
+    }
+
+    .phone-img {
+        max-width: 280px;
+    }
+
+    /* Функции: переходим в 2 колонки или в 1 */
+    .features-grid {
+        flex-direction: column;
+        gap: 40px;
+        padding: 40px 20px;
+    }
+
+    .feature-card:not(:last-child)::after {
+        display: none; /* Убираем вертикальные разделители */
+    }
+
+    .feature-card {
+        padding: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    /* 1. КОМПАКТНАЯ НИЖНЯЯ ПАНЕЛЬ (TAB BAR) */
+    .main-header {
+        top: auto;
+        bottom: -1px; /* Слегка утапливаем вниз, чтобы перекрыть щель */
+        padding: 0;
+        z-index: 2000;
+        position: fixed;
+        width: 100vw; /* Растягиваем строго на ширину вьюпорта */
+        margin: 0;
+        z-index: 2000;
+    }
+
+    .header-container {
+        width: 100%;
+        height: 55px; /* Фиксированная небольшая высота */
+        border-radius: 15px 15px 0 0;
+        padding: 0 10px;
+        justify-content: center;
+        box-shadow: 0 -2px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Скрываем лишние тексты */
+    .logo, .profile-text {
+        display: none;
+    }
+
+    .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0;
+    }
+
+    .nav-link {
+        font-size: 9px;
+        padding: 5px 0;
+        text-transform: uppercase;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-link::after {
+        top: -5px; /* Полоска индикации теперь сверху над текстом */
+        bottom: auto;
+    }
+
+    /* Миниатюрный аватар в меню */
+    .profile-avatar {
+        width: 28px;
+        height: 28px;
+        border: 1.5px solid var(--accent);
+    }
+
+    .profile-avatar img {
+        width: 14px;
+    }
+    .section-title {
+        font-size: 26px;
+        text-align: center;
+    }
+
+    /* Адаптация книжной полки */
+    .shelf-content {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+        padding: 0;
+        gap: 50px;
+    }
+
+    /* Скрываем сложные CSS-книги на мобилках, чтобы не перегружать интерфейс */
+    .standing-books-css {
+        display: none; 
+    }
+
+    .audience-list {
+        width: 100%;
+        align-items: center;
+    }
+
+    .audience-item {
+        width: 90% !important; /* Книги-плашки на всю ширину */
+        transform: none !important; /* Убираем смещение */
+        justify-content: center;
+        font-size: 16px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .audience-item:hover {
+        transform: scale(1.05) !important;
+    }
+
+    .shelf-board-css {
+        display: none; /* Убираем доску полки на мобильных */
+    }
+
+    /* 5. ФУТЕР: ПОЛНОЕ ЦЕНТРИРОВАНИЕ */
+    .main-footer {
+        padding: 60px 0 100px 0; /* Отступ чтобы меню не перекрывало текст */
+        text-align: center;
+    }     
+
+    .footer-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .footer-left {
+        min-width: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .social-links {
+        justify-content: center; /* Центрируем иконки соцсетей */
+    }
+
+    .footer-nav {
+        margin-left: 0;
+        align-items: center;
+    }
+
+    .footer-right {
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-hero {
+        padding-top: 50px;
+    }
+
+    .about-text h1 {
+        font-size: 28px;
+    }
+
+    .feature-card h3 {
+        font-size: 16px;
+    }
+
+    .audience-item {
+        height: 60px;
+        font-size: 14px;
+    }
+}

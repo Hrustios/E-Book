@@ -280,16 +280,15 @@ body {
     background: #ffffff;
     border: 1.5px solid rgba(68, 45, 28, 0.2);
     border-radius: 15px;
-    
-    /* Синхронизация высоты */
     height: 48px; 
     box-sizing: border-box; 
-    
-    /* Оставляем отступ только слева для иконки, вертикальные отступы убираем */
     padding: 0 5px 0 20px; 
-    gap: 15px;
+    gap: 10px;
     flex-grow: 1;
     transition: 0.3s ease;
+    overflow: hidden; /* Чтобы ничего не вылетало за границы скругления */
+    min-width: 0;     /* Позволяет флекс-контейнеру сжиматься корректно */
+    white-space: nowrap; /* Запрещаем перенос элементов внутри */
 }
 
 .search-bar:focus-within {
@@ -304,8 +303,9 @@ body {
 }
 
 .search-bar input {
-    flex-grow: 1;
-    height: 100%; /* Занимает всю высоту родителя */
+    flex: 1;          /* Занимает всё доступное место */
+    min-width: 50px;  /* Позволяет инпуту уменьшаться, не выталкивая кнопку */
+    height: 100%;
     border: none;
     outline: none;
     font-family: 'Verdana', sans-serif;
@@ -315,11 +315,12 @@ body {
 }
 
 .search-btn {
+    flex-shrink: 0;   /* КРИТИЧНО: Запрещает кнопке сжиматься или вылетать */
     background-color: #995F47;
     color: #ECE7D4;
     border: none;
     height: 38px; 
-    padding: 0 25px;
+    padding: 0 20px;
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
@@ -1149,6 +1150,10 @@ body {
 }
 
 @media (max-width: 992px) {
+    .catalog-section {
+        padding: 40px 0; 
+    }
+
     .catalog-title {
         font-size: 24px;
         margin-bottom: 30px;
