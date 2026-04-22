@@ -203,7 +203,7 @@
                             <input type="file" name="cover_file" id="coverInput" accept="image/*" hidden>
 
                             <div class="dropzone-content" id="dropzoneContent">
-                                <img src="lk/images/place.svg" class="placeholder-icon" alt="Обложка">
+                                <img src="{{ url_for('static', filename='lk/images/place.svg') }}" class="placeholder-icon" alt="Обложка">
                                 <p>Загрузить обложку книги</p>
                             </div>
                         </label>
@@ -260,11 +260,14 @@
                 </div>
             </form>
 
-            <div id="successMessage" class="success-message" style="display: none;">
-                <div class="success-icon">✓</div>
-                <h2>Успешно!</h2>
-                <p>Ваша книга добавлена в коллекцию.</p>
-                <button class="btn-submit-book" onclick="location.reload()">Закрыть</button>
+            <div id="successMessage" class="success-wrapper hidden">
+
+                <div class="success-content-centered">
+                    <div class="success-icon">✓</div>
+                    <h2>Успешно!</h2>
+                    <p>Ваша книга добавлена в коллекцию.</p>
+                    <button class="btn-submit-book" onclick="location.reload()" style="width: 200px;">Закрыть</button>
+                </div>
             </div>
         </div>
     </div>
@@ -313,7 +316,7 @@
             </form>
         </div>
     </div>
-
+    <div id="toast-container"></div>
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-top">
@@ -342,5 +345,19 @@
             <div class="footer-line"></div>
         </div>
     </footer>
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="confirm-modal-header">
+                <h3>Удаление книги</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p>Вы уверены, что хотите удалить эту книгу? <br> Это действие нельзя будет отменить.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button id="cancelDeleteBtn" class="btn-secondary-custom">Отмена</button>
+                <button id="confirmDeleteBtn" class="btn-danger-custom">Удалить</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

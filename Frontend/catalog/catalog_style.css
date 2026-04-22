@@ -422,8 +422,8 @@ body {
     width: 100%;
     height: 100%;
     background-color: #E8D1A7;
-    border: 1.5px solid #442D1C; 
-    border-radius: 5px 25px 25px 5px; 
+    border: 1.5px solid #442D1C;
+    border-radius: 5px 25px 25px 5px;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -446,7 +446,7 @@ body {
     position: absolute;
     top: 0;
     right: 0;
-    width: 86%; 
+    width: 86%;
     height: 100%;
     object-fit: cover;
     z-index: 2;
@@ -481,7 +481,7 @@ body {
 
 /* ЗВЕЗДОЧКА */
 .book-reit-img {
-    width: 16px; 
+    width: 16px;
     height: 16px;
     object-fit: contain;
     vertical-align: middle;
@@ -567,13 +567,13 @@ body {
     background: #ffffff;
     border: 1.5px solid rgba(68, 45, 28, 0.2);
     border-radius: 15px;
-    
+
     /* Синхронизация высоты */
-    height: 48px; 
-    box-sizing: border-box; 
-    
+    height: 48px;
+    box-sizing: border-box;
+
     /* Оставляем отступ только слева для иконки, вертикальные отступы убираем */
-    padding: 0 5px 0 20px; 
+    padding: 0 5px 0 20px;
     gap: 15px;
     flex-grow: 1;
     transition: 0.3s ease;
@@ -605,11 +605,11 @@ body {
     background-color: #995F47;
     color: #ECE7D4;
     border: none;
-    
+
     /* Высота кнопки чуть меньше родителя, чтобы вписаться в padding search-bar */
-    height: 38px; 
+    height: 38px;
     padding: 0 25px;
-    
+
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
@@ -632,7 +632,7 @@ body {
 }
 
 /* Общий сброс высоты для всех элементов ввода */
-.custom-input, 
+.custom-input,
 .custom-select__trigger {
     height: 48px; /* Фиксированная высота для всех полей */
     background: #ffffff;
@@ -649,7 +649,7 @@ body {
 
 /* --- ТЕКСТОВЫЕ ИНПУТЫ --- */
 .custom-input {
-    width: 180px; 
+    width: 180px;
     padding: 0 20px; /* Убираем вертикальные паддинги, центрируем через height */
 }
 
@@ -661,7 +661,7 @@ body {
     display: none;
 }
 
-.custom-input:hover, 
+.custom-input:hover,
 .custom-input:focus {
     border-color: #84592B;
 }
@@ -767,7 +767,7 @@ body {
     color: #442D1C;
     cursor: pointer;
     transition: all 0.2s ease;
-    /* Если хотите полное название в списке, оставляем стандартный перенос. 
+    /* Если хотите полное название в списке, оставляем стандартный перенос.
        Если в списке тоже нужна одна строка, раскомментируйте свойства ниже: */
     /* white-space: nowrap; */
     /* overflow: hidden; */
@@ -794,11 +794,11 @@ body {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .filter-field, .search-bar {
         width: 100%;
     }
-    
+
     .custom-input, .custom-select-wrapper, #custom-genre-input {
         width: 100% !important;
     }
@@ -810,12 +810,12 @@ body {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .filter-group {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
     }
-    
+
     .custom-input {
         width: 100%;
     }
@@ -1016,7 +1016,7 @@ body {
 .modal-body {
     display: grid;
     /* Изменено: вторая колонка гибкая и не распирает окно */
-    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); 
+    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
     gap: 40px;
     align-items: start;
 }
@@ -1333,23 +1333,79 @@ body {
 .btn-read {
     background-color: #DCCFB8;
     border: none;
-    
+
     /* Заменяем padding на фиксированную высоту */
-    height: 45px; 
+    height: 45px;
     padding: 0 25px; /* Оставляем только боковые отступы */
-    
+
     border-radius: 12px;
     color: #5B351F;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     /* Добавляем flex для центрирования текста внутри фиксированной высоты */
     display: flex;
     align-items: center;
     justify-content: center;
 }
+/* Кастомное окно подтверждения */
+.confirm-modal {
+    max-width: 400px !important;
+    text-align: center;
+    padding: 30px !important;
+    border-radius: 30px !important;
+}
 
+.confirm-modal h3 {
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+
+.confirm-modal p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Кнопки в подтверждении */
+.btn-secondary-custom {
+    background-color: var(--light);
+    color: var(--dark);
+    border: 1px solid var(--accent);
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-danger-custom {
+    background-color: #e74c3c; /* Красный для акцента на удалении */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-danger-custom:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.btn-secondary-custom:hover {
+    background-color: var(--accent);
+}
 .btn-read:hover {
     background-color: #D1C0A3;
     transform: translateY(-2px);
@@ -1359,11 +1415,11 @@ body {
 .btn-icon {
     background-color: #DCCFB8;
     border: none;
-    
+
     /* Высота совпадает с .btn-read */
     width: 45px;
-    height: 45px; 
-    
+    height: 45px;
+
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -1430,11 +1486,11 @@ body {
     #modal-name {
         font-size: 22px;
     }
-    
+
     .btn-read {
         width: 100%; /* Кнопка во всю ширину */
     }
-    
+
     .modal-actions {
         width: 100%;
         justify-content: space-between;
@@ -1460,13 +1516,13 @@ body {
 
 .footer-top {
     display: flex;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     align-items: flex-start;
     margin-bottom: 60px;
 }
 
 .footer-left {
-    min-width: 250px; 
+    min-width: 250px;
 }
 
 .footer-logo {
@@ -1478,9 +1534,9 @@ body {
     margin-bottom: 30px;
 }
 
-.social-links { 
-    display: flex; 
-    gap: 15px; 
+.social-links {
+    display: flex;
+    gap: 15px;
 }
 
 .social-item {
@@ -1492,11 +1548,11 @@ body {
     align-items: center;
     justify-content: center;
     /* Плавная анимация подъема */
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.social-item:hover { 
-    transform: translateY(-8px); 
+.social-item:hover {
+    transform: translateY(-8px);
 }
 
 .social-item img {
@@ -1505,11 +1561,11 @@ body {
 }
 
 /*НАВИГАЦИЯ*/
-.footer-nav { 
-    display: flex; 
-    flex-direction: column; 
+.footer-nav {
+    display: flex;
+    flex-direction: column;
     gap: 15px;
-    margin-left: 80px; 
+    margin-left: 80px;
 }
 
 .footer-nav a {
@@ -1520,14 +1576,14 @@ body {
     transition: 0.3s;
 }
 
-.footer-nav a:hover { 
-    opacity: 1; 
-    color: var(--accent); 
+.footer-nav a:hover {
+    opacity: 1;
+    color: var(--accent);
 }
 
 /*КНОПКА НАВЕРХ  */
 .footer-right {
-    margin-left: auto; 
+    margin-left: auto;
 }
 
 .btn-up {
@@ -1542,15 +1598,15 @@ body {
     transition: 0.4s ease;
 }
 
-.btn-up:hover { 
-    transform: rotate(-360deg) scale(1.1); 
-    background-color: var(--white); 
+.btn-up:hover {
+    transform: rotate(-360deg) scale(1.1);
+    background-color: var(--white);
 }
 
 /*ЛИНИЯ ФУТЕРА */
 .footer-line {
     width: 100%;
-    height: 2px; 
+    height: 2px;
     background-color: var(--light);
     opacity: 0.2; /* Сделали заметнее */
 }

@@ -378,12 +378,17 @@ body.modal-open {
 .btn-add-book:active, .btn-report:active {
     transform: translateY(0);
 }
-
+.profile-section-header { /* или как называется твой заголовок */
+    display: block;
+    width: 100%;
+}
 /* Контейнер */
 .custom-select-wrapper {
     position: relative;
     user-select: none;
     width: 220px; /* Ширина как на макете */
+    display: block;
+    margin-bottom: 20px; /* Отступ до книг */
 }
 
 .custom-select {
@@ -1037,6 +1042,20 @@ body.modal-open {
 
 .note-dropdown.hidden { display: none; }
 
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000; /* Чтобы было поверх всех модалок */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: none; /* Чтобы контейнер не мешал кликать по элементам под ним */
+}
+
+#toast-container > div {
+    pointer-events: auto; /* А на сами уведомления кликать можно */
+}
 @keyframes slideDown {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1135,7 +1154,63 @@ body.modal-open {
     100% { opacity: 0; }
 }
 
+/* Кастомное окно подтверждения */
+.confirm-modal {
+    max-width: 400px !important;
+    text-align: center;
+    padding: 30px !important;
+    border-radius: 30px !important;
+}
 
+.confirm-modal h3 {
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+
+.confirm-modal p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Кнопки в подтверждении */
+.btn-secondary-custom {
+    background-color: var(--light);
+    color: var(--dark);
+    border: 1px solid var(--accent);
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-danger-custom {
+    background-color: #e74c3c; /* Красный для акцента на удалении */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-danger-custom:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.btn-secondary-custom:hover {
+    background-color: var(--accent);
+}
 
 .modal-actions {
     display: flex;
@@ -1535,18 +1610,82 @@ body.modal-open {
     animation: fadeInScale 0.5s ease forwards;
 }
 
+/* --- СТИЛИ ДЛЯ ИСПРАВЛЕНИЯ ГАЛОЧКИ --- *//* Основной контейнер модалки должен иметь запас по высоте */
+.add-book-content {
+    min-height: 450px; /* Чтобы окно не схлопывалось при переключении */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Обертка успеха */
+.success-wrapper {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 100;
+    border-radius: 15px;
+    padding: 40px;
+    animation: fadeIn 0.3s ease; /* Добавим плавности */
+}
+
+/* Центрированный контент */
+.success-content-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Равномерные отступы между элементами */
+}
+
+/* Галочка */
 .success-icon {
     width: 80px;
     height: 80px;
-    background-color: #DCCFB8;
-    color: #5B351F;
+    background-color: #f3ede7;
     border-radius: 50%;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     font-size: 40px;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 20px rgba(220, 207, 184, 0.4);
+    color: #4a3626;
+    margin-bottom: 10px;
+}
+
+/* Крестик для успеха */
+.success-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #8c7d70;
+    line-height: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+#successMessage {
+    display: none; /* Это полностью убирает элемент из потока */
+    position: absolute; /* Или fixed, смотря как сверстано */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100; /* Должен быть выше всего остального */
+}
+
+/* Класс-помощник, если используешь его в JS */
+.hidden {
+    display: none !important;
 }
 
 .success-message h2 {
@@ -1610,15 +1749,22 @@ body.modal-open {
 /* Стили валидации */
 .form-group {
     position: relative; /* Важно для позиционирования ошибки */
-    margin-bottom: 18px; /* Резервируем место под ошибку */
+    margin-bottom: 18px;
+    overflow: visible !important;/* Резервируем место под ошибку */
 }
 
 .error-text {
     color: #ff4d4d;
     font-size: 10px;
     position: absolute;
-    bottom: -15px; /* Выносим за пределы инпута */
+    bottom: -14px;
     left: 5px;
+    z-index: 10; /* Поднимаем текст выше остальных элементов */
+
+    /* Убедитесь, что эти свойства не мешают */
+    display: block;
+    line-height: 1;
+
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;

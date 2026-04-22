@@ -6,6 +6,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const trigger = document.querySelector('.custom-select__trigger');
     const options = document.querySelectorAll('.custom-option');
     const customInput = document.getElementById('custom-genre-input');
+    const editModal = document.getElementById('editBookModal');
+    const editForm = document.getElementById('editBookForm');
+    const closeEditModal = document.getElementById('closeEditBook');
+
+    // === 1. ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ ИЗ URL ===
+    const urlParams = new URLSearchParams(window.location.search);
+    const genreFromUrl = urlParams.get('genre');
+
+    if (genreFromUrl !== null) { // Если параметр вообще есть в URL
+        let matchedOption = null;
+
+        // Проверяем, совпадает ли жанр с кнопками (кроме "other")
+        options.forEach(opt => {
+            opt.classList.remove('selected');
+            const val = opt.getAttribute('data-value');
+            if (val === genreFromUrl && val !== 'other') {
+                matchedOption = opt;
+            }
+        });
+
+        if (matchedOption) {
+            // Выбран стандартный жанр (Классика и т.д.)
+            matchedOption.classList.add('selected');
+            trigger.querySelector('span').textContent = matchedOption.textContent;
+            customInput.classList.add('hidden');
+            customInput.value = '';
+        } else {
+            // Сюда попадаем, если: genre=other ИЛИ genre=ТвойТекст ИЛИ genre=пусто (но параметр есть)
+            const otherOption = Array.from(options).find(o => o.getAttribute('data-value') === 'other');
+            if (otherOption) {
+                otherOption.classList.add('selected');
+                trigger.querySelector('span').textContent = otherOption.textContent;
+            }
+
+            // ПОКАЗЫВАЕМ поле в любом случае, раз не подошли стандарты
+            if (customInput) {
+                customInput.classList.remove('hidden');
+                // Заполняем текстом, только если это не техническое слово 'other'
+                customInput.value = (genreFromUrl === 'other') ? '' : genreFromUrl;
+            }
+        }
+    }
 
     if (selectWrapper && trigger) {
         trigger.addEventListener('click', (e) => {
@@ -121,12 +163,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const showToast = (message) => {
-        const toast = document.createElement('div');
-        toast.className = 'status-toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
-    };
+    // Удаляем старое уведомление, если оно есть
+    const oldToast = document.querySelector('.status-toast');
+    if (oldToast) oldToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'status-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Удаляем через 2.5 секунды, если страница не перезагрузилась раньше
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 2500);
+};
 
    // === 5. МОДАЛЬНОЕ ОКНО ПОДРОБНОСТЕЙ ===
     const modal = document.getElementById('book-modal');
@@ -162,6 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const authorTools = document.getElementById('author-tools');
         const ratingSection = document.getElementById('user-rating-section');
         const avgRatingScore = document.getElementById('modal-avg-rating');
+        const editModal = document.getElementById('editBookModal');
+        const editForm = document.getElementById('editBookForm');
+        const editBtn = document.getElementById('modal-edit-btn')
 
         // 2. Сброс состояния перед загрузкой
         statusOptions.forEach(opt => opt.classList.remove('active-status'));
@@ -294,24 +349,71 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-        // 7. Удаление книги (для автора)
+        // --- ЛОГИКА УДАЛЕНИЯ ---
         const deleteBtn = document.getElementById('modal-delete-btn');
+        const confirmModal = document.getElementById('confirmDeleteModal');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        const cancelBtn = document.getElementById('cancelDeleteBtn');
+
         if (deleteBtn) {
-            deleteBtn.onclick = async () => {
+            deleteBtn.onclick = () => {
+                // Показываем окно подтверждения
+                confirmModal.style.display = 'flex';
+                // Не закрываем основную модалку пока что, просто вешаем подтверждение сверху
+            };
+        }
+
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                confirmModal.style.display = 'none';
+            };
+        }
+
+        if (confirmBtn) {
+            confirmBtn.onclick = async () => {
                 const currentId = modal.getAttribute('data-current-id');
                 if (!currentId) return;
 
-                if (confirm("Вы уверены, что хотите удалить свою книгу? Это действие нельзя отменить.")) {
-                    try {
-                        const res = await fetch(`/delete_book/${currentId}`, { method: 'DELETE' });
-                        if (res.ok) {
-                            showToast("Книга удалена");
+                try {
+                    const res = await fetch(`/delete_book/${currentId}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        confirmModal.style.display = 'none';
+                        modal.style.display = 'none'; // Закрываем и карточку книги
+                        showToast("Книга успешно удалена");
+
+                        setTimeout(() => {
                             location.reload();
-                        } else {
-                            alert("Ошибка доступа при удалении");
-                        }
-                    } catch (err) { console.error(err); }
+                        }, 1500);
+                    }
+                } catch (err) {
+                    console.error("Ошибка при удалении:", err);
+                    showToast("Ошибка соединения");
                 }
+            };
+        }
+
+        // Закрытие по клику вне окна подтверждения
+        window.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.style.display = 'none';
+            }
+        });
+
+        // --- ЛОГИКА ОТКРЫТИЯ РЕДАКТИРОВАНИЯ ---
+        if (editBtn) {
+            editBtn.onclick = () => {
+                // Заполняем поля формы редактирования данными, которые уже есть в инфо-модалке
+                document.getElementById('edit-book-id').value = bookId;
+                document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
+                document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
+                document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, '');
+                document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
+                document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
+                document.getElementById('edit-cover-preview').src = modalCover.src;
+
+                // Переключаем модалки
+                modal.style.display = 'none';
+                editModal.style.display = 'flex';
             };
         }
 
@@ -415,6 +517,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 optionsDropdown.classList.remove('active');
             }
         });
+    }
+    if (editForm) {
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitEditBook');
+            const formData = new FormData(editForm);
+            const bookId = formData.get('book_id');
+
+            btn.disabled = true;
+            btn.textContent = "Сохранение...";
+
+            try {
+                const res = await fetch(`/update_book/${bookId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    showToast("Книга обновлена!");
+
+                    // Закрываем модалку сразу, чтобы пользователь видел уведомление
+                    editModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+
+                    // Ждем 1.5 секунды, чтобы уведомление успели прочитать, и только потом обновляем
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Сохранить изменения";
+            }
+        };
+    }
+
+    // Закрытие модалки редактирования по крестику
+    const closeEditBtn = document.getElementById('closeEditBook');
+    if (closeEditBtn) {
+        closeEditBtn.onclick = () => {
+            editModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        };
     }
 });
 

@@ -1,9 +1,12 @@
+from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
+
+from flask_login import LoginManager, login_required, current_user, UserMixin
+
 import io
 import fitz  # PyMuPDF
 import os
 import requests
 import base64
-from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
 from flask_mail import Message
 from datetime import datetime
 
@@ -38,6 +41,27 @@ mail.init_app(app)
 app.register_blueprint(auth_reg_bp)
 app.register_blueprint(auth_login_bp)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth_login.login'
+
+# Класс для Flask-Login
+class User(UserMixin):
+    def __init__(self, user_id, username):
+        self.id = user_id
+        self.username = username
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    with get_db_connection() as conn:
+        # Важно: user_id из сессии всегда приходит как строка (str),
+        # поэтому в SQL запросе лучше привести его к int, если в БД ID — число.
+        user_data = conn.execute('SELECT id, username FROM Users WHERE id = ?', (int(user_id),)).fetchone()
+
+    if user_data:
+        return User(user_data['id'], user_data['username'])
+    return None
 
 # --- РОУТЫ ---
 
@@ -67,12 +91,12 @@ def index():
         return render_template('index.html', top_books=[], leader=None)
 
 @app.route('/lk')
+@login_required # Теперь это будет работать правильно
 def lk_page():
     if not session.get('username'):
         flash("Пожалуйста, войдите в аккаунт", "error")
         return redirect(url_for('auth_login.login'))
     return render_template('lk/lk_page.html')
-
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -80,38 +104,45 @@ def add_book():
     if not user_id:
         return "Необходима авторизация", 401
 
+    # Получаем данные
     title = request.form.get('title')
     writer_name = request.form.get('author')
     year = request.form.get('year')
     genre = request.form.get('genre')
     description = request.form.get('description')
+
     book_file = request.files.get('book_file')
     cover_file = request.files.get('cover_file')
 
-    if book_file and cover_file:
-        try:
-            file_content = book_file.read()
-            file_size = len(file_content)
+    # ЖЕСТКАЯ ПРОВЕРКА: Если хоть одно поле пустое — возвращаем 400
+    if not all([title, writer_name, year, genre, description, book_file, cover_file]):
+        return "Все поля, включая файлы, обязательны для заполнения", 400
 
-            temp_stream = io.BytesIO(file_content)
-            pages_count = get_page_count(temp_stream, book_file.filename)
+    try:
+        file_content = book_file.read()
+        file_size = len(file_content)
 
-            upload_data = upload_book_to_cloud(book_file, cover_file, file_content)
+        temp_stream = io.BytesIO(file_content)
+        pages_count = get_page_count(temp_stream, book_file.filename)
 
-            if upload_data:
-                with get_db_connection() as db:
-                    db.execute('''
-                               INSERT INTO Books (title, description, author_id, author_name, genre,
-                                                  release_year, file_url, cover_url, file_size, pages)
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                               ''', (title, description, user_id, writer_name, genre, year,
-                                     upload_data['book_url'], upload_data['cover_url'], file_size, pages_count))
-                return "OK", 200
-            return "Ошибка загрузки в облако", 500
-        except Exception as e:
-            print(f"Ошибка в add_book: {e}")
-            return f"Ошибка: {e}", 500
-    return "Файлы не выбраны", 400
+        # Загрузка в облако
+        upload_data = upload_book_to_cloud(book_file, cover_file, file_content)
+
+        if upload_data:
+            with get_db_connection() as db:
+                db.execute('''
+                           INSERT INTO Books (title, description, author_id, author_name, genre,
+                                              release_year, file_url, cover_url, file_size, pages)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (title, description, user_id, writer_name, genre, year,
+                                 upload_data['book_url'], upload_data['cover_url'], file_size, pages_count))
+                db.commit()  # Важно для сохранения
+            return "OK", 200
+
+        return "Ошибка загрузки в облако", 500
+    except Exception as e:
+        print(f"Ошибка в add_book: {e}")
+        return f"Ошибка: {e}", 500
 
 
 @app.route('/catalog')
@@ -281,25 +312,34 @@ def get_my_books():
     })
 
 
-@app.route('/update_book', methods=['POST'])
-def update_book():
-    user_id = session.get('user_id')
-    book_id = request.form.get('book_id')
-    if not user_id or not book_id: return jsonify({"status": "error"}), 400
+@app.route('/update_book/<int:book_id>', methods=['POST'])  # <-- ОБЯЗАТЕЛЬНО добавить это
+@login_required
+def update_book(book_id):
+    db = get_db_connection()
+
+    # Проверка прав (автор ли это?)
+    book = db.execute("SELECT author_id FROM Books WHERE id = ?", (book_id,)).fetchone()
+    if not book or book['author_id'] != current_user.id:
+        return "Доступ запрещен", 403
+
+    # Получаем данные
+    year = request.form.get('year')
+    genre = request.form.get('genre')
+    description = request.form.get('description')
 
     try:
-        with get_db_connection() as db:
-            db.execute('''UPDATE Books
-                          SET release_year=?,
-                              genre=?,
-                              description=?
-                          WHERE id = ?
-                            AND author_id = ?''',
-                       (request.form.get('year'), request.form.get('genre'),
-                        request.form.get('description'), book_id, user_id))
-        return jsonify({"status": "success"}), 200
+        db.execute("""
+                   UPDATE Books
+                   SET release_year = ?,
+                       genre        = ?,
+                       description  = ?
+                   WHERE id = ?
+                   """, (year, genre, description, book_id))
+        db.commit()
+        return "OK", 200
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"Ошибка БД: {e}")
+        return "Ошибка при обновлении базы данных", 500
 
 
 @app.route('/read/<int:book_id>')

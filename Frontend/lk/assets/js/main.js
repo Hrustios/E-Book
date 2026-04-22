@@ -1,250 +1,381 @@
-// main.js
 import { openFullBookModal, renderBooks, renderPagination, initSearch } from './books_ui.js';
+import { validateForm, clearErrors, initValidationListeners } from './validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
     const bookGrid = document.querySelector('.profile-book-grid');
     const paginationContainer = document.getElementById('pagination');
-    const filterOptions = document.querySelectorAll('.custom-option');
-    const filterTrigger = document.querySelector('.custom-select__trigger span');
+    let currentPage = 1, currentFilter = 'all';
+    const editForm = document.getElementById('editBookForm');
+    const editModal = document.getElementById('editBookModal');
 
-    let currentPage = 1;
-    let currentFilter = 'all';
+    if (editForm) {
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
 
-    // Сделаем функцию доступной глобально для onclick в HTML
+            const btn = document.getElementById('submitEditBook');
+            const originalText = btn.textContent;
+
+            // Собираем данные
+            const formData = new FormData(editForm);
+            const bookId = formData.get('book_id');
+
+            btn.disabled = true;
+            btn.textContent = "Сохранение...";
+
+            try {
+                const res = await fetch(`/update_book/${bookId}`, {
+                    method: 'POST',
+                    body: formData // Или JSON.stringify, если на сервере только текст
+                });
+
+                if (res.ok) {
+                    window.showToast("Изменения сохранены!");
+                    editModal.style.display = 'none';
+                    document.body.style.overflow = '';
+
+                    // Перезагружаем данные в сетке, чтобы увидеть изменения
+                    if (typeof loadData === 'function') {
+                        loadData(currentPage, currentFilter);
+                    }
+                } else {
+                    const error = await res.text();
+                    window.showToast("Ошибка: " + error);
+                }
+            } catch (err) {
+                console.error(err);
+                window.showToast("Ошибка соединения с сервером");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+    }
+
+    // Закрытие модалки редактирования
+    const closeEdit = document.getElementById('closeEditBook');
+    if (closeEdit) {
+        closeEdit.onclick = () => {
+            editModal.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+    }
+    // Делаем функции глобальными для доступа из HTML/других модулей
     window.openFullBookModal = openFullBookModal;
+
+    // --- СИСТЕМА УВЕДОМЛЕНИЙ (ЕДИНАЯ) ---
+    window.showToast = function(message) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:10000; display:flex; flex-direction:column; align-items:flex-end; pointer-events:none;';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            background-color: #442D1C;
+            color: #F4EFE6;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(20px);
+            font-family: sans-serif;
+            pointer-events: auto;
+        `;
+
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 10);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(20px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
+    // Включаем "живое" скрытие ошибок при вводе
+    initValidationListeners();
 
     // --- 1. ЗАГРУЗКА ДАННЫХ ---
     async function loadData(page = 1, filter = 'all') {
         try {
             const res = await fetch(`/get_my_books?page=${page}&filter=${filter}`);
             const data = await res.json();
-
             renderBooks(data.books, bookGrid);
-            renderPagination(data.total_pages, data.current_page, paginationContainer, (newPage) => {
-                currentPage = newPage;
-                loadData(currentPage, currentFilter);
+            renderPagination(data.total_pages, data.current_page, paginationContainer, (p) => {
+                currentPage = p; loadData(currentPage, currentFilter);
             });
-        } catch (err) {
-            console.error("Ошибка загрузки коллекции:", err);
-        }
+        } catch (err) { console.error("Ошибка загрузки книг:", err); }
     }
+    loadData();
 
-    // --- 2. ФИЛЬТРАЦИЯ (Кастомный селект) ---
-    filterOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            filterOptions.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
+    // --- 2. ОБРАБОТКА ФАЙЛОВ ---
+    const fileInp = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const coverInp = document.getElementById('coverInput');
 
-            currentFilter = this.getAttribute('data-value');
-            filterTrigger.textContent = this.textContent;
-            currentPage = 1;
-
-            loadData(currentPage, currentFilter);
-        });
-    });
-
-    // --- 3. ЛОГИКА МОДАЛЬНОГО ОКНА КНИГИ (Кнопки внутри) ---
-
-    // === СКАЧАТЬ (Исправлено для принудительной загрузки) ===
-    const downloadBtn = document.getElementById('modal-download-btn');
-    if (downloadBtn) {
-        downloadBtn.onclick = async function() {
-            const modal = document.getElementById('book-modal');
-            const fileUrl = modal.getAttribute('data-file-url');
-            const bookId = modal.getAttribute('data-current-id');
-            const bookTitle = document.getElementById('modal-name').textContent;
-
-            if (fileUrl && fileUrl !== 'null') {
-                try {
-                    // Используем fetch, чтобы получить файл как Blob
-                    // Это позволяет обойти настройки браузера "открывать в новой вкладке"
-                    const response = await fetch(fileUrl);
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-
-                    // Задаем имя файла (название книги + расширение)
-                    a.download = `${bookTitle || 'book'}.pdf`;
-
-                    document.body.appendChild(a);
-                    a.click();
-
-                    // Чистим за собой
-                    window.URL.revokeObjectURL(url);
-                    a.remove();
-
-                    // Трекаем скачивание в БД
-                    fetch('/track_download', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ book_id: bookId })
-                    });
-
-                    if (window.showToast) window.showToast("Загрузка началась...");
-                } catch (error) {
-                    console.error("Ошибка при скачивании:", error);
-                    // Если fetch не прошел (например, CORS), пробуем обычный способ
-                    const link = document.createElement('a');
-                    link.href = fileUrl;
-                    link.target = '_blank';
-                    link.download = '';
-                    link.click();
-                }
-            } else {
-                if (window.showToast) window.showToast("Файл книги не найден");
+    if (fileInp) {
+        fileInp.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.style.color = "#442D1C";
+                fileNameDisplay.classList.remove('invalid'); // Убираем красную рамку
             }
-        };
+        });
     }
 
-    // ЧТЕНИЕ
-    const readBtn = document.getElementById('modal-read-btn');
-    if (readBtn) {
-        readBtn.onclick = () => {
-            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
-            if (bookId) window.open(`/read/${bookId}`, '_blank');
-        };
+    if (coverInp) {
+        coverInp.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dz = document.getElementById('dropzoneContent');
+                    if (dz) {
+                        dz.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:28px;">`;
+                        document.getElementById('coverDropzone')?.classList.remove('invalid');
+                    }
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
     }
 
-    // ЗАМЕТКИ (Сохранение)
+    // Сохранение заметки
     const saveNoteBtn = document.getElementById('save-note-btn');
     if (saveNoteBtn) {
         saveNoteBtn.onclick = async () => {
-            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
+            const modal = document.getElementById('book-modal');
+            const bookId = modal.getAttribute('data-current-id');
             const noteText = document.getElementById('book-note-text').value;
 
-            const res = await fetch('/save_book_note', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ book_id: bookId, note: noteText })
-            });
+            try {
+                const res = await fetch('/save_book_note', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ book_id: bookId, note: noteText })
+                });
+                if (res.ok) {
+                    window.showToast("Заметка сохранена!");
+                    document.getElementById('note-container').classList.add('hidden');
+                }
+            } catch (err) { console.error("Ошибка сохранения заметки:", err); }
+        };
+    }
 
-            if (res.ok && window.showToast) {
-                window.showToast("Заметка сохранена!");
-                document.getElementById('note-container').classList.add('hidden');
+    // --- 3. ОТПРАВКА ФОРМЫ ---
+    const uploadForm = document.getElementById('uploadBookForm'); // Это твоя форма добавления
+    const successMessage = document.getElementById('successMessage');
+    const addBookFormGrid = document.getElementById('addBookFormGrid');
+    const addModalTitle = document.getElementById('addModalTitle');
+
+    if (uploadForm) {
+        uploadForm.onsubmit = async function(e) {
+            e.preventDefault();
+
+            // Валидация (если используешь внешний модуль)
+            if (typeof validateForm === 'function' && !validateForm('uploadBookForm')) {
+                window.showToast("Заполните все обязательные поля");
+                return;
+            }
+
+            const btn = document.getElementById('submitBook');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Загрузка...";
+
+            const formData = new FormData(this);
+            try {
+                const res = await fetch('/add_book', { method: 'POST', body: formData });
+
+                if (res.ok) {
+                    // СКРЫВАЕМ элементы формы внутри модалки
+                    if (addBookFormGrid) addBookFormGrid.style.display = 'none';
+                    if (addModalTitle) addModalTitle.style.display = 'none';
+
+                    // ПОКАЗЫВАЕМ блок успеха
+                    if (successMessage) {
+                        successMessage.style.display = 'flex';
+                        successMessage.classList.remove('hidden');
+                    }
+
+                    // Обновляем список книг в фоне
+                    loadData(1, currentFilter);
+                } else {
+                    const errorMsg = await res.text();
+                    window.showToast("Ошибка: " + errorMsg);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            } catch (err) {
+                console.error("Ошибка при отправке:", err);
+                window.showToast("Ошибка соединения с сервером");
+                btn.disabled = false;
+                btn.textContent = originalText;
             }
         };
     }
 
-    // УДАЛЕНИЕ КНИГИ
-    const deleteBtn = document.getElementById('modal-delete-btn');
-    if (deleteBtn) {
-        deleteBtn.onclick = async () => {
-            if (!confirm("Вы уверены, что хотите удалить свою книгу?")) return;
+    // --- 4. ИНТЕРФЕЙС ---
 
-            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
-            const res = await fetch(`/delete_book/${bookId}`, { method: 'DELETE' });
+    const btnAddBook = document.querySelector('.btn-add-book');
+    const addBookModal = document.getElementById('addBookModal');
+    if (btnAddBook && addBookModal) {
+        btnAddBook.onclick = () => {
+            uploadForm.reset();
+            if (typeof clearErrors === 'function') clearErrors();
 
-            if (res.ok) {
-                location.reload();
-            } else {
-                alert("Ошибка при удалении");
+            fileNameDisplay.textContent = "Добавить файл книги";
+            const dz = document.getElementById('dropzoneContent');
+            if (dz) dz.innerHTML = '<img src="/lk/images/place.svg" class="placeholder-icon"><p>Загрузить обложку книги</p>';
+
+            // ВОЗВРАЩАЕМ видимость формы и скрываем успех
+            if (addBookFormGrid) addBookFormGrid.style.display = 'grid';
+            if (addModalTitle) addModalTitle.style.display = 'block';
+            if (successMessage) {
+                successMessage.style.display = 'none';
+                successMessage.classList.add('hidden');
             }
+
+            addBookModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         };
     }
 
-    // РЕДАКТИРОВАНИЕ (Открытие формы)
-    const editBtn = document.getElementById('modal-edit-btn');
-    if (editBtn) {
-        editBtn.onclick = () => {
-            const infoModal = document.getElementById('book-modal');
-            const editModal = document.getElementById('editBookModal');
+    // Фильтры
+    document.querySelectorAll('.custom-option').forEach(opt => {
+        opt.onclick = function() {
+            document.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            const triggerText = document.querySelector('.custom-select__trigger span');
+            if (triggerText) triggerText.textContent = this.textContent;
 
-            // Переносим данные из инфо-модалки в форму редактирования
-            document.getElementById('edit-book-id').value = infoModal.getAttribute('data-current-id');
-            document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
-            document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
-            document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, '');
-            document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
-            document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
-            document.getElementById('edit-cover-preview').src = infoModal.querySelector('.book-cover-img').src;
-
-            infoModal.style.display = 'none';
-            editModal.style.display = 'flex';
-        };
-    }
-
-    // --- 4. ДОПОЛНИТЕЛЬНЫЕ ИНТЕРФЕЙСНЫЕ ФИШКИ ---
-
-    // Переключатель выпадающего списка профиля в хедере
-    const profileTrigger = document.getElementById('profileDropdownTrigger');
-    if (profileTrigger) {
-        profileTrigger.onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById('headerProfileMenu').classList.toggle('active');
-        };
-    }
-
-    // Переключатель заметки в модалке
-    const noteBtn = document.getElementById('modal-note-btn');
-    if (noteBtn) {
-        noteBtn.onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById('note-container').classList.toggle('hidden');
-        };
-    }
-
-    // Переключатель статусов (More options)
-    const moreBtn = document.getElementById('moreOptionsBtn');
-    if (moreBtn) {
-        moreBtn.onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById('optionsDropdown').classList.toggle('active');
-        };
-    }
-
-    // Клик по статусу (смена статуса в БД)
-    document.querySelectorAll('.options-dropdown .dropdown-item').forEach(item => {
-        item.onclick = async function() {
-            const bookId = document.getElementById('book-modal').getAttribute('data-current-id');
-            const status = this.textContent.trim();
-
-            const res = await fetch('/update_library_status', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ book_id: bookId, status: status })
-            });
-
-            if (res.ok) {
-                document.querySelectorAll('.options-dropdown .dropdown-item').forEach(i => i.classList.remove('active-status'));
-                this.classList.add('active-status');
-                if (window.showToast) window.showToast(`Статус: ${status}`);
-                loadData(currentPage, currentFilter); // Обновляем сетку
-            }
+            currentFilter = this.getAttribute('data-value');
+            currentPage = 1;
+            loadData(currentPage, currentFilter);
         };
     });
 
-    // Закрытие всего при клике вне окон
+    initSearch(document.getElementById('book-search-input'));
+    // --- ЛОГИКА КАСТОМНОГО ФИЛЬТРА ---
+    const select = document.querySelector('.custom-select');
+    const trigger = document.querySelector('.custom-select__trigger');
+    const options = document.querySelectorAll('.custom-option');
+
+    if (trigger) {
+        // Открытие/закрытие списка
+        trigger.onclick = (e) => {
+            e.stopPropagation();
+            select.classList.toggle('open');
+        };
+    }
+
+    options.forEach(option => {
+        option.onclick = function() {
+            // 1. Визуальное переключение
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // 2. Обновляем текст в триггере
+            const label = trigger.querySelector('span');
+            if (label) label.textContent = this.textContent;
+
+            // 3. Закрываем список
+            select.classList.remove('open');
+
+            // 4. ЛОГИКА ФИЛЬТРАЦИИ
+            currentFilter = this.getAttribute('data-value');
+            currentPage = 1; // Всегда сбрасываем на 1 страницу при смене фильтра
+
+            // Вызываем загрузку данных с новым фильтром
+            loadData(currentPage, currentFilter);
+
+            window.showToast(`Фильтр: ${this.textContent}`);
+        };
+    });
+
+    // Закрытие списка при клике в любое другое место
+    window.addEventListener('click', () => {
+        if (select) select.classList.remove('open');
+    });
     window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-            e.target.style.display = 'none';
-            document.body.style.overflow = '';
-        }
-        // Закрываем дропдауны
-        const drops = document.querySelectorAll('.options-dropdown, .header-dropdown, .note-dropdown');
-        drops.forEach(d => {
-            if (!d.contains(e.target)) d.classList.remove('active');
-            if (d.id === 'note-container' && !d.contains(e.target)) d.classList.add('hidden');
-        });
+    const editModal = document.getElementById('editBookModal');
+    if (e.target === editModal) {
+        editModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
     });
+    // Скачивание
+    const downloadBtn = document.getElementById('modal-download-btn');
+    if (downloadBtn) {
+        downloadBtn.onclick = async function(e) {
+            e.preventDefault();
+            const modal = document.getElementById('book-modal');
+            const bookId = modal.getAttribute('data-current-id');
+            const fileUrl = modal.getAttribute('data-file-url');
+            const bookTitle = document.getElementById('modal-name').textContent;
 
-    // Универсальный Toast
-    window.showToast = (message) => {
-        let toast = document.getElementById('toast-notification');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'toast-notification';
-            toast.className = 'toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    };
+            const originalBtnText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = "Загрузка...";
 
-    // --- СТАРТ ---
-    loadData();
+            try {
+                // 1. Учет загрузки в БД (таблицы Downloads и Books)
+                const trackRes = await fetch('/track_download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ book_id: bookId })
+                });
+                const trackData = await trackRes.json();
+
+                // 2. Обновляем текст в модалке, если сервер вернул новый счетчик
+                if (trackData.status === 'counted') {
+                    const downloadDisplay = document.getElementById('modal-downloads');
+                    if (downloadDisplay) {
+                        downloadDisplay.textContent = `${trackData.new_count} скачиваний`;
+                    }
+                }
+
+                // 3. Сама процедура скачивания файла (Blob метод)
+                const res = await fetch(fileUrl);
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = `${bookTitle}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                window.showToast("Книга скачана!");
+
+            } catch (err) {
+                console.error("Ошибка:", err);
+                window.open(fileUrl, '_blank');
+            } finally {
+                downloadBtn.innerHTML = originalBtnText;
+            }
+        };
+    }
+
+    // Закрытие модалок
+    document.querySelectorAll('.close-modal, #closeAddBook').forEach(btn => {
+        btn.onclick = () => {
+            const m = btn.closest('.modal');
+            if (m) {
+                m.style.display = 'none';
+                document.body.style.overflow = '';
+                // Скрываем дропдаун и заметку при закрытии основной модалки
+                document.getElementById('optionsDropdown')?.classList.remove('active');
+                document.getElementById('note-container')?.classList.add('hidden');
+            }
+        };
+    });
 });

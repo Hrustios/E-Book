@@ -1,80 +1,141 @@
 // validation.js
 
+// 1. Очистка ошибок
 export const clearErrors = () => {
-    document.querySelectorAll('.error-text').forEach(el => el.classList.remove('is-visible'));
-    document.querySelectorAll('.form-input, .form-textarea, .invalid').forEach(el => el.classList.remove('invalid'));
+    document.querySelectorAll('.error-text').forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+        el.classList.remove('is-visible');
+    });
+
+    document.querySelectorAll('.form-input, .form-textarea, .invalid').forEach(el => {
+        el.classList.remove('invalid');
+    });
+
     document.getElementById('coverDropzone')?.classList.remove('invalid');
-    document.getElementById('editDropzoneContent')?.parentElement?.classList.remove('invalid'); // Для формы редактирования
     document.getElementById('fileNameDisplay')?.classList.remove('invalid');
 };
 
-export const showError = (id, msg) => {
-    const errEl = document.getElementById(`err-${id}`);
-    const inputEl = document.getElementById(id);
+// 2. Универсальная функция установки ошибки
+export function setError(inputId, message) {
+    const errEl = document.getElementById(`err-${inputId}`);
+    const inputEl = document.getElementById(inputId);
+
     if (errEl) {
-        errEl.textContent = msg;
+        errEl.textContent = message;
+        errEl.style.display = 'block';
+        errEl.style.color = 'red';
         errEl.classList.add('is-visible');
     }
-    if (inputEl) inputEl.classList.add('invalid');
-};
 
-export function validateForm(formId) {
-    let isValid = true;
-    clearErrors();
-    const prefix = formId === 'editBookForm' ? 'edit-' : '';
-    const currentYear = 2026;
-
-    // 1. Валидация файлов (только для загрузки)
-    if (formId === 'uploadBookForm') {
-        const coverFile = document.getElementById('coverInput').files[0];
-        const bookFile = document.getElementById('fileInput').files[0];
-
-        if (!coverFile) {
-            document.getElementById('coverDropzone').classList.add('invalid');
-            isValid = false;
-        }
-
-        if (!bookFile) {
-            document.getElementById('fileNameDisplay').classList.add('invalid');
-            isValid = false;
-        }
+    if (inputEl) {
+        inputEl.classList.add('invalid');
     }
 
-    // 2. Валидация текстовых полей
-    const fields = ['book-title', 'book-author', 'book-year', 'book-genre', 'book-description'];
+    if (inputId === 'coverInput') {
+        document.getElementById('coverDropzone')?.classList.add('invalid');
+    }
+    if (inputId === 'fileInput') {
+        document.getElementById('fileNameDisplay')?.classList.add('invalid');
+    }
+}
 
-    fields.forEach(f => {
-        const fullId = prefix + f;
-        const el = document.getElementById(fullId);
-        if (!el) return;
+// 3. Расширенная валидация
+export function validateForm(formId) {
+    clearErrors();
+    let isValid = true;
 
-        const value = el.value.trim();
+    // Название
+    const title = document.getElementById('book-title');
+    if (!title || !title.value.trim()) {
+        setError('book-title', 'Введите название книги');
+        isValid = false;
+    }
 
-        // Проверка на пустые поля
-        if (!value) {
-            showError(fullId, 'Обязательное поле');
-            isValid = false;
-        }
-        // Специфическая проверка для ГОДА
-        else if (f === 'book-year') {
-            const year = parseInt(value);
-            if (isNaN(year) || year < 1000 || year > currentYear) {
-                showError(fullId, `Год должен быть от 1000 до ${currentYear}`);
-                isValid = false;
-            }
-        }
-    });
+    // Автор
+    const author = document.getElementById('book-author');
+    if (!author || !author.value.trim()) {
+        setError('book-author', 'Введите автора книги');
+        isValid = false;
+    }
+
+    // Год издания
+    const year = document.getElementById('book-year');
+    const currentYear = new Date().getFullYear();
+    if (!year || !year.value) {
+        setError('book-year', 'Укажите год издания');
+        isValid = false;
+    } else if (parseInt(year.value) > currentYear) {
+        setError('book-year', 'Год не может быть в будущем');
+        isValid = false;
+    } else if (parseInt(year.value) < 1000) {
+        setError('book-year', 'Введите корректный год');
+        isValid = false;
+    }
+
+    // Жанр
+    const genre = document.getElementById('book-genre');
+    if (!genre || !genre.value.trim()) {
+        setError('book-genre', 'Выберите или введите жанр');
+        isValid = false;
+    }
+
+    // Описание
+    const description = document.getElementById('book-description');
+    if (!description || !description.value.trim()) {
+        setError('book-description', 'Добавьте описание книги');
+        isValid = false;
+    } else if (description.value.trim().length < 10) {
+        setError('book-description', 'Описание слишком короткое');
+        isValid = false;
+    }
+
+    // Файл книги
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        setError('fileInput', 'Выберите файл книги (PDF)');
+        isValid = false;
+    }
+
+    // Обложка
+    const coverInput = document.getElementById('coverInput');
+    if (!coverInput || !coverInput.files || coverInput.files.length === 0) {
+        setError('coverInput', 'Загрузите обложку');
+        isValid = false;
+    }
 
     return isValid;
 }
 
+// 4. Слушатели для живой очистки
 export function initValidationListeners() {
+    // Обработка ввода (текст)
     document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('form-input') || e.target.classList.contains('form-textarea')) {
-            e.target.classList.remove('invalid');
-            const errId = `err-${e.target.id}`;
-            const errEl = document.getElementById(errId);
-            if (errEl) errEl.classList.remove('is-visible');
+        if (e.target.id) {
+            const errEl = document.getElementById(`err-${e.target.id}`);
+            if (errEl) {
+                errEl.style.display = 'none';
+                e.target.classList.remove('invalid');
+            }
+        }
+    });
+
+    // Обработка выбора (для жанра из datalist и файлов)
+    document.addEventListener('change', (e) => {
+        if (e.target.id) {
+            const errEl = document.getElementById(`err-${e.target.id}`);
+            if (errEl) {
+                errEl.style.display = 'none';
+                e.target.classList.remove('invalid');
+
+                // Специальный сброс для визуальных зон
+                if (e.target.id === 'fileInput') {
+                    document.getElementById('fileNameDisplay')?.classList.remove('invalid');
+                }
+                if (e.target.id === 'coverInput') {
+                    document.getElementById('coverDropzone')?.classList.remove('invalid');
+                }
+            }
         }
     });
 }
