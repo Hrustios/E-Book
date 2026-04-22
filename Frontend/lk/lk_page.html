@@ -19,10 +19,10 @@
                 <a href="{{ url_for('book.catalog_page') }}" class="nav-link">Каталог</a>
                 <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section" id="profileDropdownTrigger">
+            <div class="profile-section" id="profileDropdownTrigger" style="cursor: pointer;">
                 <span class="profile-text">
                     {% if session.get('username') %}
-                        Личный кабинет
+                        {{ session.get('username') }}
                     {% else %}
                         Войти в аккаунт
                     {% endif %}
@@ -38,8 +38,6 @@
 
                 <div class="header-dropdown" id="headerProfileMenu">
                     {% if session.get('username') %}
-                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
-                        <div class="dropdown-divider"></div>
                         <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
                     {% else %}
                         <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>
@@ -132,7 +130,7 @@
                     <div class="modal-stats">
                         <span class="rating">
                             <span id="modal-avg-rating">0.0</span>
-                            <img src="{{ url_for('static', filename='catalog/images/star_reit.svg') }}" alt="rating">
+                            <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" class="stat-star" alt="rating">
                         </span>
                         <span class="divider">|</span>
                         <span class="downloads" id="modal-downloads">0 скачиваний</span>
@@ -198,7 +196,54 @@
             </div>
         </div>
     </div>
+    <div id="editBookModal" class="modal">
+        <div class="modal-content add-book-content">
+            <span class="close-modal" id="closeEditBook">&times;</span>
+            <h2 class="modal-title">Редактирование книги</h2>
 
+            <form id="editBookForm" novalidate>
+                <input type="hidden" name="book_id" id="edit-book-id">
+
+                <div class="modal-body add-book-grid">
+                    <div class="upload-cover-section">
+                        <div class="cover-dropzone">
+                            <div class="dropzone-content" id="edit-dropzone-content">
+                                <img src="" id="edit-cover-preview" style="width:100%; height:100%; object-fit:cover; border-radius:28px;">
+                            </div>
+                            <input type="file" name="cover_file" id="editCoverInput" accept="image/*" hidden>
+                            <button type="button" class="btn-change-cover" onclick="document.getElementById('editCoverInput').click()">Изменить обложку</button>
+                        </div>
+                    </div>
+
+                    <div class="add-book-form">
+                        <div class="form-group">
+                            <label>Название</label>
+                            <input type="text" name="title" id="edit-book-title" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Автор</label>
+                            <input type="text" name="author" id="edit-book-author" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Год издания</label>
+                            <input type="number" name="year" id="edit-book-year" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Жанр</label>
+                            <input type="text" name="genre" id="edit-book-genre" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea name="description" id="edit-book-description" class="form-textarea"></textarea>
+                        </div>
+                        <div class="submit-row">
+                            <button type="submit" class="btn-submit-book" id="submitEditBook">Сохранить изменения</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="addBookModal" class="modal">
         <div class="modal-content add-book-content">
             <span class="close-modal" id="closeAddBook">&times;</span>
@@ -293,5 +338,15 @@
             <div class="footer-line"></div>
         </div>
     </footer>
+    <div id="confirmDeleteModal" class="modal" style="display: none; z-index: 10001;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px;">
+            <h2 style="margin-bottom: 15px;">Удалить книгу?</h2>
+            <p style="margin-bottom: 30px; color: #666;">Это действие нельзя будет отменить. Книга будет навсегда удалена из библиотеки.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="confirmDeleteBtn" style="background: #e74c3c; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">Удалить</button>
+                <button id="cancelDeleteBtn" style="background: #eee; color: #333; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">Отмена</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

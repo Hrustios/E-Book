@@ -1,39 +1,37 @@
 import { closeModal } from './modals.js';
 
-
 export async function openFullBookModal(btn) {
     const modal = document.getElementById('book-modal');
     if (!modal) return;
+
+    // Элементы управления
     const readerTools = document.getElementById('reader-tools');
     const authorTools = document.getElementById('author-tools');
-    const ratingSection = document.getElementById('user-rating-section'); // Секция "Оцените книгу"
-
-    if (readerTools) readerTools.style.display = 'none';
-    if (authorTools) authorTools.style.display = 'none';
-    const bookId = btn.getAttribute('data-id');
-    const downloadCount = btn.getAttribute('data-downloads') || "0";
-    if (!bookId || bookId === "null") return;
-    // Находим элемент для отображения счетчика (убедись, что такой ID есть в HTML модалки)
+    const ratingSection = document.getElementById('user-rating-section');
     const downloadDisplay = document.getElementById('modal-downloads');
-    if (downloadDisplay) {
-        downloadDisplay.textContent = `${downloadCount} скачиваний`;
-    }
-    modal.setAttribute('data-current-id', bookId);
-    modal.setAttribute('data-file-url', btn.getAttribute('data-file-url') || "");
-
     const avgRatingScore = document.getElementById('modal-avg-rating');
     const noteTextarea = document.getElementById('book-note-text');
     const noteContainer = document.getElementById('note-container');
     const stars = document.querySelectorAll('#interactive-rating .star-icon');
-
-    // Элементы статуса
     const moreOptionsBtn = document.getElementById('moreOptionsBtn');
     const optionsDropdown = document.getElementById('optionsDropdown');
 
+    // Сброс видимости перед открытием
+    if (readerTools) readerTools.style.display = 'none';
+    if (authorTools) authorTools.style.display = 'none';
     if (noteContainer) noteContainer.classList.add('hidden');
-    if (optionsDropdown) optionsDropdown.classList.remove('show');
+    if (optionsDropdown) optionsDropdown.classList.remove('active', 'show');
 
-    // Предзаполнение данных из атрибутов
+    const bookId = btn.getAttribute('data-id');
+    const downloadCount = btn.getAttribute('data-downloads') || "0";
+    if (!bookId || bookId === "null") return;
+
+    // Установка базовых атрибутов
+    modal.setAttribute('data-current-id', bookId);
+    modal.setAttribute('data-file-url', btn.getAttribute('data-file-url') || "");
+    if (downloadDisplay) downloadDisplay.textContent = `${downloadCount} скачиваний`;
+
+    // Предзаполнение данных из атрибутов кнопки
     document.getElementById('modal-name').textContent = btn.getAttribute('data-title') || "Без названия";
     document.getElementById('modal-author').textContent = btn.getAttribute('data-author') || "Автор не указан";
     document.getElementById('modal-description').textContent = btn.getAttribute('data-desc') || "";
@@ -45,24 +43,19 @@ export async function openFullBookModal(btn) {
     const modalCover = modal.querySelector('.book-cover-img');
     if (modalCover) modalCover.src = btn.getAttribute('data-cover') || "";
 
+    // Показываем модалку
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    // 1. ЛОГИКА ОТКРЫТИЯ МЕНЮ СТАТУСОВ И ЗАМЕТОК
+    // --- ЛОГИКА КНОПОК (ИНТЕРФЕЙС) ---
+
     if (moreOptionsBtn && optionsDropdown) {
         moreOptionsBtn.onclick = (e) => {
             e.stopPropagation();
-            optionsDropdown.classList.toggle('show');
+            optionsDropdown.classList.toggle('active');
         };
     }
-    const readBtn = document.getElementById('modal-read-btn');
-    if (readBtn) {
-        readBtn.onclick = (e) => {
-            e.preventDefault();
-            // Перебрасываем на /read/ID_КНИГИ
-            window.location.href = `/read/${bookId}`;
-        };
-    }
+
     const noteBtn = document.getElementById('modal-note-btn');
     if (noteBtn && noteContainer) {
         noteBtn.onclick = (e) => {
@@ -71,14 +64,33 @@ export async function openFullBookModal(btn) {
         };
     }
 
-    // Закрытие выпадашек при клике в любое место модалки
+    const readBtn = document.getElementById('modal-read-btn');
+    if (readBtn) {
+        readBtn.onclick = (e) => {
+            e.preventDefault();
+            // Берем актуальный URL файла, который мы записали в модалку чуть выше
+            const fileUrl = modal.getAttribute('data-file-url');
+
+            if (fileUrl) {
+                // Если ты используешь встроенную читалку (PDF.js или свою),
+                // то оставляем редирект на /read/ c ID, но если нужно просто открыть файл:
+                window.location.href = `/read/${bookId}`;
+
+                // Если /read/ перестал работать из-за бэка, можно открывать напрямую:
+                // window.open(fileUrl, '_blank');
+            } else {
+                if (window.showToast) showToast("Файл книги не найден");
+            }
+        };
+    }
+
+    // Универсальное закрытие выпадашек при клике по модалке
     modal.onclick = (e) => {
         if (optionsDropdown && !optionsDropdown.contains(e.target) && e.target !== moreOptionsBtn) {
-            optionsDropdown.classList.remove('show');
+            optionsDropdown.classList.remove('active', 'show');
         }
     };
 
-    let currentSelectedRating = 0;
     const highlightStars = (count) => {
         stars.forEach((s, idx) => {
             s.style.filter = idx < count ? "invert(70%) sepia(90%) saturate(500%) hue-rotate(10deg)" : "grayscale(100%) brightness(40%)";
@@ -86,217 +98,170 @@ export async function openFullBookModal(btn) {
         });
     };
 
-    // 2. ЗАГРУЗКА И ОБРАБОТКА ДАННЫХ (СТАТУС, РЕЙТИНГ, ЗАМЕТКА)
+    // --- ЗАГРУЗКА ДАННЫХ И ЛОГИКА СЕРВЕРА ---
+
     try {
         const res = await fetch(`/get_book_user_data/${bookId}`);
         const data = await res.json();
+
+        // 1. Разделение Автора и Читателя
         if (data.is_author) {
-            // ЛОГИКА АВТОРА
             if (authorTools) authorTools.style.display = 'flex';
-            if (ratingSection) ratingSection.style.display = 'none'; // Автор не оценивает свою книгу
+            if (ratingSection) ratingSection.style.display = 'none';
+            if (avgRatingScore) avgRatingScore.textContent = "Моя";
+
             const editBtn = document.getElementById('modal-edit-btn');
             const editModal = document.getElementById('editBookModal');
-
             if (editBtn && editModal) {
                 editBtn.onclick = () => {
-                    // Заполняем скрытый ID
                     document.getElementById('edit-book-id').value = bookId;
-
-                    // Заполняем текстовые поля (берём из текущей открытой модалки)
                     document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
                     document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
-
-                    // Чистим год от текста "Год издания: " и жанр
                     document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, "");
                     document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
                     document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
-
-                    // Копируем превью обложки
-                    const currentCover = modal.querySelector('.book-cover-img').src;
-                    document.getElementById('edit-cover-preview').src = currentCover;
-
-                    // Закрываем основную модалку и открываем редактирование
+                    document.getElementById('edit-cover-preview').src = modal.querySelector('.book-cover-img').src;
                     modal.style.display = 'none';
                     editModal.style.display = 'flex';
                 };
             }
-
-            // Здесь можно вывести "Моя книга" вместо рейтинга
-            const avgRatingScore = document.getElementById('modal-avg-rating');
-            if (avgRatingScore) avgRatingScore.textContent = "Моя";
         } else {
-            // ЛОГИКА ЧИТАТЕЛЯ
             if (readerTools) readerTools.style.display = 'flex';
             if (ratingSection) ratingSection.style.display = 'block';
 
-            // Дальше твоя стандартная логика статусов и заметок...
-            renderReaderLogic(data, bookId);
-        }
-        if (noteTextarea) noteTextarea.value = (data.note === "Без заметки") ? "" : (data.note || "");
+            // Логика статусов (только для читателя)
 
-        currentSelectedRating = data.user_rating || 0;
-        highlightStars(currentSelectedRating);
-        // --- ЛОГИКА УДАЛЕНИЯ ---
-        const deleteBtn = document.getElementById('modal-delete-btn');
-        const confirmModal = document.getElementById('confirmDeleteModal');
-        const confirmBtn = document.getElementById('confirmDeleteBtn');
-        const cancelBtn = document.getElementById('cancelDeleteBtn');
+            // 1. Находим элементы заново, чтобы быть уверенными
+            const statusItems = optionsDropdown.querySelectorAll('.dropdown-item');
 
-        if (deleteBtn) {
-            deleteBtn.onclick = () => {
-                // Показываем окно подтверждения
-                confirmModal.style.display = 'flex';
-                // Не закрываем основную модалку пока что, просто вешаем подтверждение сверху
+            const statusMap = {
+                'Прочитана': 'read',
+                'Читаю': 'reading',
+                'В отложенные': 'dropped',
+                'В желаемые': 'wish'
             };
-        }
-
-        if (cancelBtn) {
-            cancelBtn.onclick = () => {
-                confirmModal.style.display = 'none';
-            };
-        }
-
-        if (confirmBtn) {
-            confirmBtn.onclick = async () => {
-                const currentId = modal.getAttribute('data-current-id');
-                if (!currentId) return;
-
-                try {
-                    const res = await fetch(`/delete_book/${currentId}`, { method: 'DELETE' });
-                    if (res.ok) {
-                        confirmModal.style.display = 'none';
-                        modal.style.display = 'none'; // Закрываем и карточку книги
-                        showToast("Книга успешно удалена");
-
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    }
-                } catch (err) {
-                    console.error("Ошибка при удалении:", err);
-                    showToast("Ошибка соединения");
-                }
-            };
-        }
-
-        // Закрытие по клику вне окна подтверждения
-        window.addEventListener('click', (e) => {
-            if (e.target === confirmModal) {
-                confirmModal.style.display = 'none';
-            }
-        });
-        // ЛОГИКА СТАТУСОВ (ОБРАБОТКА КЛИКОВ)
-        // --- ЛОГИКА СТАТУСОВ ---
-        const moreOptionsBtn = document.getElementById('moreOptionsBtn');
-        const optionsDropdown = document.getElementById('optionsDropdown');
-
-        if (moreOptionsBtn && optionsDropdown) {
-            moreOptionsBtn.onclick = (e) => {
-                e.stopPropagation();
-                // Используем .active, как прописано в твоем CSS
-                optionsDropdown.classList.toggle('active');
-            };
-        }
-
-        // Закрытие выпадашки при клике мимо неё
-        modal.onclick = (e) => {
-            // Проверяем клик по кнопке заметок (чтобы не мешать toggle заметки)
-            const noteBtn = document.getElementById('modal-note-btn');
-            const noteContainer = document.getElementById('note-container');
-
-            // Закрываем меню статусов, если кликнули не по нему
-            if (optionsDropdown && !optionsDropdown.contains(e.target) && e.target !== moreOptionsBtn) {
-                optionsDropdown.classList.remove('active');
-            }
-
-            // Закрываем заметку, если кликнули вне её контейнера и не по кнопке вызова
-            if (noteContainer && !noteContainer.contains(e.target) && e.target !== noteBtn && !noteContainer.classList.contains('hidden')) {
-                // noteContainer.classList.add('hidden'); // Можно раскомментировать, если хочешь закрывать кликом мимо
-            }
-        };
-        try {
-            const res = await fetch(`/get_book_user_data/${bookId}`);
-            const data = await res.json();
-
-            if (noteTextarea) noteTextarea.value = (data.note === "Без заметки") ? "" : (data.note || "");
-
-            currentSelectedRating = data.user_rating || 0;
-            highlightStars(currentSelectedRating);
-
-            // --- ЛОГИКА СТАТУСОВ ---
-            const statusItems = document.querySelectorAll('#optionsDropdown .dropdown-item');
-
-            // Мапа для сопоставления (база -> текст кнопки)
-            const statusTextMap = {
-                'read': 'Прочитана',
-                'reading': 'Читаю',
-                'dropped': 'В отложенные',
-                'wish': 'В желаемые'
-            };
-            const currentStatusText = statusTextMap[data.status];
 
             statusItems.forEach(item => {
-                // 1. Подсвечиваем активный статус сразу при загрузке
-                item.classList.remove('active-status');
-                if (item.textContent.trim() === currentStatusText) {
-                    item.classList.add('active-status');
-                }
+                const itemText = item.textContent.trim();
+                const statusCode = statusMap[itemText];
 
-                // 2. Сбрасываем старые обработчики, чтобы не было дублей уведомлений
-                item.onclick = null;
+                // Подсветка активного при открытии
+                item.classList.toggle('active-status', statusCode === data.status);
 
-                item.onclick = async (e) => {
+                // ВАЖНО: Используем addEventListener вместо onclick, предварительно удаляя старые через клонирование
+                const newItem = item.cloneNode(true);
+                item.parentNode.replaceChild(newItem, item);
+
+                newItem.addEventListener('click', async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const statusText = item.textContent.trim();
+
+                    console.log(`Клик по статусу: ${itemText}, отправляем на бэкенд...`);
 
                     try {
                         const sRes = await fetch('/update_library_status', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ book_id: bookId, status: statusText })
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                book_id: bookId,
+                                status: itemText // Шлем "Прочитана" для твоего роута
+                            })
                         });
+
                         const sData = await sRes.json();
+                        console.log("Ответ сервера:", sData);
 
-                        if (sData.status) {
-                            // Показываем уведомление (только одно!)
-                            if (window.showToast) window.showToast(`Статус: ${statusText}`);
-
-                            // Визуально переключаем активный класс
-                            statusItems.forEach(i => i.classList.remove('active-status'));
-                            item.classList.add('active-status');
+                        // Добавляем проверку на "updated"
+                        if (sData.status === 'success' || sData.status === 'updated' || sData.status === true) {
+                            // Снимаем класс со всех и ставим на текущий
+                            optionsDropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active-status'));
+                            newItem.classList.add('active-status');
 
                             // Закрываем меню
                             optionsDropdown.classList.remove('active');
+
+                            if (window.showToast) {
+                                showToast(`Статус изменен: ${itemText}`);
+                            }
+                        } else {
+                            console.error("Сервер вернул статус, который мы не ожидали:", sData);
                         }
-                    } catch (err) { console.error("Ошибка смены статуса:", err); }
-                };
+                    } catch (err) {
+                        console.error("Ошибка при выполнении запроса:", err);
+                    }
+                });
             });
+        }
 
-        } catch (err) { console.error("Ошибка API:", err); }
+        // 2. Общая логика (Рейтинг и Заметки)
+        if (noteTextarea) noteTextarea.value = (data.note === "Без заметки") ? "" : (data.note || "");
 
-        // ЛОГИКА РЕЙТИНГА
+        let currentSelectedRating = data.user_rating || 0;
+        highlightStars(currentSelectedRating);
+
         stars.forEach(star => {
             const val = parseInt(star.getAttribute('data-value'));
             star.onclick = async () => {
                 const r = await fetch('/rate_book', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ book_id: bookId, rating: val })
                 });
                 const result = await r.json();
                 if (result.status === 'success') {
                     currentSelectedRating = val;
                     highlightStars(val);
-                    if (avgRatingScore) avgRatingScore.textContent = result.new_average.toFixed(1);
+                    if (avgRatingScore && result.new_average !== undefined) {
+                        avgRatingScore.textContent = result.new_average.toFixed(1);
+                    }
                 }
             };
             star.onmouseenter = () => highlightStars(val);
             star.onmouseleave = () => highlightStars(currentSelectedRating);
         });
-    } catch (err) { console.error("Ошибка API:", err); }
-}
 
+    } catch (err) {
+        console.error("Ошибка API данных пользователя:", err);
+    }
+
+    // --- ЛОГИКА УДАЛЕНИЯ ---
+    const deleteBtn = document.getElementById('modal-delete-btn');
+    const confirmModal = document.getElementById('confirmDeleteModal');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('cancelDeleteBtn');
+
+    if (deleteBtn) {
+        deleteBtn.onclick = () => { confirmModal.style.display = 'flex'; };
+    }
+    if (cancelBtn) {
+        cancelBtn.onclick = () => { confirmModal.style.display = 'none'; };
+    }
+    if (confirmBtn) {
+        confirmBtn.onclick = async () => {
+            try {
+                const res = await fetch(`/delete_book/${bookId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    confirmModal.style.display = 'none';
+                    modal.style.display = 'none';
+                    if (window.showToast) showToast("Книга успешно удалена");
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (err) { console.error("Ошибка удаления:", err); }
+        };
+    }
+    modal.onclick = (e) => {
+        // Если кликнули именно по подложке, а не по её дочерним элементам (контенту)
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Возвращаем скролл
+            if (optionsDropdown) optionsDropdown.classList.remove('active', 'show');
+        }
+    };
+    // Клик вне окна подтверждения
+    window.addEventListener('click', (e) => {
+        if (e.target === confirmModal) confirmModal.style.display = 'none';
+    });
+}
 export function renderBooks(books, container) {
     if (!container) return;
     if (!books || books.length === 0) {
@@ -310,17 +275,17 @@ export function renderBooks(books, container) {
             <h3>${book.title}</h3>
             <p class="p-author">${book.author_name}</p>
             <p class="p-desc">${(book.description || '').substring(0, 80)}...</p>
-            <a href="#" class="btn-read-more" 
-               data-id="${book.id}" 
-               data-title="${book.title}" 
+            <a href="#" class="btn-read-more"
+               data-id="${book.id}"
+               data-title="${book.title}"
                data-author="${book.author_name}"
-               data-desc="${book.description || ''}" 
+               data-desc="${book.description || ''}"
                data-cover="${book.cover_url}"
-               data-pages="${book.pages || '—'}" 
+               data-pages="${book.pages || '—'}"
                data-year="${book.release_year || '—'}"
-               data-genre="${book.genre || '—'}" 
-               data-file-url="${book.file_url}"
-               data-downloads="${book.download_count || 0}" 
+               data-genre="${book.genre || '—'}"
+               data-file-url="${book.file_url.startsWith('http') ? book.file_url : '/static/uploads/books/' + book.file_url}"
+               data-downloads="${book.download_count || 0}"
                data-avg-rating="${(book.average_rating || 0).toFixed(1)}"
                onclick="openFullBookModal(this); return false;">Подробнее</a>
         </div>

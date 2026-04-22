@@ -2,13 +2,31 @@ import { openFullBookModal, renderBooks, renderPagination, initSearch } from './
 import { validateForm, clearErrors, initValidationListeners } from './validation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const bookGrid = document.querySelector('.profile-book-grid');
-    const paginationContainer = document.getElementById('pagination');
-    let currentPage = 1, currentFilter = 'all';
-    const editForm = document.getElementById('editBookForm');
-    const editModal = document.getElementById('editBookModal');
-    const btnUp = document.querySelector('.btn-up');
+    // --- 1. ПЕРЕМЕННЫЕ И ОБЪЕКТЫ ---
+        const bookGrid = document.querySelector('.profile-book-grid');
+        const paginationContainer = document.getElementById('pagination');
+        const editForm = document.getElementById('editBookForm');
+        const editModal = document.getElementById('editBookModal');
+        const btnUp = document.querySelector('.btn-up');
 
+        // Элементы профиля (Меню)
+        const profileTrigger = document.getElementById('profileDropdownTrigger');
+        const profileMenu = document.getElementById('headerProfileMenu');
+
+        let currentPage = 1;
+        let currentFilter = 'all';
+
+        // --- 2. ЛОГИКА ВЫПАДАЮЩЕГО МЕНЮ ПРОФИЛЯ ---
+        if (profileTrigger && profileMenu) {
+            profileTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', () => {
+                profileMenu.classList.remove('active');
+            });
+        }
         if (btnUp) {
             // Показываем/скрываем кнопку при скролле
             window.addEventListener('scroll', () => {

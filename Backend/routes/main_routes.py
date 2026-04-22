@@ -4,7 +4,7 @@ from Backend.utils.db_utils import get_db_connection
 from flask_mail import Message
 from Backend.extensions import mail
 
-main_bp = Blueprint('main', __name__, template_folder='../../Frontend')
+main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():

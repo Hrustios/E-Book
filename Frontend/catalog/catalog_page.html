@@ -222,7 +222,7 @@
                     <div class="modal-stats">
                         <span class="rating">
                             <span id="modal-avg-rating">0.0</span>
-                            <img src="{{ url_for('static', filename='catalog/images/star_reit.svg') }}" alt="rating">
+                            <img src="{{ url_for('static', filename='catalog/images/star.svg') }}" class="stat-star" alt="rating">
                         </span>
                         <span class="divider">|</span>
                         <span class="downloads" id="modal-downloads">0 скачиваний</span>
@@ -299,28 +299,42 @@
     </div>
 
     <div id="editBookModal" class="modal">
-        <div class="modal-content add-book-modal">
-            <button class="close-modal" id="closeEditBook">&times;</button>
-            <h2 id="editModalTitle">Редактировать книгу</h2>
-            <form id="editBookForm">
-                <input type="hidden" id="edit-book-id" name="book_id">
-                <div class="add-book-grid" id="editBookFormGrid">
+        <div class="modal-content add-book-content"> <span class="close-modal" id="closeEditBook">&times;</span>
+            <h2 class="modal-title" id="editModalTitle">Редактирование книги</h2>
+
+            <form id="editBookForm" novalidate>
+                <input type="hidden" name="book_id" id="edit-book-id">
+
+                <div class="modal-body add-book-grid">
                     <div class="upload-cover-section">
-                        <div class="cover-dropzone readonly">
+                        <div class="cover-dropzone">
                             <div class="dropzone-content" id="editDropzoneContent">
-                                <img id="edit-cover-preview" src="" style="width:100%; height:100%; object-fit:cover;">
+                                <img id="edit-cover-preview" src="" style="width:100%; height:100%; object-fit:cover; border-radius:28px;">
                             </div>
                         </div>
+                        <p style="font-size: 12px; color: #888; margin-top: 10px; text-align: center;">Обложку можно изменить только в личном кабинете</p>
                     </div>
-                    <div class="book-info-inputs">
-                        <div class="form-group"><input type="text" id="edit-book-title" class="form-input" readonly placeholder="Название"></div>
-                        <div class="form-group"><input type="text" id="edit-book-author" class="form-input" readonly placeholder="Автор"></div>
-                        <div class="form-row">
-                            <div class="form-group"><input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год"></div>
-                            <div class="form-group"><input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр"></div>
+
+                    <div class="add-book-form">
+                        <div class="form-group">
+                            <input type="text" name="title" id="edit-book-title" class="form-input" placeholder="Название">
                         </div>
-                        <div class="form-group"><textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание"></textarea></div>
-                        <button type="submit" class="btn-submit-book" id="submitEditBook">Сохранить изменения</button>
+                        <div class="form-group">
+                            <input type="text" name="author" id="edit-book-author" class="form-input" placeholder="Автор">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год издания">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр">
+                        </div>
+                        <div class="form-group">
+                            <textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание книги"></textarea>
+                        </div>
+
+                        <div class="submit-row" style="display: flex; gap: 10px;">
+                            <button type="submit" class="btn-submit-book" id="submitEditBook" style="flex: 2;">Сохранить изменения</button>
+                        </div>
                     </div>
                 </div>
             </form>

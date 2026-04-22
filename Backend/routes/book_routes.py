@@ -85,26 +85,38 @@ def catalog_page():
                            current_search=search_query, current_genre=genre,
                            current_year=year, current_author=author)
 
+
 @book_bp.route('/read/<int:book_id>')
 def read_page(book_id):
-    if 'user_id' not in session: return redirect(url_for('auth_login.login'))
+    # Проверка сессии (согласно твоему списку эндпоинтов)
+    if 'user_id' not in session:
+        return redirect(url_for('auth_login.login'))
 
     with get_db_connection() as db:
         book = db.execute('SELECT * FROM Books WHERE id = ?', (book_id,)).fetchone()
 
-    if not book: return "Книга не найдена", 404
+    if not book:
+        return redirect(url_for('main.lk_page'))  # Обязательно с префиксом main.
 
     try:
-        response = requests.get(book['file_url'])
+        # Логика получения файла
+        response = requests.get(book['file_url'], timeout=10)
+        response.raise_for_status()  # Проверяем, что файл вообще скачался по ссылке
+
         doc = fitz.open(stream=response.content, filetype="pdf")
         page_images = []
         for page in doc:
             pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
             page_images.append(base64.b64encode(pix.tobytes("png")).decode('utf-8'))
         doc.close()
+
         return render_template('read/read_page.html', book=book, page_images=page_images, is_pdf=True)
+
     except Exception as e:
-        return f"Ошибка чтения: {e}", 500
+        # ВАЖНО: сейчас мы не будем редиректить, а выведем ошибку на экран,
+        # чтобы понять, ПОЧЕМУ не читается файл.
+        print(f"Критическая ошибка при чтении PDF: {e}")
+        return f"Ошибка при обработке PDF: {e}. Проверьте ссылку на файл: {book['file_url']}"
 
 @book_bp.route('/add_book', methods=['POST'])
 def add_book():
