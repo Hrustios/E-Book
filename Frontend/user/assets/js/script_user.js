@@ -62,25 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === 3. ОБЩАЯ ЛОГИКА МОДАЛЬНЫХ ОКОН ===
+    /* --- 2. МОДАЛЬНОЕ ОКНО ПРОСМОТРА КНИГИ --- */
+    const infoModal = document.getElementById("book-modal");
+    const readMoreButtons = document.querySelectorAll(".catalog-main-btn");
+    const closeInfoBtn = document.querySelector("#book-modal .close-modal");
+
     const openModal = (modal) => {
-        modal.classList.add("is-visible");
+        if (!modal) return;
+        modal.classList.add('is-visible');
         document.body.style.overflow = "hidden";
-        document.body.style.paddingRight = "15px"; 
     };
 
     const closeModal = (modal) => {
-        modal.classList.remove("is-visible");
-        setTimeout(() => {
-            document.body.style.overflow = "auto";
-            document.body.style.paddingRight = "0";
-        }, 400);
+        if (!modal) return;
+        modal.classList.remove('is-visible');
+        document.body.style.overflow = "auto";
     };
-
-    // --- Окно просмотра книги ---
-    const infoModal = document.getElementById("book-modal");
-    const readMoreButtons = document.querySelectorAll(".btn-read-more");
-    const closeInfoBtn = document.querySelector("#book-modal .close-modal");
 
     readMoreButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -92,6 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeInfoBtn) {
         closeInfoBtn.addEventListener('click', () => closeModal(infoModal));
     }
+
+    /* --- 3. ВЫПАДАЮЩЕЕ МЕНЮ (MORE OPTIONS) --- */
+    const moreBtn = document.getElementById('moreBtn');
+    const dropdown = document.getElementById('optionsDropdown');
+
+    if (moreBtn && dropdown) {
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('is-open');
+        });
+    }
+
+    /* --- 4. ИНТЕРАКТИВНЫЙ РЕЙТИНГ (ЗВЕЗДЫ) --- */
+    const stars = document.querySelectorAll('#interactive-rating .star-icon');
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            stars.forEach(s => s.classList.remove('active'));
+            for (let i = 0; i <= index; i++) {
+                stars[i].classList.add('active');
+            }
+        });
+    });
+
 
     // --- Закрытие любых окон по клику на фон или Escape ---
     window.addEventListener('click', (event) => {

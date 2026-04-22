@@ -308,7 +308,7 @@ textarea:-webkit-autofill:focus {
 .form-group input, 
 .form-group textarea {
     width: 100%;
-    background: transparent !important; /* Убирает системный серый фон */
+    background: transparent !important; /* Убираем системный серый фон */
     border: none !important;
     box-shadow: none !important;
     padding: 15px 0 10px 0;
@@ -363,7 +363,6 @@ textarea:-webkit-autofill:focus {
     transform: translateY(-2px);
 }
 
-/* Нижний блок */
 /* Нижний блок — выравнивание по верхней границе картинки */
 .bottom-contacts {
     display: flex;
@@ -500,8 +499,7 @@ input:-webkit-autofill {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Плавная анимация подъема */
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Анимация плавненького подъема*/ 
 }
 
 .social-item:hover { 
@@ -561,12 +559,222 @@ input:-webkit-autofill {
     width: 100%;
     height: 2px; 
     background-color: var(--light);
-    opacity: 0.2; /* Сделали заметнее */
+    opacity: 0.2; 
 }
 
-/* --- АДАПТИВНОСТЬ --- */
-@media (max-width: 768px) {
-    .collection-grid { grid-template-columns: 1fr; }
-    .user-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
-    .footer-top { flex-direction: column; align-items: center; text-align: center; gap: 40px; }
+/* --- ПОЛНЫЙ АДАПТИВ СТРАНИЦЫ КОНТАКТОВ --- */
+
+@media (max-width: 850px) {
+    /* 1. КОМПАКТНАЯ НИЖНЯЯ ПАНЕЛЬ (TAB BAR) */
+    .main-header {
+        top: auto;
+        bottom: -1px; /* Слегка утапливаем вниз, чтобы перекрыть щель */
+        padding: 0;
+        z-index: 2000;
+        position: fixed;
+        width: 100vw; /* Растягиваем строго на ширину вьюпорта */
+        margin: 0;
+        z-index: 2000;
+    }
+
+    .header-container {
+        width: 100%;
+        height: 55px; /* Фиксированная небольшая высота */
+        border-radius: 15px 15px 0 0;
+        padding: 0 10px;
+        justify-content: center;
+        box-shadow: 0 -2px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Скрываем лишние тексты */
+    .logo, .profile-text {
+        display: none;
+    }
+
+    .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0;
+    }
+
+    .nav-link {
+        font-size: 9px;
+        padding: 5px 0;
+        text-transform: uppercase;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-link::after {
+        top: -5px; /* Полоска индикации теперь сверху над текстом */
+        bottom: auto;
+    }
+
+    /* Миниатюрный аватар в меню */
+    .profile-avatar {
+        width: 28px;
+        height: 28px;
+        border: 1.5px solid var(--accent);
+    }
+
+    .profile-avatar img {
+        width: 14px;
+    }
+    /* Общие отступы страницы */
+    .contacts-page {
+        padding-top: 40px;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+
+    /* Заголовки секции */
+    .intro-section {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        font-size: 16px;
+    }
+
+    /* Карточка обратной связи */
+    .feedback-card {
+        grid-template-columns: 1fr; /* Переход в одну колонку */
+        padding: 40px 25px;
+        gap: 40px;
+        border-radius: 30px;
+        text-align: center;
+    }
+
+    /* Адаптация бэйджа */
+    .badge {
+        padding: 15px 50px;
+        font-size: 16px;
+        margin-bottom: 30px;
+        transform: rotate(-2deg); /* Уменьшаем наклон для мобильных */
+        display: inline-block;
+    }
+
+    .feedback-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .feedback-info p {
+        max-width: 100%;
+        font-size: 14px;
+    }
+
+    /* Форма и поля */
+    .feedback-form {
+        gap: 25px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    .btn-submit {
+        width: 100%; /* Кнопка на всю ширину */
+        padding: 16px;
+        font-size: 15px;
+    }
+
+    /* Нижний блок контактов */
+    .bottom-contacts {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 60px;
+        gap: 40px;
+    }
+
+    .contacts-text h2 {
+        font-size: 26px;
+        margin-bottom: 25px;
+    }
+
+    .contact-item {
+        font-size: 17px;
+        margin-bottom: 15px;
+    }
+
+    /* Иллюстрация */
+    .contacts-illustration {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .contacts-illustration img {
+        max-width: 100%;
+        height: auto;
+        /* Если нужно, чтобы картинка не была слишком огромной на планшетах */
+        max-height: 300px; 
+        object-fit: contain;
+    }
+
+    /* 5. ФУТЕР: ПОЛНОЕ ЦЕНТРИРОВАНИЕ */
+    .main-footer {
+        padding: 60px 0 100px 0; /* Отступ чтобы меню не перекрывало текст */
+        text-align: center;
+    }
+
+    .footer-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .footer-left {
+        min-width: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .social-links {
+        justify-content: center; /* Центрируем иконки соцсетей */
+    }
+
+    .footer-nav {
+        margin-left: 0;
+        align-items: center;
+    }
+
+    .footer-right {
+        margin: 0 auto;
+    }
+}
+
+/* Дополнительные правки для совсем маленьких экранов */
+@media (max-width: 480px) {
+    .feedback-card {
+        padding: 35px 20px;
+    }
+
+    .badge {
+        width: 100%; /* Бэйдж на всю ширину */
+        padding: 15px 0;
+        transform: none; /* Убираем наклон, чтобы не "резало" края */
+        font-size: 15px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .contacts-text h2 {
+        font-size: 22px;
+    }
 }
