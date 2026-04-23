@@ -13,16 +13,17 @@
     <header class="main-header">
         <div class="header-container">
             <a href="{{ url_for('main.index') }}" class="logo">E-Book</a>
+
             <nav class="nav-menu">
                 <a href="{{ url_for('main.index') }}" class="nav-link">Главная</a>
                 <a href="{{ url_for('main.about_page') }}" class="nav-link">О продукте</a>
                 <a href="{{ url_for('book.catalog_page') }}" class="nav-link">Каталог</a>
                 <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section" id="profileDropdownTrigger" style="cursor: pointer;">
+            <div class="profile-section" id="profileDropdownTrigger">
                 <span class="profile-text">
                     {% if session.get('username') %}
-                        {{ session.get('username') }}
+                        Личный кабинет
                     {% else %}
                         Войти в аккаунт
                     {% endif %}
@@ -38,6 +39,8 @@
 
                 <div class="header-dropdown" id="headerProfileMenu">
                     {% if session.get('username') %}
+                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
+                        <div class="dropdown-divider"></div>
                         <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
                     {% else %}
                         <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>

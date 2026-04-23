@@ -22,7 +22,7 @@ body {
     line-height: 1.5;
 }
 
-/* ШАПКА  */
+/*  ШАПКА  */
 .main-header {
     position: fixed;
     top: 25px;
@@ -64,7 +64,7 @@ body {
     text-decoration: none;
     font-size: 13px;
     opacity: 0.8;
-    position: relative;
+    position: relative; /* Нужно для позиционирования линии */
     padding: 4px 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -74,32 +74,33 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 0;
+    width: 0; 
     height: 2px;
-    background-color: var(--accent);
-    transition: width 0.3s ease;
+    background-color: var(--accent); 
+    transition: width 0.3s ease; 
     border-radius: 2px;
 }
 
+/* Эффект при наведении */
 .nav-link:hover {
     opacity: 1;
-    transform: translateY(-1px);
+    transform: translateY(-1px); 
 }
 
 .nav-link:hover::after {
-    width: 100%;
+    width: 100%; 
 }
 
+/* Состояние активной ссылки (Главная) */
 .nav-link.active {
     opacity: 1;
     font-weight: bold;
 }
 
 .nav-link.active::after {
-    width: 100%;
+    width: 100%; 
 }
 
-/* ПРОФИЛЬ И ВЫПАДАЮЩЕЕ МЕНЮ */
 .profile-section {
     position: relative;
     display: flex;
@@ -113,84 +114,92 @@ body {
 
 .header-dropdown {
     position: absolute;
-    top: calc(100% + 15px);
+    top: calc(100% + 10px);
     right: 0;
     width: 190px;
-    background: #2D1B0E; /* Темный шоколад */
+    /* Используем твои основные цвета: темный шоколад / дерево */
+    background: #2D1B0E;
     border: 1px solid #4A3528;
-    border-radius: 12px;
-    padding: 8px;
-    display: none; /* Скрыто по умолчанию, JS переключает класс .active */
+    border-radius: 8px;
+    padding: 6px;
+    display: none; /* Скрыто */
     flex-direction: column;
     z-index: 3000;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
 .header-dropdown.active {
     display: flex;
-    animation: fadeInDown 0.2s ease-out;
 }
 
+/* Пункты меню */
 .header-dropdown .dropdown-item {
-    color: var(--accent);
+    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
     text-decoration: none;
     padding: 10px 14px;
     font-size: 14px;
-    border-radius: 6px;
-    transition: background 0.2s, color 0.2s;
+    border-radius: 4px;
+    transition: background 0.2s;
 }
 
 .header-dropdown .dropdown-item:hover {
     background: #3D2819;
-    color: var(--white);
 }
 
+/* Разделитель */
 .dropdown-divider {
     height: 1px;
     background: #4A3528;
-    margin: 6px 0;
+    margin: 4px 0;
 }
 
+/* Кнопка выхода */
 .header-dropdown .logout-link {
-    color: #FF5E5E !important;
+    color: #FF5E5E !important; /* Яркий красный для выхода */
 }
 
 .header-dropdown .logout-link:hover {
-    background: rgba(255, 94, 94, 0.1) !important;
+    background: rgba(255, 94, 94, 0.1);
 }
 
 .profile-text {
     color: var(--light);
+    text-decoration: none;
     font-size: 13px;
-    user-select: none;
 }
 
-/* АВАТАРЫ */
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile-avatar:hover { transform: scale(1.1); }
+
 .profile-avatar-letter {
     width: 36px;
     height: 36px;
-    background-color: var(--accent);
-    color: var(--dark);
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 16px;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
 }
 
 .profile-avatar-letter:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(232, 209, 167, 0.3);
-}
-
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Отступ для контента, чтобы он не уходил под фиксированную шапку */
@@ -1358,6 +1367,134 @@ body {
     white-space: nowrap;
 }
 
+
+/* МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ КНИГ*/
+.add-book-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;                /* Немного уменьшен зазор для экономии места */
+    width: 100%;
+    min-width: 0; 
+    height: 100%;             /* Растягиваем на всю высоту сетки */
+} 
+
+/* Общие стили для инпутов и текстареа */
+.form-input, 
+.form-textarea {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1.5px solid rgba(68, 45, 28, 0.1);
+    border-radius: 12px;
+    font-size: 15px;
+    color: #442D1C;
+    background-color: #fcfcfc;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus, 
+.form-textarea:focus {
+    border-color: #DCCFB8;
+    box-shadow: 0 4px 15px rgba(220, 207, 184, 0.25);
+}
+
+.form-textarea {
+    flex: 1;
+    min-height: 120px;
+    resize: none;
+}
+
+/* Кнопка сохранения */
+.btn-submit-book {
+    background-color: #D9D9D9; 
+    border: 1px solid #442D1C;
+    padding: 12px 45px;
+    border-radius: 15px;
+    font-weight: 600;
+    color: #442D1C;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-submit-book:hover {
+    background-color: #DCCFB8;
+    transform: translateY(-3px);
+}
+
+/* Стили для неизменяемых полей */
+.readonly-field {
+    background-color: #f0f0f0 !important; /* Серый фон */
+    color: #888 !important;              /* Блеклый текст */
+    cursor: not-allowed;                 /* Курсор запрета */
+    border-color: rgba(68, 45, 28, 0.05) !important;
+}
+
+/* Отключены любые взаимодействия с зоной обложки в модалке редактирования */
+.upload-cover-section .cover-dropzone {
+    cursor: default !important;
+    pointer-events: none; /* Полностью блокирует клики */
+    border-style: solid;  /* Меняем пунктир на сплошную линию */
+    opacity: 0.8;
+}
+
+/* Убраны эффект наведения для заблокированных полей */
+.readonly-field:focus {
+    box-shadow: none !important;
+    border-color: rgba(68, 45, 28, 0.1) !important;
+}
+
+
+/* Стили валидации */
+.form-group {
+    position: relative; /* Важно для позиционирования ошибки */
+    margin-bottom: 18px;
+    overflow: visible !important;/* Резервируем место под ошибку */
+}
+
+.error-text {
+    color: #ff4d4d;
+    font-size: 10px;
+    position: absolute;
+    bottom: -14px;
+    left: 5px;
+    z-index: 10; /* Поднимаем текст выше остальных элементов */
+
+    /* Убедитесь, что эти свойства не мешают */
+    display: block;
+    line-height: 1;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.error-text.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Подсветка инпута */
+.form-input.invalid,
+.form-textarea.invalid,
+.file-upload-design.invalid {
+    border-color: #ff4d4d !important;
+    background-color: #fff8f8;
+}
+
+/* Для обложки отдельный стиль */
+.upload-cover-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#err-coverInput {
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
 /* АДАПТИВНОСТЬ (Медиа-запросы) */
 
 @media (max-width: 850px) {
@@ -1536,7 +1673,7 @@ body {
 
 @media (max-width: 992px) {
     .catalog-section {
-        padding: 40px 0;
+        padding: 5px 0; 
     }
 
     .catalog-title {
@@ -1559,7 +1696,7 @@ body {
         justify-content: space-between;
     }
 
-    .custom-input,
+    .custom-input, 
     .custom-select-wrapper {
         flex-grow: 1;
         width: auto !important;
@@ -1625,6 +1762,34 @@ body {
         width: 14px;
     }
 
+    .header-dropdown {
+        position: fixed;
+        top: auto;        /* Сбрасываем верхнее позиционирование */
+        bottom: 55px;        /* Прижимаем к низу */
+        right: 0;
+        width: 40%;      /* Растягиваем на всю ширину */
+    }
+
+    /* Делаем пункты меню крупнее (правило 44px для мобильных интерфейсов) */
+    .header-dropdown .dropdown-item {
+        padding: 14px 18px;
+        font-size: 16px; /* Увеличиваем шрифт для читабельности */
+        margin-bottom: 2px;
+    }
+
+    /* Увеличиваем визуально разделитель */
+    .dropdown-divider {
+        margin: 8px 0;
+    }
+
+    /* Адаптив для самой аватарки, чтобы по ней было легче попасть */
+    .profile-avatar-letter, 
+    .profile-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
     .book-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-auto-flow: row;
@@ -1667,7 +1832,7 @@ body {
     .main-footer {
         padding: 60px 0 100px 0; /* Отступ чтобы меню не перекрывало текст */
         text-align: center;
-    }
+    }     
 
     .footer-top {
         flex-direction: column;
@@ -1700,6 +1865,18 @@ body {
 @media (max-width: 480px) {
     .header-container {
         padding: 10px 20px;
+    }
+
+    .profile-text {
+        display: none;
+    }
+        
+    .header-dropdown {
+        position: fixed; /* На совсем маленьких экранах можно закрепить */
+        right: 20px;
+        width: calc(100% - 40px); /* Почти на всю ширину */
+        max-width: 280px;
+
     }
 
     .catalog-main-card {
