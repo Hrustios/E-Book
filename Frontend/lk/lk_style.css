@@ -25,9 +25,9 @@ body.modal-open {
 /*  ШАПКА  */
 .main-header {
     position: fixed;
-    top: 0;
-    padding-top: 25px; /* Сохраняем твой отступ от верха экрана */
-    width: 100%;
+    top: 25px;
+    left: 0;
+    right: 0;
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -181,6 +181,26 @@ body.modal-open {
 }
 
 .profile-avatar:hover { transform: scale(1.1); }
+
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
 
 .profile-avatar-letter {
     width: 36px;
@@ -1878,14 +1898,18 @@ body.modal-open {
 }
 
 @media (max-width: 768px) {
+    body, .main-content {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
     /* 1. КОМПАКТНАЯ НИЖНЯЯ ПАНЕЛЬ (TAB BAR) */
     .main-header {
         top: auto;
         bottom: -1px; /* Слегка утапливаем вниз, чтобы перекрыть щель */
-        padding: 0;
+        padding-top: 0;
         z-index: 2000;
         position: fixed;
-        width: 100vw; /* Растягиваем строго на ширину вьюпорта */
+        width: 100%; /* Растягиваем строго на ширину вьюпорта */
         margin: 0;
         z-index: 2000;
     }
@@ -1938,9 +1962,21 @@ body.modal-open {
 
     /* Шапка профиля */
     .user-banner {
-        height: 180px;
-        border-radius: 0 0 20px 20px; /* Убираем верхние скругления на мобилках */
+        height: 200px;
+        width: 100%;
+        margin-top: 0 !important;      /* Убираем возможные отступы */
+        position: relative;
+        top: 0;
+        left: 0;
+        border-radius: 0 0 20px 20px; /* Скругления только снизу */
     }
+
+    .user-header {
+    width: 100%;
+    margin: 0 auto 80px auto;
+    position: relative;
+    }
+
 
     /* Адаптация под мобильные устройства */
     .user-info-row {
@@ -1954,10 +1990,6 @@ body.modal-open {
     .user-stats-actions {
         margin-top: 10px;
         align-items: center;
-    }
-    
-    .user-banner {
-        height: 200px;
     }
     
     .user-avatar-large {
@@ -1985,6 +2017,34 @@ body.modal-open {
     .btn-add-book, .btn-report {
         width: 100%; /* Кнопки на всю ширину для удобного нажатия пальцем */
         max-width: 300px;
+    }
+
+    .header-dropdown {
+        position: fixed;
+        top: auto;        /* Сбрасываем верхнее позиционирование */
+        bottom: 55px;        /* Прижимаем к низу */
+        right: 0;
+        width: 40%;      /* Растягиваем на всю ширину */
+    }
+
+    /* Делаем пункты меню крупнее (правило 44px для мобильных интерфейсов) */
+    .header-dropdown .dropdown-item {
+        padding: 14px 18px;
+        font-size: 16px; /* Увеличиваем шрифт для читабельности */
+        margin-bottom: 2px;
+    }
+
+    /* Увеличиваем визуально разделитель */
+    .dropdown-divider {
+        margin: 8px 0;
+    }
+
+    /* Адаптив для самой аватарки, чтобы по ней было легче попасть */
+    .profile-avatar-letter, 
+    .profile-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
     }
 
     /* Коллекция */

@@ -163,22 +163,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const showToast = (message) => {
-    // Удаляем старое уведомление, если оно есть
-    const oldToast = document.querySelector('.status-toast');
-    if (oldToast) oldToast.remove();
+        // Удаляем старое уведомление, если оно есть
+        const oldToast = document.querySelector('.status-toast');
+        if (oldToast) oldToast.remove();
 
-    const toast = document.createElement('div');
-    toast.className = 'status-toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
+        const toast = document.createElement('div');
+        toast.className = 'status-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
 
-    // Удаляем через 2.5 секунды, если страница не перезагрузилась раньше
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 2500);
-};
+        // Удаляем через 2.5 секунды, если страница не перезагрузилась раньше
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 2500);
+    };
 
    // === 5. МОДАЛЬНОЕ ОКНО ПОДРОБНОСТЕЙ ===
     const modal = document.getElementById('book-modal');
@@ -357,15 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (deleteBtn) {
             deleteBtn.onclick = () => {
-                // Показываем окно подтверждения
-                confirmModal.style.display = 'flex';
-                // Не закрываем основную модалку пока что, просто вешаем подтверждение сверху
+                // Показываем окно подтверждения (ИЗМЕНЕНО: classList)
+                confirmModal.classList.add('is-visible');
             };
         }
 
         if (cancelBtn) {
             cancelBtn.onclick = () => {
-                confirmModal.style.display = 'none';
+                // (ИЗМЕНЕНО: classList)
+                confirmModal.classList.remove('is-visible');
             };
         }
 
@@ -377,8 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const res = await fetch(`/delete_book/${currentId}`, { method: 'DELETE' });
                     if (res.ok) {
-                        confirmModal.style.display = 'none';
-                        modal.style.display = 'none'; // Закрываем и карточку книги
+                        confirmModal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
+                        modal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
                         showToast("Книга успешно удалена");
 
                         setTimeout(() => {
@@ -395,25 +395,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // Закрытие по клику вне окна подтверждения
         window.addEventListener('click', (e) => {
             if (e.target === confirmModal) {
-                confirmModal.style.display = 'none';
+                confirmModal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
             }
         });
 
         // --- ЛОГИКА ОТКРЫТИЯ РЕДАКТИРОВАНИЯ ---
         if (editBtn) {
             editBtn.onclick = () => {
-                // Заполняем поля формы редактирования данными, которые уже есть в инфо-модалке
+                // ID оставляем — он нужен для сервера
                 document.getElementById('edit-book-id').value = bookId;
-                document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
-                document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
+                
+                // Заполняем только те поля, которые МОЖНО менять
                 document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, '');
                 document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
                 document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
+                
+                // Название и автора можно оставить для заполнения, так как они readonly, 
+                // но пользователь их не изменит.
+                document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
+                document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
+
                 document.getElementById('edit-cover-preview').src = modalCover.src;
 
                 // Переключаем модалки
-                modal.style.display = 'none';
-                editModal.style.display = 'flex';
+                modal.classList.remove('is-visible');
+                editModal.classList.add('is-visible');
             };
         }
 
@@ -425,7 +431,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isAuthenticated = document.body.getAttribute('data-authenticated') === 'true';
 
                 if (!isAuthenticated) {
-                    // В JS нельзя использовать url_for, поэтому пишем путь текстом
                     window.location.href = "/login";
                     return;
                 }
@@ -444,21 +449,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     const res = await fetch(fileUrl);
                     const blob = await res.blob();
 
-                    // ОПРЕДЕЛЯЕМ РАСШИРЕНИЕ ИЗ URL
-                    // fileUrl обычно выглядит как .../files/uuid.epub
                     const extension = fileUrl.split('.').pop().split(/\#|\?/)[0] || 'pdf';
 
                     const a = document.createElement('a');
                     a.href = window.URL.createObjectURL(blob);
-
-                    // Формируем имя файла с правильным расширением
                     a.download = `${bookTitle}.${extension}`;
 
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
 
-                    window.showToast("Книга скачана!");
+                    showToast("Книга скачана!");
                 } catch (err) { window.open(fileUrl, '_blank'); }
                 finally { this.innerHTML = original; }
             };
@@ -481,7 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 10. Чтение
         if (readBtn) readBtn.onclick = () => { window.location.href = `/read/${bookId}`; };
 
-        modal.style.display = 'flex';
+        // ОТКРЫВАЕМ ОСНОВНУЮ МОДАЛКУ (ИЗМЕНЕНО: classList)
+        modal.classList.add('is-visible');
         document.body.style.overflow = 'hidden';
     }
 
@@ -501,14 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ЗАКРЫТИЕ
     if (closeModal) {
         closeModal.onclick = () => {
-            modal.style.display = 'none';
+            modal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
             document.body.style.overflow = 'auto';
         };
     }
 
     window.addEventListener('click', (e) => {
         if (e.target === modal) {
-            modal.style.display = 'none';
+            modal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
             document.body.style.overflow = 'auto';
         }
         // Закрытие заметки при клике вне неё
@@ -520,18 +522,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // === 6. ДОПОЛНИТЕЛЬНОЕ МЕНЮ В МОДАЛКЕ (Options Dropdown) ===
-    // Используем ID, который прописан в HTML: moreOptionsBtn
     const moreOptionsBtn = document.getElementById('moreOptionsBtn');
     const optionsDropdown = document.getElementById('optionsDropdown');
 
     if (moreOptionsBtn && optionsDropdown) {
         moreOptionsBtn.addEventListener('click', (e) => {
-            // Останавливаем всплытие, чтобы клик не дошел до окна и не закрыл его
             e.stopPropagation();
             optionsDropdown.classList.toggle('active');
         });
 
-        // Закрываем выпадашку, если кликнули куда угодно еще
         document.addEventListener('click', (e) => {
             if (!moreOptionsBtn.contains(e.target)) {
                 optionsDropdown.classList.remove('active');
@@ -541,6 +540,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editForm) {
         editForm.onsubmit = async (e) => {
             e.preventDefault();
+            
+            // --- ЛОГИКА ВАЛИДАЦИИ ---
+            let isValid = true;
+            const fieldsToValidate = [
+                { id: 'edit-book-year', msg: 'Введите год (например, 2024)' },
+                { id: 'edit-book-genre', msg: 'Выберите или введите жанр' },
+                { id: 'edit-book-description', msg: 'Описание не может быть пустым' }
+            ];
+
+            fieldsToValidate.forEach(field => {
+                const input = document.getElementById(field.id);
+                const errorDisplay = document.getElementById('err-' + field.id); // Убедись, что в HTML есть span с такими ID
+                
+                if (input) {
+                    const value = input.value.trim();
+                    // Простая проверка: поле не пустое
+                    if (!value || (field.id === 'edit-book-year' && isNaN(value))) {
+                        input.classList.add('invalid');
+                        if (errorDisplay) {
+                            errorDisplay.textContent = field.msg;
+                            errorDisplay.classList.add('is-visible');
+                        }
+                        isValid = false;
+                    } else {
+                        // Если всё ок — убираем ошибки
+                        input.classList.remove('invalid');
+                        if (errorDisplay) {
+                            errorDisplay.classList.remove('is-visible');
+                        }
+                    }
+                }
+            });
+
+            if (!isValid) return; // Останавливаем отправку, если есть ошибки
+
+            // --- ОТПРАВКА ДАННЫХ (если валидация прошла) ---
             const btn = document.getElementById('submitEditBook');
             const formData = new FormData(editForm);
             const bookId = formData.get('book_id');
@@ -555,32 +590,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (res.ok) {
                     showToast("Книга обновлена!");
-
-                    // Закрываем модалку сразу, чтобы пользователь видел уведомление
-                    editModal.style.display = 'none';
+                    editModal.classList.remove('is-visible');
                     document.body.style.overflow = 'auto';
 
-                    // Ждем 1.5 секунды, чтобы уведомление успели прочитать, и только потом обновляем
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
+                } else {
+                    showToast("Ошибка при сохранении");
                 }
             } catch (err) {
                 console.error(err);
+                showToast("Ошибка соединения");
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Сохранить изменения";
             }
         };
+
+        // Добавим сброс ошибок при вводе текста
+        editForm.querySelectorAll('.form-input, .form-textarea').forEach(input => {
+            input.addEventListener('input', () => {
+                input.classList.remove('invalid');
+                const errId = 'err-' + input.id;
+                const errEl = document.getElementById(errId);
+                if (errEl) errEl.classList.remove('is-visible');
+            });
+        });
     }
 
     // Закрытие модалки редактирования по крестику
     const closeEditBtn = document.getElementById('closeEditBook');
     if (closeEditBtn) {
         closeEditBtn.onclick = () => {
-            editModal.style.display = 'none';
+            editModal.classList.remove('is-visible'); // (ИЗМЕНЕНО: classList)
             document.body.style.overflow = 'auto';
         };
     }
 });
-

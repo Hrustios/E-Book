@@ -317,19 +317,24 @@
 
                     <div class="add-book-form">
                         <div class="form-group">
-                            <input type="text" name="title" id="edit-book-title" class="form-input" placeholder="Название">
+                            <input type="text" name="title" id="edit-book-title" class="form-input readonly-field" placeholder="Название" readonly>
+                            <span class="error-text" id="err-book-title"></span>
                         </div>
                         <div class="form-group">
-                            <input type="text" name="author" id="edit-book-author" class="form-input" placeholder="Автор">
+                            <input type="text" name="author" id="edit-book-author" class="form-input readonly-field" placeholder="Автор" readonly>
+                            <span class="error-text" id="err-book-author"></span>
                         </div>
                         <div class="form-group">
                             <input type="number" name="year" id="edit-book-year" class="form-input" placeholder="Год издания">
+                            <span class="error-text" id="err-book-year"></span>
                         </div>
                         <div class="form-group">
                             <input type="text" name="genre" id="edit-book-genre" class="form-input" placeholder="Жанр">
+                            <span class="error-text" id="err-book-genre"></span>
                         </div>
                         <div class="form-group">
                             <textarea name="description" id="edit-book-description" class="form-textarea" placeholder="Описание книги"></textarea>
+                            <span class="error-text" id="err-book-description"></span>
                         </div>
 
                         <div class="submit-row" style="display: flex; gap: 10px;">

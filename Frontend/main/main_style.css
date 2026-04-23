@@ -853,6 +853,34 @@ body {
         width: 14px;
     }
 
+    .header-dropdown {
+        position: fixed;
+        top: auto;        /* Сбрасываем верхнее позиционирование */
+        bottom: 55px;        /* Прижимаем к низу */
+        right: 0;
+        width: 40%;      /* Растягиваем на всю ширину */
+    }
+
+    /* Делаем пункты меню крупнее (правило 44px для мобильных интерфейсов) */
+    .header-dropdown .dropdown-item {
+        padding: 14px 18px;
+        font-size: 16px; /* Увеличиваем шрифт для читабельности */
+        margin-bottom: 2px;
+    }
+
+    /* Увеличиваем визуально разделитель */
+    .dropdown-divider {
+        margin: 8px 0;
+    }
+
+    /* Адаптив для самой аватарки, чтобы по ней было легче попасть */
+    .profile-avatar-letter, 
+    .profile-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
     /* 2. HERO СЕКЦИЯ: ПОЛНЫЙ ЭКРАН И ЦЕНТРИРОВАНИЕ */
     .hero-section {
         height: 100vh;
