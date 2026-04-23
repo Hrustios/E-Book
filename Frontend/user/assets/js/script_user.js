@@ -19,30 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // === 1. КАСТОМНЫЙ СЕЛЕКТ (Фильтры) ===
-    const wrapper = document.querySelector('.custom-select-wrapper');
-    const select = document.querySelector('.custom-select');
-    const trigger = document.querySelector('.custom-select__trigger');
-    const options = document.querySelectorAll(".custom-option");
-
-    if (wrapper && select) {
-        wrapper.addEventListener('click', (e) => {
-            select.classList.toggle('open');
-            e.stopPropagation();
-        });
-
-        options.forEach(option => {
-            option.addEventListener('click', function() {
-                if (!this.classList.contains('selected')) {
-                    const selectedOption = select.querySelector('.custom-option.selected');
-                    if (selectedOption) selectedOption.classList.remove('selected');
-                    this.classList.add('selected');
-                    trigger.querySelector('span').textContent = this.textContent;
-                }
-            });
-        });
-    }
-
     // === 2. КНОПКА "НАВЕРХ" ===
     const btnUp = document.querySelector('.btn-up');
     if (btnUp) {
@@ -61,30 +37,72 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+    // === 2. ВЫПАДАЮЩЕЕ МЕНЮ ПРОФИЛЯ ===
+    const profileTrigger = document.getElementById('profileDropdownTrigger');
+    const profileMenu = document.getElementById('headerProfileMenu');
 
+    if (profileTrigger && profileMenu) {
+        profileTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileTrigger.contains(e.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    }
     /* --- 2. МОДАЛЬНОЕ ОКНО ПРОСМОТРА КНИГИ --- */
+    /* --- МОДАЛЬНОЕ ОКНО ПРОСМОТРА КНИГИ --- */
     const infoModal = document.getElementById("book-modal");
-    const readMoreButtons = document.querySelectorAll(".catalog-main-btn");
     const closeInfoBtn = document.querySelector("#book-modal .close-modal");
+
+    // Используем делегирование событий, чтобы работало на всех кнопках
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.open-modal-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+
+        // 1. Извлекаем данные из атрибутов кнопки
+        const title = btn.getAttribute('data-title');
+        const author = btn.getAttribute('data-author');
+        const desc = btn.getAttribute('data-desc');
+        const cover = btn.getAttribute('data-cover');
+        const pages = btn.getAttribute('data-pages');
+        const year = btn.getAttribute('data-year');
+
+        // 2. Наполняем модалку данными
+        infoModal.querySelector('#modal-name').textContent = title;
+        infoModal.querySelector('.modal-author').textContent = author;
+        infoModal.querySelector('#modal-description').textContent = desc;
+        infoModal.querySelector('.book-cover-img').src = cover;
+
+        // Находим спаны с мета-данными (страницы и год)
+        const metaSpans = infoModal.querySelectorAll('.modal-book-meta span');
+        if (metaSpans.length >= 2) {
+            metaSpans[0].textContent = `Страницы: ${pages}`;
+            metaSpans[1].textContent = `Год издания: ${year}`;
+        }
+
+        // 3. Открываем
+        openModal(infoModal);
+    });
 
     const openModal = (modal) => {
         if (!modal) return;
+        modal.style.display = "block"; // Используем block, если в CSS нет .is-visible
         modal.classList.add('is-visible');
         document.body.style.overflow = "hidden";
     };
 
     const closeModal = (modal) => {
         if (!modal) return;
+        modal.style.display = "none";
         modal.classList.remove('is-visible');
         document.body.style.overflow = "auto";
     };
-
-    readMoreButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(infoModal);
-        });
-    });
 
     if (closeInfoBtn) {
         closeInfoBtn.addEventListener('click', () => closeModal(infoModal));

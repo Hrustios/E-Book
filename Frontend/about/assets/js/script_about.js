@@ -25,18 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === ЛОГИКА ВЫПАДАЮЩЕГО СПИСКА (ЛИЧНЫЙ КАБИНЕТ) ===
+        // === 2. ВЫПАДАЮЩЕЕ МЕНЮ ПРОФИЛЯ ===
     const profileTrigger = document.getElementById('profileDropdownTrigger');
     const profileMenu = document.getElementById('headerProfileMenu');
 
     if (profileTrigger && profileMenu) {
-        // Открытие/закрытие при клике на блок профиля
         profileTrigger.addEventListener('click', (e) => {
-            e.stopPropagation(); // Важно: чтобы клик не улетал на document
+            e.stopPropagation();
             profileMenu.classList.toggle('active');
         });
 
-        // Закрытие меню, если кликнули в любое другое место страницы
         document.addEventListener('click', (e) => {
             if (!profileTrigger.contains(e.target)) {
                 profileMenu.classList.remove('active');

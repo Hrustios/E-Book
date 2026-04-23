@@ -47,3 +47,34 @@ def send_feedback():
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@main_bp.route('/user/<int:user_id>')
+def user_profile(user_id):
+    with get_db_connection() as conn:
+        # Данные пользователя
+        user = conn.execute('SELECT * FROM Users WHERE id = ?', (user_id,)).fetchone()
+
+        if not user:
+            return "Пользователь не найден", 404
+
+        # Считаем количество подписчиков (те, кто подписан НА этого пользователя)
+        followers_count = conn.execute(
+            'SELECT COUNT(*) FROM Subscriptions WHERE author_id = ?', (user_id,)
+        ).fetchone()[0]
+
+        # Считаем подписки (те, НА КОГО подписан этот пользователь)
+        following_count = conn.execute(
+            'SELECT COUNT(*) FROM Subscriptions WHERE user_id = ?', (user_id,)
+        ).fetchone()[0]
+
+        # Также вытащим книги этого пользователя для коллекции
+        user_books = conn.execute(
+            'SELECT * FROM Books WHERE author_id = ? ORDER BY id DESC', (user_id,)
+        ).fetchall()
+
+    return render_template('user/user_page.html',
+                           profile_user=user,
+                           followers=followers_count,
+                           following=following_count,
+                           books=user_books)

@@ -68,7 +68,115 @@ body.modal-open {
     padding: 4px 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
+.nav-link.active {
+    opacity: 1;
+    font-weight: bold;
+}
 
+.nav-link.active::after {
+    width: 100%;
+}
+
+.profile-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.header-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 190px;
+    /* Используем твои основные цвета: темный шоколад / дерево */
+    background: #2D1B0E;
+    border: 1px solid #4A3528;
+    border-radius: 8px;
+    padding: 6px;
+    display: none; /* Скрыто */
+    flex-direction: column;
+    z-index: 3000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.header-dropdown.active {
+    display: flex;
+}
+
+/* Пункты меню */
+.header-dropdown .dropdown-item {
+    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.header-dropdown .dropdown-item:hover {
+    background: #3D2819;
+}
+
+/* Разделитель */
+.dropdown-divider {
+    height: 1px;
+    background: #4A3528;
+    margin: 4px 0;
+}
+
+/* Кнопка выхода */
+.header-dropdown .logout-link {
+    color: #FF5E5E !important; /* Яркий красный для выхода */
+}
+
+.header-dropdown .logout-link:hover {
+    background: rgba(255, 94, 94, 0.1);
+}
+
+.profile-text {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile-avatar:hover { transform: scale(1.1); }
+
+.profile-avatar-letter {
+    width: 36px;
+    height: 36px;
+    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
+    color: var(--dark);             /* Цвет буквы */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(68, 45, 28, 0.1); /* Легкая обводка для четкости */
+}
+
+.profile-avatar-letter:hover {
+    transform: scale(1.1);
+}
 .nav-link::after {
     content: '';
     position: absolute;

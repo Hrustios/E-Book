@@ -195,10 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const cover = btn.getAttribute('data-cover');
         const avgRating = btn.getAttribute('data-avg-rating') || "0.0";
 
+        // ВАЖНО: Объявляем эти переменные, чтобы не было ReferenceError
+        const authorName = btn.getAttribute('data-author') || "Автор не указан";
+        const uploaderName = btn.getAttribute('data-uploader');
+
         // Важно: записываем ID в атрибут модалки, чтобы кнопка удаления его видела
         modal.setAttribute('data-current-id', bookId);
 
-        // Элементы
+        // Элементы (поиск в DOM)
         const statusOptions = document.querySelectorAll('#optionsDropdown .dropdown-item');
         const noteTextarea = document.getElementById('book-note-text');
         const noteContainer = document.getElementById('note-container');
@@ -216,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const avgRatingScore = document.getElementById('modal-avg-rating');
         const editModal = document.getElementById('editBookModal');
         const editForm = document.getElementById('editBookForm');
-        const editBtn = document.getElementById('modal-edit-btn')
+        const editBtn = document.getElementById('modal-edit-btn');
 
         // 2. Сброс состояния перед загрузкой
         statusOptions.forEach(opt => opt.classList.remove('active-status'));
@@ -224,19 +228,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (noteTextarea) noteTextarea.value = "Загрузка...";
 
         let currentSelectedRating = 0;
-        highlightStars(0); // Сбрасываем звезды до получения данных
+        highlightStars(0);
 
         const safeSetText = (id, text) => {
             const el = document.getElementById(id);
             if (el) el.textContent = text;
         };
 
-        // 3. Предварительное заполнение (из атрибутов кнопки)
+        // 3. Предварительное заполнение (БЕЗ ДУБЛИКОВ)
         const downloadCount = btn.getAttribute('data-downloads') || "0";
-        safeSetText('modal-downloads', `${downloadCount} скачиваний`);
+
         safeSetText('modal-name', bookTitle);
-        safeSetText('modal-author', btn.getAttribute('data-author'));
         safeSetText('modal-description', btn.getAttribute('data-desc'));
+        safeSetText('modal-downloads', `${downloadCount} скачиваний`);
         safeSetText('modal-pages', `Страницы: ${btn.getAttribute('data-pages') || '—'}`);
         safeSetText('modal-year', `Год издания: ${btn.getAttribute('data-year') || '—'}`);
         safeSetText('modal-genre', btn.getAttribute('data-genre'));
@@ -244,6 +248,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (modalCover) modalCover.src = cover;
 
+        // ЛОГИКА ОТОБРАЖЕНИЯ АВТОРА И ЗАГРУЗИВШЕГО
+        // Находим элементы в модальном окне
+        const authorElement = document.getElementById('modal-author');
+        const uploaderId = btn.getAttribute('data-id-uploader'); // Убедись, что в HTML ты добавил data-id-uploader="{{ book['author_id'] }}"
+            if (authorElement) {
+                authorElement.innerHTML = '';
+
+                const authorSpan = document.createElement('span');
+                authorSpan.textContent = authorName;
+                authorElement.appendChild(authorSpan);
+
+                if (uploaderName && uploaderName !== "None" && uploaderId && uploaderId !== "null") {
+                    const divider = document.createTextNode(' | ');
+                    authorElement.appendChild(divider);
+
+                    const uploaderLink = document.createElement('a');
+                    uploaderLink.textContent = uploaderName;
+                    uploaderLink.href = `/user/${uploaderId}`; // Теперь тут будет ID, а не null
+                    uploaderLink.style.color = '#7A5CFF';
+                    uploaderLink.style.textDecoration = 'none';
+                    authorElement.appendChild(uploaderLink);
+                }
+            }
         // 4. Загрузка актуальных данных (Автор vs Читатель)
         fetch(`/get_book_user_data/${bookId}`)
         .then(res => res.json())

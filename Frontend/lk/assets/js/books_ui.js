@@ -115,12 +115,24 @@ export async function openFullBookModal(btn) {
             if (editBtn && editModal) {
                 editBtn.onclick = () => {
                     document.getElementById('edit-book-id').value = bookId;
-                    document.getElementById('edit-book-title').value = document.getElementById('modal-name').textContent;
-                    document.getElementById('edit-book-author').value = document.getElementById('modal-author').textContent;
+
+                    // Получаем элементы
+                    const titleInput = document.getElementById('edit-book-title');
+                    const authorInput = document.getElementById('edit-book-author');
+
+                    // Предзаполняем
+                    titleInput.value = document.getElementById('modal-name').textContent;
+                    authorInput.value = document.getElementById('modal-author').textContent;
+
+                    // БЛОКИРУЕМ ПОЛЯ (делаем их только для чтения)
+                    titleInput.setAttribute('readonly', true);
+                    authorInput.setAttribute('readonly', true);
+
                     document.getElementById('edit-book-year').value = document.getElementById('modal-year').textContent.replace(/\D/g, "");
                     document.getElementById('edit-book-genre').value = document.getElementById('modal-genre').textContent;
                     document.getElementById('edit-book-description').value = document.getElementById('modal-description').textContent;
                     document.getElementById('edit-cover-preview').src = modal.querySelector('.book-cover-img').src;
+
                     modal.style.display = 'none';
                     editModal.style.display = 'flex';
                 };

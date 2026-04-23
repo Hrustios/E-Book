@@ -14,15 +14,37 @@
         <div class="header-container">
             <a href="index.html" class="logo">E-Book</a>
             <nav class="nav-menu">
-                <a href="index.html" class="nav-link">Главная</a>
-                <a href="#" class="nav-link">О продукте</a>
-                <a href="#" class="nav-link">Каталог</a>
-                <a href="#" class="nav-link">Контакты</a>
+                <a href="{{ url_for('main.index') }}" class="nav-link">Главная</a>
+                <a href="{{ url_for('main.about_page') }}" class="nav-link">О продукте</a>
+                <a href="{{ url_for('book.catalog_page') }}" class="nav-link">Каталог</a>
+                <a href="{{ url_for('main.contacts_page') }}" class="nav-link">Контакты</a>
             </nav>
-            <div class="profile-section">
-                <a href="lk_page.html" class="profile-text">Личный кабинет</a>
-                <div class="profile-avatar">
-                    <img src="images/Profile.svg" alt="Avatar">
+            <div class="profile-section" id="profileDropdownTrigger">
+                <span class="profile-text">
+                    {% if session.get('username') %}
+                        Личный кабинет
+                    {% else %}
+                        Войти в аккаунт
+                    {% endif %}
+                </span>
+
+                <div class="profile-avatar-letter">
+                    {% if session.get('username') %}
+                        {{ session['username'][0] | upper }}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='main/images/Profile.svg') }}" alt="?" class="avatar-img">
+                    {% endif %}
+                </div>
+
+                <div class="header-dropdown" id="headerProfileMenu">
+                    {% if session.get('username') %}
+                        <a href="{{ url_for('main.lk_page') }}" class="dropdown-item">Профиль</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth_login.logout') }}" class="dropdown-item logout-link">Выйти из аккаунта</a>
+                    {% else %}
+                        <a href="{{ url_for('auth_login.login') }}" class="dropdown-item">Войти</a>
+                        <a href="{{ url_for('auth_reg.register') }}" class="dropdown-item">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -42,21 +64,26 @@
                         </div>
                     </div>
                     <div class="user-stats-actions">
-                        <h1 class="user-name">Имя пользователя</h1>
+                        <h1 class="user-name">{{ profile_user['username'] }}</h1>
                         <div class="stats-group">
                             <div class="stat-item">
+                                <span class="stat-value">{{ followers }}</span>
                                 <span class="stat-label">Подписчики</span>
                             </div>
                             <div class="stat-item">
+                                <span class="stat-value">{{ following }}</span>
                                 <span class="stat-label">Подписки</span>
                             </div>
                         </div>
                         <div class="actions-row">
-                            <button class="btn-subscribe">Подписаться</button>
-                            
-                            <button class="btn-notice js-toggle-icon" data-active-icon="images/bell_on.svg">
-                                <img src="images/bell_off.svg" alt="Icon" class="icon-img">
-                            </button>
+                            {% if session.get('user_id') != profile_user['id'] %}
+                                <button class="btn-subscribe">Подписаться</button>
+                                <button class="btn-notice js-toggle-icon" data-active-icon="images/bell_on.svg">
+                                    <img src="{{ url_for('static', filename='user/bell_on/Profile.svg') }}" alt="Icon" class="icon-img">
+                                </button>
+                            {% else %}
+                                <a href="{{ url_for('main.lk_page') }}" class="btn-subscribe" style="text-decoration: none; text-align: center;">Профиль</a>
+                            {% endif %}
                         </div>
                     </div>
             </section>
@@ -65,37 +92,30 @@
                 <section class="collection-section">
                     <div class="collection-header">
                         <h2>Коллекция пользователя</h2>
-                        <div class="custom-select-wrapper">
-                            <div class="custom-select">
-                                <div class="custom-select__trigger">
-                                    <span>Все</span>
-                                    <div class="arrow"></div>
-                                </div>
-                                <div class="custom-options">
-                                    <span class="custom-option selected" data-value="all">Все</span>
-                                    <span class="custom-option" data-value="my-books">Опубликованные книги</span>
-                                    <span class="custom-option" data-value="read">Прочитанные</span>
-                                    <span class="custom-option" data-value="later">Отложенные</span>
-                                    <span class="custom-option" data-value="wishlist">Желаемые</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
                     <div class="profile-book-grid">
+                        {% for book in books %}
                         <div class="profile-book-card">
                             <div class="book-visual">
                                 <div class="css-book-shape">
-                                    <img src="images/test.jpg" alt="Cover" class="book-cover-img">
+                                    <img src="{{ book['cover_url'] }}" alt="Cover" class="book-cover-img">
                                 </div>
                             </div>
                             <div class="p-book-info">
-                                <h3>Название</h3>
-                                <p class="p-author">Автор</p>
-                                <p class="p-desc">Описание книги</p>
-                                <a href="#" class="btn-read-more">Читать больше</a>
+                                <h3>{{ book['title'] }}</h3>
+                                <p class="p-author">{{ book['author_name'] }}</p>
+                                <p class="p-desc">{{ book['description'] | truncate(100) }}</p>
+
+                                <a href="#" class="btn-read-more open-modal-btn"
+                                   data-title="{{ book['title'] }}"
+                                   data-author="{{ book['author_name'] }}"
+                                   data-desc="{{ book['description'] }}"
+                                   data-cover="{{ book['cover_url'] }}"
+                                   data-pages="{{ book['pages'] or '—' }}"
+                                   data-year="{{ book['release_year'] or '—' }}">Читать больше</a>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
                 </section>
             </div>
@@ -183,10 +203,10 @@
                     </div>
                 </div>
                 <nav class="footer-nav">
-                    <a href="#">Главная</a>
-                    <a href="#">О продукте</a>
-                    <a href="#">Контакты</a>
-                    <a href="#">Личный кабинет</a>
+                    <a href="{{ url_for('main.index') }}">Главная</a>
+                    <a href="{{ url_for('main.about_page') }}">О продукте</a>
+                    <a href="{{ url_for('main.contacts_page') }}">Контакты</a>
+                    <a href="{{ url_for('main.lk_page') }}">Личный кабинет</a>
                 </nav>
 
                 <div class="footer-right">

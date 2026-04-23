@@ -982,6 +982,36 @@ body {
     align-items: start;
 }
 
+.modal-book-view .css-book-shape {
+    position: relative;
+    display: flex;
+    perspective: 1000px; /* Добавляем глубину */
+}
+
+.modal-book-view .css-book-shape::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px; /* Толщина корешка */
+    height: 100%;
+    background: var(--dark);
+    /* Разворачиваем корешок в 3D */
+    transform: rotateY(-90deg);
+    transform-origin: left;
+    box-shadow: inset -5px 0 10px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+.modal-book-view .book-cover-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px 15px 15px 4px; /* Закругляем только внешние углы */
+    position: relative;
+    z-index: 2;
+}
+
 /* Левая часть */
 .modal-book-view {
     display: flex;
@@ -1432,11 +1462,17 @@ body {
 /* Отключены любые взаимодействия с зоной обложки в модалке редактирования */
 .upload-cover-section .cover-dropzone {
     cursor: default !important;
-    pointer-events: none; /* Полностью блокирует клики */
-    border-style: solid;  /* Меняем пунктир на сплошную линию */
+    pointer-events: none; /* Меняем пунктир на сплошную линию */
     opacity: 0.8;
 }
-
+.cover-dropzone,
+#edit-cover-preview,
+.modal-book-view .book-visual {
+    border: none !important;
+    outline: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
 /* Убраны эффект наведения для заблокированных полей */
 .readonly-field:focus {
     box-shadow: none !important;

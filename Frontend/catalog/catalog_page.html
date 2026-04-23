@@ -64,7 +64,7 @@
                          data-id="{{ book['id'] }}"
                          data-title="{{ book['title'] }}"
                          data-author="{{ book['author_name'] }}"
-                         data-desc="{{ book['description'] }}"
+                         data-uploader="{{ book['uploaded_by'] }}"     data-id-uploader="{{ book['author_id'] }}"   data-desc="{{ book['description'] }}"
                          data-cover="{{ book['cover_url'] }}"
                          data-pages="{{ book['pages'] }}"
                          data-year="{{ book['release_year'] }}"
@@ -163,7 +163,7 @@
                                data-id="{{ book['id'] }}"
                                data-title="{{ book['title'] }}"
                                data-author="{{ book['author_name'] }}"
-                               data-desc="{{ book['description'] }}"
+                               data-uploader="{{ book['uploaded_by'] }}"     data-id-uploader="{{ book['author_id'] }}"   data-desc="{{ book['description'] }}"
                                data-cover="{{ book['cover_url'] }}"
                                data-pages="{{ book['pages'] }}"
                                data-year="{{ book['release_year'] }}"
@@ -312,7 +312,6 @@
                                 <img id="edit-cover-preview" src="" style="width:100%; height:100%; object-fit:cover; border-radius:28px;">
                             </div>
                         </div>
-                        <p style="font-size: 12px; color: #888; margin-top: 10px; text-align: center;">Обложку можно изменить только в личном кабинете</p>
                     </div>
 
                     <div class="add-book-form">
@@ -374,5 +373,15 @@
             <div class="footer-line"></div>
         </div>
     </footer>
+<div id="confirmDeleteModal" class="modal">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h2 class="modal-title">Удалить книгу?</h2>
+        <p>Вы уверены, что хотите безвозвратно удалить эту книгу из каталога?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+            <button id="confirmDeleteBtn" class="btn-submit-book" style="background: #d9534f; flex: 1;">Удалить</button>
+            <button id="cancelDeleteBtn" class="btn-read" style="flex: 1;">Отмена</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

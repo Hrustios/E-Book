@@ -51,27 +51,38 @@ def catalog_page():
             # 1. ЗАПРОС ДЛЯ ТОП-4 ЗА НЕДЕЛЮ
             # Ищем книги, у которых были оценки за последние 7 дней
             top_books = conn.execute('''
-                                     SELECT b.*, AVG(ul.rating) as weekly_avg
+                                     SELECT b.*, u.username as uploaded_by, AVG(ul.rating) as weekly_avg
                                      FROM Books b
                                               JOIN User_Library ul ON b.id = ul.book_id
+                                              LEFT JOIN Users u ON b.author_id = u.id
                                      WHERE ul.rating > 0
                                        AND ul.read_date >= date ('now'
                                          , '-7 days')
                                      GROUP BY b.id
-                                     ORDER BY weekly_avg DESC
-                                         LIMIT 4
+                                     ORDER BY weekly_avg DESC LIMIT 4
                                      ''').fetchall()
 
-            # Подстраховка: если за неделю никто ничего не оценивал, берем просто лучшие
+            # И подстраховку, если топа за неделю нет:
             if not top_books:
-                top_books = conn.execute('SELECT * FROM Books ORDER BY average_rating DESC LIMIT 4').fetchall()
+                top_books = conn.execute('''
+                                         SELECT b.*, u.username as uploaded_by
+                                         FROM Books b
+                                                  LEFT JOIN Users u ON b.author_id = u.id
+                                         ORDER BY average_rating DESC LIMIT 4
+                                         ''').fetchall()
 
             # 2. ОСНОВНОЙ КАТАЛОГ (твой код)
             total_count = conn.execute(f"SELECT COUNT(*) FROM Books {where_clause}", params).fetchone()[0]
             total_pages = (total_count + per_page - 1) // per_page
 
             books = conn.execute(
-                f"SELECT * FROM Books {where_clause} ORDER BY upload_date DESC LIMIT ? OFFSET ?",
+                f"""
+                SELECT b.*, u.username as uploaded_by 
+                FROM Books b
+                LEFT JOIN Users u ON b.author_id = u.id
+                {where_clause.replace('AND ', 'AND b.') if 'WHERE 1=1' in where_clause else where_clause}
+                ORDER BY b.upload_date DESC LIMIT ? OFFSET ?
+                """,
                 params + [per_page, offset]
             ).fetchall()
 
