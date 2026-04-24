@@ -110,12 +110,11 @@ body {
     top: calc(100% + 10px);
     right: 0;
     width: 190px;
-    /* Используем твои основные цвета: темный шоколад / дерево */
     background: #2D1B0E;
     border: 1px solid #4A3528;
     border-radius: 8px;
     padding: 6px;
-    display: none; /* Скрыто */
+    display: none; 
     flex-direction: column;
     z-index: 3000;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
@@ -127,7 +126,7 @@ body {
 
 /* Пункты меню */
 .header-dropdown .dropdown-item {
-    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
+    color: #E8D1A7; 
     text-decoration: none;
     padding: 10px 14px;
     font-size: 14px;
@@ -148,7 +147,7 @@ body {
 
 /* Кнопка выхода */
 .header-dropdown .logout-link {
-    color: #FF5E5E !important; /* Яркий красный для выхода */
+    color: #FF5E5E !important; 
 }
 
 .header-dropdown .logout-link:hover {
@@ -402,7 +401,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Плавная анимация подъема */
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
 }
 
@@ -466,7 +464,7 @@ body {
     opacity: 0.2; /* Сделали заметнее */
 }
 
-/* --- АДАПТИВНОСТЬ СТРАНИЦЫ "О ПРОДУКТЕ" --- */
+/*АДАПТИВНОСТЬ СТРАНИЦЫ "О ПРОДУКТЕ"*/
 
 @media (max-width: 992px) {
     :root {
@@ -655,7 +653,7 @@ body {
     }
 
     .social-links {
-        justify-content: center; /* Центрируем иконки соцсетей */
+        justify-content: center; 
     }
 
     .footer-nav {
