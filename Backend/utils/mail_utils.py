@@ -5,6 +5,40 @@ from email.mime.multipart import MIMEMultipart
 from Backend.config import Config
 
 
+def send_registration_email(user_email, username, body_text=None):
+    if not Config.MAIL_USERNAME or not Config.MAIL_PASSWORD:
+        print("Ошибка: Настройки почты для регистрации не найдены")
+        return False
+    msg = MIMEMultipart()
+    msg['From'] = f"E-Book Service <{Config.MAIL_DEFAULT_SENDER}>"
+    msg['To'] = user_email
+    msg['Subject'] = "Подтверждение почты E-Book" if body_text else "Добро пожаловать в E-Book!"
+    if not body_text:
+        body_text = f"""
+        Привет, {username}!
+
+        Спасибо за регистрацию в нашем сервисе E-Book. 
+        Приятного чтения!
+        """
+
+    msg.attach(MIMEText(body_text, 'plain', 'utf-8'))
+
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(Config.MAIL_SERVER, 465, context=context, timeout=10) as server:
+            server.login(Config.MAIL_USERNAME, Config.MAIL_PASSWORD)
+            server.send_message(msg)
+            print(f"Письмо отправлено на {user_email}")
+        return True
+    except Exception as e:
+        print(f"Ошибка при отправке письма: {e}")
+        return False
+
+
+def send_confirmation_handler(email, username, confirm_url):
+    body = f"Привет, {username}! Для активации аккаунта перейди по ссылке: {confirm_url}"
+    send_registration_email(email, username, body_text=body)
+
 def send_notification_email(recipient_email, author_name, book_title):
     if not Config.MAIL_USERNAME or not Config.MAIL_PASSWORD:
         return
