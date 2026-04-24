@@ -77,9 +77,9 @@
                         </div>
                         <div class="actions-row">
                             {% if session.get('user_id') != profile_user['id'] %}
-                                <button class="btn-subscribe">Подписаться</button>
-                                <button class="btn-notice js-toggle-icon" data-active-icon="images/bell_on.svg">
-                                    <img src="{{ url_for('static', filename='user/bell_on/Profile.svg') }}" alt="Icon" class="icon-img">
+                                <button class="btn-subscribe" data-author-id="{{ profile_user['id'] }}">Подписаться</button>
+                                <button class="btn-notice js-toggle-icon" data-active-icon="images/bell_on.svg" style="display: none;">
+                                    <img src="{{ url_for('static', filename='user/images/bell_off.svg') }}" alt="Icon" class="icon-img">
                                 </button>
                             {% else %}
                                 <a href="{{ url_for('main.lk_page') }}" class="btn-subscribe" style="text-decoration: none; text-align: center;">Профиль</a>
@@ -107,12 +107,16 @@
                                 <p class="p-desc">{{ book['description'] | truncate(100) }}</p>
 
                                 <a href="#" class="btn-read-more open-modal-btn"
+                                   data-file-url="{{ book['file_url'] }}"
+                                   data-id="{{ book['id'] }}"
                                    data-title="{{ book['title'] }}"
                                    data-author="{{ book['author_name'] }}"
                                    data-desc="{{ book['description'] }}"
                                    data-cover="{{ book['cover_url'] }}"
                                    data-pages="{{ book['pages'] or '—' }}"
-                                   data-year="{{ book['release_year'] or '—' }}">Читать больше</a>
+                                   data-year="{{ book['release_year'] or '—' }}"
+                                   data-avg-rating="{{ book['avg_rating'] or '0.0' }}"
+                                   data-downloads="{{ book['download_count'] or '0' }}">Читать больше</a>
                             </div>
                         </div>
                         {% endfor %}
@@ -130,34 +134,43 @@
                 <div class="modal-book-view">
                     <div class="book-visual large">
                         <div class="css-book-shape">
-                            <img src="images/book_cover_1.jpg" alt="Cover" class="book-cover-img">
+                            <img src="" alt="Cover" class="book-cover-img">
                         </div>
                     </div>
                     <div class="modal-book-meta">
-                        <span>Страницы: 450</span>
-                        <span>Год издания: 2023</span>
+                        <span>Страницы: —</span>
+                        <span>Год издания: —</span>
                     </div>
                 </div>
 
                 <div class="modal-book-info">
                     <h3 id="modal-name">Название</h3>
                     <p class="modal-author">Автор</p>
-                    
+
                     <div class="modal-stats">
                         <span class="rating">
-                            4,9 <img src="images/star.svg" class="stat-star" alt="rating">
+                            <span id="modal-avg-rating-value">4,9</span>
+                            <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="stat-star" alt="rating">
                         </span>
                         <span class="divider">|</span>
-                        <span class="downloads">100 скачиваний</span>
+                        <span class="downloads" id="modal-downloads-count">100 скачиваний</span>
                     </div>
 
                     <div class="modal-actions">
                         <button class="btn-read">Читать книгу</button>
-                        <button class="btn-icon"><img src="images/load.svg" alt="Load"></button>
-                        <button class="btn-icon"><img src="images/edit.svg" alt="Edit"></button>
-                        
+
+                        <button class="btn-icon" id="modal-download-btn">
+                            <img src="{{ url_for('static', filename='user/images/load.svg') }}" alt="Load">
+                        </button>
+
+                        <button class="btn-icon" id="modal-note-btn">
+                            <img src="{{ url_for('static', filename='user/images/note.svg') }}" alt="Note">
+                        </button>
+
                         <div class="more-options">
-                            <button class="btn-icon btn-more" id="moreBtn"><img src="images/more.svg"></button>
+                            <button class="btn-icon btn-more" id="moreBtn">
+                                <img src="{{ url_for('static', filename='user/images/more.svg') }}">
+                            </button>
                             <div class="options-dropdown" id="optionsDropdown">
                                 <button class="dropdown-item">Прочитана</button>
                                 <button class="dropdown-item">Читаю</button>
@@ -167,20 +180,27 @@
                         </div>
                     </div>
 
+                    <div class="note-wrapper">
+                        <div id="note-container" class="note-dropdown hidden">
+                            <textarea id="book-note-text" placeholder="Запишите мысли о книге..."></textarea>
+                            <button id="save-note-btn" class="btn-save-note">Сохранить</button>
+                        </div>
+                    </div>
+
                     <h4>Описание</h4>
-                    <p id="modal-description">Полное описание книги будет отображаться здесь...</p>
-                    
+                    <p id="modal-description">Полное описание книги...</p>
+
                     <div class="modal-footer-line">
                         <div class="modal-tags">
-                            <span class="tag">Жанр</span>
+                            <span class="tag" id="modal-genre">Жанр</span>
                         </div>
                         <div class="modal-footer-stars">
                             <div class="star-rating" id="interactive-rating">
-                                <img src="images/star.svg" alt="1" class="star-icon" data-value="1">
-                                <img src="images/star.svg" alt="2" class="star-icon" data-value="2">
-                                <img src="images/star.svg" alt="3" class="star-icon" data-value="3">
-                                <img src="images/star.svg" alt="4" class="star-icon" data-value="4">
-                                <img src="images/star.svg" alt="5" class="star-icon" data-value="5">
+                                <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="star-icon" data-value="1">
+                                <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="star-icon" data-value="2">
+                                <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="star-icon" data-value="3">
+                                <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="star-icon" data-value="4">
+                                <img src="{{ url_for('static', filename='user/images/star.svg') }}" class="star-icon" data-value="5">
                             </div>
                         </div>
                     </div>

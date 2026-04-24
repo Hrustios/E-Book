@@ -185,14 +185,18 @@ def get_book_note(book_id):
 
     return jsonify({"note": row['note'] if row else ""})
 
+
+# ... (начало кода без изменений)
+
 @user_bp.route('/get_book_user_data/<int:book_id>')
 def get_book_user_data(book_id):
     user_id = session.get('user_id')
     with get_db_connection() as conn:
-        # 1. Получаем данные о самой книге (средний рейтинг и автор)
         book_info = conn.execute('SELECT author_id, average_rating FROM Books WHERE id = ?', (book_id,)).fetchone()
 
-        # 2. Получаем данные пользователя
+        if not book_info:
+            return jsonify({"error": "Book not found"}), 404
+
         user_data = None
         if user_id:
             user_data = conn.execute('SELECT note, status, rating FROM User_Library WHERE user_id = ? AND book_id = ?',
@@ -200,8 +204,51 @@ def get_book_user_data(book_id):
 
     return jsonify({
         "is_author": book_info['author_id'] == user_id if user_id else False,
-        "avg_rating": book_info['average_rating'] or 0.0,  # ОТПРАВЛЯЕМ СРЕДНИЙ
+        "avg_rating": book_info['average_rating'] or 0.0,
         "note": user_data['note'] if user_data else "",
         "status": user_data['status'] if user_data else "none",
         "user_rating": user_data['rating'] if user_data else 0
     })
+
+
+# ИСПРАВЛЕНО: используем user_bp и get_db_connection()
+@user_bp.route('/check_subscription/<int:author_id>')
+def check_subscription(author_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'is_subscribed': False})
+
+    with get_db_connection() as conn:
+        sub = conn.execute('SELECT 1 FROM Subscriptions WHERE user_id = ? AND author_id = ?',
+                           (user_id, author_id)).fetchone()
+    return jsonify({'is_subscribed': bool(sub)})
+
+
+# ИСПРАВЛЕНО: используем user_bp и get_db_connection()
+@user_bp.route('/toggle_subscription', methods=['POST'])
+def toggle_subscription():
+    data = request.get_json()
+    user_id = session.get('user_id')
+    author_id = data.get('author_id')
+
+    if not user_id:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+
+    if user_id == author_id:
+        return jsonify({'status': 'error', 'message': 'You cannot subscribe to yourself'}), 400
+
+    with get_db_connection() as conn:
+        # Проверяем, есть ли подписка
+        sub = conn.execute('SELECT id FROM Subscriptions WHERE user_id = ? AND author_id = ?',
+                           (user_id, author_id)).fetchone()
+
+        if sub:
+            conn.execute('DELETE FROM Subscriptions WHERE id = ?', (sub['id'],))
+            result = 'unsubscribed'
+        else:
+            conn.execute('INSERT INTO Subscriptions (user_id, author_id) VALUES (?, ?)',
+                         (user_id, author_id))
+            result = 'subscribed'
+        conn.commit()
+
+    return jsonify({'status': result})

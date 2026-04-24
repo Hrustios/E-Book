@@ -4,6 +4,9 @@ from Backend.utils.db_utils import get_db_connection
 from Backend.utils.parser_utils import get_page_count
 from Backend.book_loader.loader import upload_book_to_cloud
 from flask_login import login_required, current_user
+import threading
+from Backend.utils.mail_utils import send_notification_email
+
 
 book_bp = Blueprint('book', __name__, template_folder='../../Frontend')
 
@@ -129,15 +132,19 @@ def read_page(book_id):
         print(f"Критическая ошибка при чтении PDF: {e}")
         return f"Ошибка при обработке PDF: {e}. Проверьте ссылку на файл: {book['file_url']}"
 
+
 @book_bp.route('/add_book', methods=['POST'])
 def add_book():
     user_id = session.get('user_id')
+    # Получаем имя автора из сессии для текста письма
+    author_name_from_session = session.get('username', 'Автор')
+
     if not user_id:
         return "Необходима авторизация", 401
 
     # Получаем данные
     title = request.form.get('title')
-    writer_name = request.form.get('author')
+    writer_name = request.form.get('author')  # Имя, которое ввел юзер в форму
     year = request.form.get('year')
     genre = request.form.get('genre')
     description = request.form.get('description')
@@ -145,7 +152,6 @@ def add_book():
     book_file = request.files.get('book_file')
     cover_file = request.files.get('cover_file')
 
-    # ЖЕСТКАЯ ПРОВЕРКА: Если хоть одно поле пустое — возвращаем 400
     if not all([title, writer_name, year, genre, description, book_file, cover_file]):
         return "Все поля, включая файлы, обязательны для заполнения", 400
 
@@ -161,13 +167,38 @@ def add_book():
 
         if upload_data:
             with get_db_connection() as db:
+                # 1. Сохраняем книгу в базу
                 db.execute('''
                            INSERT INTO Books (title, description, author_id, author_name, genre,
                                               release_year, file_url, cover_url, file_size, pages)
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                            ''', (title, description, user_id, writer_name, genre, year,
                                  upload_data['book_url'], upload_data['cover_url'], file_size, pages_count))
-                db.commit()  # Важно для сохранения
+                db.commit()
+
+                # 2. ПОЛУЧАЕМ ИМЯ АВТОРА ИЗ ТАБЛИЦЫ USERS
+                # Ищем username того, кто сейчас загрузил книгу (по его id)
+                author_info = db.execute('SELECT username FROM Users WHERE id = ?', (user_id,)).fetchone()
+                # Если вдруг в Users нет имени, используем writer_name как запасной вариант
+                display_name = author_info['username'] if author_info else writer_name
+
+                # 3. ИЩЕМ ПОДПИСЧИКОВ И ИХ EMAIL
+                subscribers = db.execute('''
+                                         SELECT u.email
+                                         FROM Subscriptions s
+                                                  JOIN Users u ON s.user_id = u.id
+                                         WHERE s.author_id = ?
+                                         ''', (user_id,)).fetchall()
+
+                # 4. РАССЫЛКА
+                for sub in subscribers:
+                    if sub['email']:
+                        threading.Thread(
+                            target=send_notification_email,
+                            # Теперь передаем display_name (username из таблицы Users)
+                            args=(sub['email'], display_name, title)
+                        ).start()
+
             return "OK", 200
 
         return "Ошибка загрузки в облако", 500
@@ -276,3 +307,51 @@ def delete_book(book_id):
     except Exception as e:
         print(f"Ошибка при удалении книги: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@book_bp.route('/save_bookmark', methods=['POST'])
+def save_bookmark():
+    user_id = session.get('user_id')
+    if not user_id: return jsonify({"status": "error"}), 401
+
+    data = request.get_json()
+    book_id = data.get('book_id')
+    page = data.get('page')
+    content = data.get('content')
+
+    with get_db_connection() as conn:
+        # Проверяем, есть ли уже закладка на этой странице
+        existing = conn.execute('SELECT id FROM Bookmarks WHERE user_id = ? AND book_id = ? AND page_number = ?',
+                                (user_id, book_id, page)).fetchone()
+
+        if existing:
+            conn.execute('UPDATE Bookmarks SET content = ? WHERE id = ?', (content, existing['id']))
+        else:
+            conn.execute('INSERT INTO Bookmarks (user_id, book_id, page_number, content) VALUES (?, ?, ?, ?)',
+                         (user_id, book_id, page, content))
+        conn.commit()
+    return jsonify({"status": "success"})
+
+
+@book_bp.route('/get_bookmarks/<int:book_id>')
+def get_bookmarks(book_id):
+    user_id = session.get('user_id')
+    if not user_id: return jsonify({})
+
+    with get_db_connection() as conn:
+        rows = conn.execute('SELECT page_number, content FROM Bookmarks WHERE user_id = ? AND book_id = ?',
+                            (user_id, book_id)).fetchall()
+
+    # Превращаем в формат {page: content} для JS
+    return jsonify({row['page_number']: row['content'] for row in rows})
+
+
+@book_bp.route('/delete_bookmark', methods=['POST'])
+def delete_bookmark():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    with get_db_connection() as conn:
+        conn.execute('DELETE FROM Bookmarks WHERE user_id = ? AND book_id = ? AND page_number = ?',
+                     (user_id, data['book_id'], data['page']))
+        conn.commit()
+    return jsonify({"status": "success"})

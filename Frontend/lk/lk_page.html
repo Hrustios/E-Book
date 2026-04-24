@@ -53,7 +53,6 @@
 
     <main class="profile-main">
         <div class="profile-container">
-
             <section class="user-header">
                 <div class="user-banner">
                     <img src="{{ url_for('static', filename='lk/images/banner.png') }}" alt="Banner">
@@ -68,18 +67,18 @@
                         <h1 class="user-name">{{ session.get('username', 'Пользователь') }}</h1>
                         <div class="stats-group">
                             <div class="stat-item">
-                                <span class="stat-label">Подписчики: 0</span>
+                                <span class="stat-label">Подписчики: {{ followers }}</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Подписки: 0</span>
+                                <span class="stat-label">Подписки: {{ following }}</span>
                             </div>
                         </div>
                         <div class="actions-row">
                             <button class="btn-add-book">Добавить книгу</button>
-                            <button class="btn-report">Сформировать отчет</button>
                         </div>
                     </div>
-                </div> </section>
+                </div>
+            </section>
 
            <div class="lk-container">
                 <section class="collection-section">

@@ -24,10 +24,25 @@ def index():
     except Exception as e:
         return render_template('main/index.html', top_books=[], leader=None)
 
+
 @main_bp.route('/lk')
 @login_required
 def lk_page():
-    return render_template('lk/lk_page.html')
+    user_id = session.get('user_id')
+
+    with get_db_connection() as conn:
+        followers_count = conn.execute(
+            'SELECT COUNT(*) FROM Subscriptions WHERE author_id = ?',
+            (user_id,)
+        ).fetchone()[0]
+        following_count = conn.execute(
+            'SELECT COUNT(*) FROM Subscriptions WHERE user_id = ?',
+            (user_id,)
+        ).fetchone()[0]
+
+    return render_template('lk/lk_page.html',
+                           followers=followers_count,
+                           following=following_count)
 
 @main_bp.route('/contacts')
 def contacts_page(): return render_template('contacts/contacts_page.html')
