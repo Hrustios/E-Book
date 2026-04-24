@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnUp = document.querySelector('.btn-up');
 
     if (btnUp) {
-        // Показываем/скрываем кнопку при скролле
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) {
                 btnUp.style.opacity = '1';
@@ -14,8 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnUp.style.visibility = 'hidden';
             }
         });
-
-        // Плавный скролл при клике
         btnUp.addEventListener('click', (e) => {
             e.preventDefault();
             window.scrollTo({

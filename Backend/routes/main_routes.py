@@ -3,6 +3,8 @@ from flask_login import login_required
 from Backend.utils.db_utils import get_db_connection
 from flask_mail import Message
 from Backend.extensions import mail
+import threading
+from Backend.utils.mail_utils import send_feedback_email
 
 main_bp = Blueprint('main', __name__)
 
@@ -67,23 +69,15 @@ def send_feedback():
 @main_bp.route('/user/<int:user_id>')
 def user_profile(user_id):
     with get_db_connection() as conn:
-        # Данные пользователя
         user = conn.execute('SELECT * FROM Users WHERE id = ?', (user_id,)).fetchone()
-
         if not user:
             return "Пользователь не найден", 404
-
-        # Считаем количество подписчиков (те, кто подписан НА этого пользователя)
         followers_count = conn.execute(
             'SELECT COUNT(*) FROM Subscriptions WHERE author_id = ?', (user_id,)
         ).fetchone()[0]
-
-        # Считаем подписки (те, НА КОГО подписан этот пользователь)
         following_count = conn.execute(
             'SELECT COUNT(*) FROM Subscriptions WHERE user_id = ?', (user_id,)
         ).fetchone()[0]
-
-        # Также вытащим книги этого пользователя для коллекции
         user_books = conn.execute(
             'SELECT * FROM Books WHERE author_id = ? ORDER BY id DESC', (user_id,)
         ).fetchall()
@@ -93,3 +87,21 @@ def user_profile(user_id):
                            followers=followers_count,
                            following=following_count,
                            books=user_books)
+
+@main_bp.route('/send_feedback', methods=['POST'])
+def handle_feedback():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "Нет данных"}), 400
+    email = data.get('email')
+    message = data.get('message')
+    name = data.get('name', 'Аноним')
+    if not email or not message:
+        return jsonify({"status": "error", "message": "Заполните все поля"}), 400
+    full_message = f"Имя: {name}\nСообщение: {message}"
+    try:
+        thread = threading.Thread(target=send_feedback_email, args=(email, full_message))
+        thread.start()
+        return jsonify({"status": "success", "message": "Сообщение отправлено!"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

@@ -1,7 +1,7 @@
 let lastScrollTop = 0;
 let currentZoom = 1;
 const ICON_PATH = '/read/images/';
-let serverNotes = {}; // Хранилище заметок, загруженных из БД
+let serverNotes = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
     const themeIcon = document.getElementById('themeIcon');

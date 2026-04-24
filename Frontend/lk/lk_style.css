@@ -398,7 +398,7 @@ body.modal-open {
 .btn-add-book:active, .btn-report:active {
     transform: translateY(0);
 }
-.profile-section-header { 
+.profile-section-header { /* или как называется твой заголовок */
     display: block;
     width: 100%;
 }
@@ -514,7 +514,7 @@ body.modal-open {
 
 
 
-/* СЕКЦИЯ КОЛЛЕКЦИИ */
+/* --- СЕКЦИЯ КОЛЛЕКЦИИ --- */
 .collection-section {
     margin-top: 20px;      /* Уменьшено с 70px для сближения с верхним блоком */
     margin-bottom: 100px; 
@@ -531,6 +531,7 @@ body.modal-open {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    /* Ограничиваем ширину шапки коллекции и центрируем */
     max-width: 1240px;
     margin-left: auto;
     margin-right: auto;
@@ -752,6 +753,7 @@ body.modal-open {
 }
 
 /* 3. Кнопка выбора файла книги (дизайн-ссылка) */
+/* Если ты добавишь этот класс в JS при открытии редактирования */
 .file-upload-design.readonly {
     background-color: #F5F5F5 !important;
     border-color: #DDD !important;
@@ -824,7 +826,7 @@ body.modal-open {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон */
-    z-index: 9999; /* Должна быть выше всего остального */
+    z-index: 9999; /* Очень важно! Должна быть выше всего остального */
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(4px); /* Эффект размытия заднего фона */
@@ -878,6 +880,7 @@ body.modal-open {
 
 .modal-body {
     display: grid;
+    /* Изменено: вторая колонка гибкая и не распирает окно */
     grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
     gap: 40px;
     align-items: start;
@@ -897,6 +900,7 @@ body.modal-open {
 }
 
 .modal-book-view .book-visual.large img {
+    /* width: 100%;  <-- УДАЛИ ЭТО ИЛИ ЗАМЕНИ НА НИЖЕУКАЗАННОЕ */
     position: absolute;
     top: 0;
     right: 0;
@@ -935,12 +939,13 @@ body.modal-open {
 /* Специально для модалки */
 .modal-book-view .book-visual.large {
     width: 100%;
-    height: 420px; 
+    height: 420px; /* Можно подстроить под себя */
     position: relative;
     box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
     border-radius: 5px 25px 25px 5px;
 }
 
+/* Убедись, что псевдоэлемент корешка работает и здесь */
 .modal-book-view .css-book-shape::before {
     content: '';
     position: absolute;
@@ -2110,7 +2115,7 @@ body.modal-open {
 
 @media (max-width: 480px) {
     .lk-main {
-        padding-top: 100px; 
+        padding-top: 100px; /* Уменьшаем отступ сверху, так как шапка станет компактнее */
     }
 
     .stats-group {

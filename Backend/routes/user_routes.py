@@ -13,8 +13,6 @@ def update_library_status():
 
     status_map = {"Прочитана": "read", "Читаю": "reading", "В отложенные": "dropped", "В желаемые": "wish"}
     db_status = status_map.get(status_text)
-
-    # SQL-функция для локального времени
     current_time_sql = "datetime('now', 'localtime')"
 
     with get_db_connection() as conn:
@@ -23,8 +21,6 @@ def update_library_status():
 
         if existing:
             if existing['status'] == db_status:
-                # Кликнули по той же кнопке — снимаем статус
-                # Но read_date НЕ трогаем (сохраняем историю прочтения)
                 new_status = "none" if (existing['note'] and existing['note'] != "Без заметки") else None
 
                 if new_status:
@@ -36,19 +32,15 @@ def update_library_status():
                                  (user_id, book_id))
                     result = "removed"
             else:
-                # Смена статуса на другой
                 if db_status == 'read':
-                    # Обновляем дату только при переходе в "Прочитана"
                     conn.execute(
                         f'UPDATE User_Library SET status = ?, read_date = {current_time_sql} WHERE user_id = ? AND book_id = ?',
                         (db_status, user_id, book_id))
                 else:
-                    # При смене на другой статус (например, "Читаю") дату ОСТАВЛЯЕМ старой
                     conn.execute('UPDATE User_Library SET status = ? WHERE user_id = ? AND book_id = ?',
                                  (db_status, user_id, book_id))
                 result = "updated"
         else:
-            # Первая вставка
             read_date_val = current_time_sql if db_status == 'read' else "NULL"
             conn.execute(f'''INSERT INTO User_Library (user_id, book_id, status, note, rating, read_date) 
                              VALUES (?, ?, ?, ?, ?, {read_date_val})''',
@@ -70,7 +62,6 @@ def rate_book():
             return jsonify({"status": "error", "message": "Войдите в аккаунт"}), 401
 
         with get_db_connection() as conn:
-            # 1. Обновляем личную оценку
             existing = conn.execute('SELECT id FROM User_Library WHERE user_id = ? AND book_id = ?',
                                     (user_id, book_id)).fetchone()
             if existing:
@@ -79,19 +70,15 @@ def rate_book():
             else:
                 conn.execute('INSERT INTO User_Library (user_id, book_id, status, rating, note) VALUES (?, ?, ?, ?, ?)',
                              (user_id, book_id, 'none', rating, "Без заметки"))
-
-            # 2. Считаем средний рейтинг (только тех, кто реально голосовал)
             avg_row = conn.execute('SELECT AVG(rating) FROM User_Library WHERE book_id = ? AND rating > 0',
                                    (book_id,)).fetchone()
             new_avg = round(avg_row[0], 1) if avg_row[0] else 0.0
-
-            # 3. Пишем средний балл в таблицу книг
             conn.execute('UPDATE Books SET average_rating = ? WHERE id = ?', (new_avg, book_id))
             conn.commit()
 
         return jsonify({"status": "success", "new_average": new_avg})
     except Exception as e:
-        print(f"Error in rate_book: {e}") # Увидишь ошибку в консоли Python
+        print(f"Error in rate_book: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @user_bp.route('/save_book_note', methods=['POST'])
@@ -108,7 +95,6 @@ def save_book_note():
             conn.execute('UPDATE User_Library SET note = ? WHERE user_id = ? AND book_id = ?',
                          (note_text, user_id, book_id))
         else:
-            # Создаем запись со статусом 'none', чтобы книга НЕ считалась добавленной в коллекцию
             conn.execute('INSERT INTO User_Library (user_id, book_id, status, note, rating) VALUES (?, ?, ?, ?, ?)',
                          (user_id, book_id, 'none', note_text, 0))
         conn.commit()
@@ -134,17 +120,14 @@ def get_my_books():
         where_clause = ""
 
         if filter_type == 'my-books':
-            # Только книги, загруженные текущим пользователем
             where_clause = "WHERE b.author_id = ?"
             params.append(user_id)
 
         elif filter_type == 'all':
-            # ИЗМЕНЕНО: Книги со статусом, но загруженные НЕ этим пользователем
             where_clause = "WHERE ul.status IS NOT NULL AND ul.status != 'none' AND b.author_id != ?"
             params.append(user_id)
 
         else:
-            # Фильтрация по конкретному статусу
             status_map = {
                 "read": "read",
                 "later": "dropped",
@@ -153,11 +136,7 @@ def get_my_books():
             db_status = status_map.get(filter_type, filter_type)
             where_clause = "WHERE ul.status = ?"
             params.append(db_status)
-
-        # Считаем общее количество для пагинации
         total_books = db.execute(f"SELECT COUNT(*) {base_query} {where_clause}", params).fetchone()[0]
-
-        # Получаем книги
         books = db.execute(f'''
             SELECT b.*, ul.status as user_status 
             {base_query} 
@@ -185,9 +164,6 @@ def get_book_note(book_id):
 
     return jsonify({"note": row['note'] if row else ""})
 
-
-# ... (начало кода без изменений)
-
 @user_bp.route('/get_book_user_data/<int:book_id>')
 def get_book_user_data(book_id):
     user_id = session.get('user_id')
@@ -210,8 +186,6 @@ def get_book_user_data(book_id):
         "user_rating": user_data['rating'] if user_data else 0
     })
 
-
-# ИСПРАВЛЕНО: используем user_bp и get_db_connection()
 @user_bp.route('/check_subscription/<int:author_id>')
 def check_subscription(author_id):
     user_id = session.get('user_id')
@@ -223,8 +197,6 @@ def check_subscription(author_id):
                            (user_id, author_id)).fetchone()
     return jsonify({'is_subscribed': bool(sub)})
 
-
-# ИСПРАВЛЕНО: используем user_bp и get_db_connection()
 @user_bp.route('/toggle_subscription', methods=['POST'])
 def toggle_subscription():
     data = request.get_json()
@@ -233,15 +205,11 @@ def toggle_subscription():
 
     if not user_id:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
-
     if user_id == author_id:
         return jsonify({'status': 'error', 'message': 'You cannot subscribe to yourself'}), 400
-
     with get_db_connection() as conn:
-        # Проверяем, есть ли подписка
         sub = conn.execute('SELECT id FROM Subscriptions WHERE user_id = ? AND author_id = ?',
                            (user_id, author_id)).fetchone()
-
         if sub:
             conn.execute('DELETE FROM Subscriptions WHERE id = ?', (sub['id'],))
             result = 'unsubscribed'

@@ -9,7 +9,6 @@ class User(UserMixin):
 
 def get_db_connection():
     try:
-        # Путь берется напрямую из нашего конфига
         conn = sqlite3.connect(Config.DB_PATH, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         return conn

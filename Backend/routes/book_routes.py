@@ -23,8 +23,6 @@ def catalog_page():
 
     query_parts = ["WHERE 1=1"]
     params = []
-
-    # --- Фильтрация (твой существующий код) ---
     if search_query:
         query_parts.append("AND (title LIKE ? OR description LIKE ?)")
         params.extend([f'%{search_query}%', f'%{search_query}%'])
@@ -51,8 +49,6 @@ def catalog_page():
 
     try:
         with get_db_connection() as conn:
-            # 1. ЗАПРОС ДЛЯ ТОП-4 ЗА НЕДЕЛЮ
-            # Ищем книги, у которых были оценки за последние 7 дней
             top_books = conn.execute('''
                                      SELECT b.*, u.username as uploaded_by, AVG(ul.rating) as weekly_avg
                                      FROM Books b
@@ -64,8 +60,6 @@ def catalog_page():
                                      GROUP BY b.id
                                      ORDER BY weekly_avg DESC LIMIT 4
                                      ''').fetchall()
-
-            # И подстраховку, если топа за неделю нет:
             if not top_books:
                 top_books = conn.execute('''
                                          SELECT b.*, u.username as uploaded_by
@@ -73,8 +67,6 @@ def catalog_page():
                                                   LEFT JOIN Users u ON b.author_id = u.id
                                          ORDER BY average_rating DESC LIMIT 4
                                          ''').fetchall()
-
-            # 2. ОСНОВНОЙ КАТАЛОГ (твой код)
             total_count = conn.execute(f"SELECT COUNT(*) FROM Books {where_clause}", params).fetchone()[0]
             total_pages = (total_count + per_page - 1) // per_page
 
@@ -102,18 +94,15 @@ def catalog_page():
 
 @book_bp.route('/read/<int:book_id>')
 def read_page(book_id):
-    # Проверка сессии (согласно твоему списку эндпоинтов)
     if 'user_id' not in session:
         return redirect(url_for('auth_login.login'))
 
     with get_db_connection() as db:
         book = db.execute('SELECT * FROM Books WHERE id = ?', (book_id,)).fetchone()
-
     if not book:
-        return redirect(url_for('main.lk_page'))  # Обязательно с префиксом main.
+        return redirect(url_for('main.lk_page'))
 
     try:
-        # Логика получения файла
         response = requests.get(book['file_url'], timeout=10)
         response.raise_for_status()  # Проверяем, что файл вообще скачался по ссылке
 
@@ -127,8 +116,6 @@ def read_page(book_id):
         return render_template('read/read_page.html', book=book, page_images=page_images, is_pdf=True)
 
     except Exception as e:
-        # ВАЖНО: сейчас мы не будем редиректить, а выведем ошибку на экран,
-        # чтобы понять, ПОЧЕМУ не читается файл.
         print(f"Критическая ошибка при чтении PDF: {e}")
         return f"Ошибка при обработке PDF: {e}. Проверьте ссылку на файл: {book['file_url']}"
 
@@ -136,7 +123,6 @@ def read_page(book_id):
 @book_bp.route('/add_book', methods=['POST'])
 def add_book():
     user_id = session.get('user_id')
-    # Получаем имя автора из сессии для текста письма
     author_name_from_session = session.get('username', 'Автор')
 
     if not user_id:
@@ -144,7 +130,7 @@ def add_book():
 
     # Получаем данные
     title = request.form.get('title')
-    writer_name = request.form.get('author')  # Имя, которое ввел юзер в форму
+    writer_name = request.form.get('author')
     year = request.form.get('year')
     genre = request.form.get('genre')
     description = request.form.get('description')
@@ -158,16 +144,12 @@ def add_book():
     try:
         file_content = book_file.read()
         file_size = len(file_content)
-
         temp_stream = io.BytesIO(file_content)
         pages_count = get_page_count(temp_stream, book_file.filename)
-
-        # Загрузка в облако
         upload_data = upload_book_to_cloud(book_file, cover_file, file_content)
 
         if upload_data:
             with get_db_connection() as db:
-                # 1. Сохраняем книгу в базу
                 db.execute('''
                            INSERT INTO Books (title, description, author_id, author_name, genre,
                                               release_year, file_url, cover_url, file_size, pages)
@@ -175,30 +157,20 @@ def add_book():
                            ''', (title, description, user_id, writer_name, genre, year,
                                  upload_data['book_url'], upload_data['cover_url'], file_size, pages_count))
                 db.commit()
-
-                # 2. ПОЛУЧАЕМ ИМЯ АВТОРА ИЗ ТАБЛИЦЫ USERS
-                # Ищем username того, кто сейчас загрузил книгу (по его id)
                 author_info = db.execute('SELECT username FROM Users WHERE id = ?', (user_id,)).fetchone()
-                # Если вдруг в Users нет имени, используем writer_name как запасной вариант
                 display_name = author_info['username'] if author_info else writer_name
-
-                # 3. ИЩЕМ ПОДПИСЧИКОВ И ИХ EMAIL
                 subscribers = db.execute('''
                                          SELECT u.email
                                          FROM Subscriptions s
                                                   JOIN Users u ON s.user_id = u.id
                                          WHERE s.author_id = ?
                                          ''', (user_id,)).fetchall()
-
-                # 4. РАССЫЛКА
                 for sub in subscribers:
                     if sub['email']:
                         threading.Thread(
                             target=send_notification_email,
-                            # Теперь передаем display_name (username из таблицы Users)
                             args=(sub['email'], display_name, title)
                         ).start()
-
             return "OK", 200
 
         return "Ошибка загрузки в облако", 500
@@ -211,24 +183,16 @@ def track_download():
     data = request.get_json()
     user_id = session.get('user_id')
     book_id = data.get('book_id')
-
     if not user_id:
         return jsonify({"status": "error", "message": "Нужна авторизация"}), 401
-
     with get_db_connection() as conn:
-        # Проверяем, качал ли уже этот пользователь эту книгу
         existing = conn.execute('SELECT id FROM Downloads WHERE user_id = ? AND book_id = ?',
                                 (user_id, book_id)).fetchone()
 
         if not existing:
-            # 1. Записываем факт уникального скачивания
             conn.execute('INSERT INTO Downloads (user_id, book_id) VALUES (?, ?)', (user_id, book_id))
-
-            # 2. Обновляем счетчик в таблице Books
             conn.execute('UPDATE Books SET download_count = download_count + 1 WHERE id = ?', (book_id,))
             conn.commit()
-
-            # Получаем новое число для фронтенда
             new_count = conn.execute('SELECT download_count FROM Books WHERE id = ?', (book_id,)).fetchone()[0]
             return jsonify({"status": "counted", "new_count": new_count})
 
@@ -238,8 +202,6 @@ def track_download():
 @login_required
 def update_book(book_id):
     db = get_db_connection()
-
-    # Проверка прав (автор ли это?)
     book = db.execute("SELECT author_id FROM Books WHERE id = ?", (book_id,)).fetchone()
     if not book or book['author_id'] != current_user.id:
         return "Доступ запрещен", 403
@@ -266,7 +228,6 @@ def update_book(book_id):
 @book_bp.route('/get_leader_book')
 def get_leader_book():
     with get_db_connection() as conn:
-        # Берем книгу с максимальным количеством скачиваний
         leader = conn.execute('''
                               SELECT id, title, author_name, description, cover_url
                               FROM Books
@@ -285,22 +246,13 @@ def delete_book(book_id):
 
     try:
         with get_db_connection() as conn:
-            # 1. Сначала проверяем, существует ли книга и принадлежит ли она пользователю
             book = conn.execute('SELECT author_id FROM Books WHERE id = ?', (book_id,)).fetchone()
-
             if not book:
                 return jsonify({"status": "error", "message": "Книга не найдена"}), 404
-
             if book['author_id'] != user_id:
                 return jsonify({"status": "error", "message": "У вас нет прав на удаление этой книги"}), 403
-
-            # 2. Удаляем связанные записи из User_Library (чтобы не нарушить целостность)
             conn.execute('DELETE FROM User_Library WHERE book_id = ?', (book_id,))
-
-            # 3. Удаляем саму книгу
             conn.execute('DELETE FROM Books WHERE id = ?', (book_id,))
-
-            # 4. ОБЯЗАТЕЛЬНО фиксируем изменения
             conn.commit()
 
         return jsonify({"status": "success"}), 200
@@ -320,7 +272,6 @@ def save_bookmark():
     content = data.get('content')
 
     with get_db_connection() as conn:
-        # Проверяем, есть ли уже закладка на этой странице
         existing = conn.execute('SELECT id FROM Bookmarks WHERE user_id = ? AND book_id = ? AND page_number = ?',
                                 (user_id, book_id, page)).fetchone()
 
@@ -341,8 +292,6 @@ def get_bookmarks(book_id):
     with get_db_connection() as conn:
         rows = conn.execute('SELECT page_number, content FROM Bookmarks WHERE user_id = ? AND book_id = ?',
                             (user_id, book_id)).fetchall()
-
-    # Превращаем в формат {page: content} для JS
     return jsonify({row['page_number']: row['content'] for row in rows})
 
 
