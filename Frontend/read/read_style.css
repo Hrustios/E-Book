@@ -5,7 +5,6 @@
     --dark: #442D1C;
     --light: #F5F1ED;
     --white: #FFFFFF;
-
     /* Светлая тема (Книжный стиль) */
     --reader-bg: #F5F1ED;        /* Фон вокруг листа */
     --page-bg: #FFFFFF;          /* Сам лист бумаги */
@@ -15,18 +14,15 @@
 }
 
 body.dark-theme {
-    /* Настоящая Темная тема (Ночной режим) */
+    /* Темная тема (Ночной режим) */
     --reader-bg: #1A120B;        /* Глубокий темный фон вокруг */
     --page-bg: #2C1E14;          /* Темный шоколад (цвет листа) */
-
-    /* ВАЖНО: Делаем текст чисто белым, как ты просил */
     --page-text: #FFFFFF;
-
     --panel-bg: rgba(26, 18, 11, 0.95);
     --panel-border: rgba(132, 89, 43, 0.4);
 }
 
-/* --- БАЗОВЫЕ СТИЛИ --- */
+/* БАЗОВЫЕ СТИЛИ */
 .reader-body {
     background-color: var(--reader-bg);
     color: var(--page-text);
@@ -38,7 +34,7 @@ body.dark-theme {
 }
 
 
-/* --- ПАРЯЩЕЕ МЕНЮ (TOOLBAR) --- */
+/* ПАРЯЩЕЕ МЕНЮ */
 .reader-toolbar {
     position: fixed;
     top: 25px;
@@ -117,8 +113,7 @@ body.dark-theme {
     display: block;
     width: 20px;
     height: 20px;
-    /* Делаем иконки светлыми (под цвет --light), если исходники черные */
-    filter: brightness(0) invert(0.9); 
+    filter: brightness(0) invert(0.9); /* Делаем иконки светлыми (под цвет --light), если исходники черные */
     transition: all 0.2s ease;
 }
 
@@ -128,22 +123,20 @@ body.dark-theme {
 }
 
 .tool-btn:hover img {
-    /* Фильтр для окрашивания в золотистый --accent (#E8D1A7) */
-    filter: sepia(100%) saturate(400%) hue-rotate(350deg) brightness(95%);
+    filter: sepia(100%) saturate(400%) hue-rotate(350deg) brightness(95%); /* Фильтр для окрашивания в золотистый из исходногоо */
     transform: translateY(-1px);
 }
 
 /* Состояние активной закладки (через класс active) */
 .bookmark-btn.active img {
-    /* Оставляем фильтр акцента постоянно, когда закладка активна */
-    filter: sepia(100%) saturate(500%) hue-rotate(350deg) brightness(90%);
+    filter: sepia(100%) saturate(500%) hue-rotate(350deg) brightness(90%); /* Оставляем фильтр акцента постоянно, когда закладка активна */
 }
 
 .tool-btn:active {
     transform: scale(0.95);
 }
 
-/* --- КОНТЕНТ --- */
+/* КОНТЕНТ */
 .reader-content {
     padding: 140px 24px 100px;
     display: flex;
@@ -194,7 +187,7 @@ body.dark-theme {
 /* Ярлык закладки сбоку страницы */
 .page-bookmark-tab {
     position: absolute;
-    left: -40px; /* Вынос влево */
+    left: -40px; /* Вынос влево от листа*/
     top: 20px;
     width: 30px;
     height: 40px;
@@ -251,8 +244,6 @@ body.dark-theme {
     width: 45px;
     height: 25px;
     background: var(--secondary);
-    /* Поворот и форма ярлыка */
-    clip-path: polygon(0% 50%, 20% 0%, 100% 0%, 100% 100%, 20% 100%);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -266,7 +257,6 @@ body.dark-theme {
 .note-tab:hover, .note-tab.active {
     opacity: 1;
     background: var(--primary);
-    left: -40px;
 }
 
 /* Форма ввода заметки */
@@ -295,6 +285,11 @@ body.dark-theme {
     resize: none;
     font-size: 13px;
     outline: none;
+    box-sizing: border-box; /* чтобы текстовое поле точно имело отступы по краям*/ 
+}
+
+.note-input-container textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .note-actions {
@@ -317,18 +312,12 @@ body.dark-theme {
 .hidden { display: none !important; }
 
 .readable-area {
-    /* Переменная масштаба по умолчанию 1 (100%) */
-    --zoom-level: 1;
-
+    --zoom-level: 1; /* Переменная масштаба по умолчанию 1 (100%) */
     max-width: 850px;
     width: 100%;
     margin: 0 auto;
-
-    /* Применяем трансформацию масштаба */
-    transform: scale(var(--zoom-level));
-    /* Важно: масштаб идет от центра сверху, чтобы текст не улетал за края */
-    transform-origin: top center;
-
+    transform: scale(var(--zoom-level)); /* Применяем трансформацию масштаба */
+    transform-origin: top center; /* масштаб идет от центра сверху, чтобы текст не улетал за края */
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -348,7 +337,6 @@ body.dark-theme {
 .book-text-content {
     margin-top: 40px;
 }
-
 
 .book-text-content img {
     max-width: 100%;
@@ -393,25 +381,20 @@ body.dark-theme {
     width: 100%;
     max-width: 850px;
     display: block;
-    /* Убираем тени, если хочешь полного слияния, или оставляем очень мягкие */
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     border-radius: 4px;
     transition: all 0.4s ease;
-
-    /* Магия слияния фона */
     mix-blend-mode: multiply;
 }
 
-/* --- ИДЕАЛЬНАЯ ТЕМНАЯ ТЕМА --- */
+/* ТЕМНАЯ ТЕМА */
 body.dark-theme .pdf-page-img {
     /* Сначала инвертируем (текст белый, фон черный) */
     filter: invert(1) hue-rotate(180deg);
-
     /* В темной теме используем screen, чтобы черный фон картинки стал прозрачным
-       и пропустил цвет твоей переменной --page-bg */
+       и пропустил цветпеременной --page-bg */
     mix-blend-mode: screen;
-
-    opacity: 0.85; /* Немного приглушаем яркость для комфорта глаз */
+    opacity: 0.85; /* приглушаем яркость*/
 }
 
 /* Чтобы фон самой страницы в темной теме не конфликтовал с инверсией */
@@ -443,38 +426,127 @@ body.dark-theme .pdf-page-svg svg [stroke] {
 }
 
 body.dark-theme .pdf-page-svg svg image {
-    /* Инвертируем черный QR в белый и убираем его белый фон */
     filter: invert(1) hue-rotate(180deg) brightness(1.5);
 }
-/* --- АДАПТИВНОСТЬ --- */
+/* --- ИТОГОВЫЙ АДАПТИВ (MOBILE & TABLET) --- */
 @media (max-width: 768px) {
     .reader-toolbar {
         top: auto;
-        bottom: 30px; /* На мобильных меню удобнее снизу */
-        width: 92%;
+        bottom: 25px;
+        width: 94%;
+        min-width: unset;
+        transform: translateX(-50%);
     }
     
     .reader-toolbar.hidden {
         top: auto;
-        bottom: -100px;
+        bottom: -120px;
     }
 
-    .readable-area {
-        font-size: 17px;
+    .reader-content {
+        padding: 60px 15px 120px;
+    }
+
+    /* 3. ЗАКЛАДКИ (Компактный размер) */
+    .page-wrapper {
+        pointer-events: none;
+    }
+
+    .page-bookmark-tab {
+        pointer-events: auto;
+        left: 0 !important; 
+        top: 10px;
+        width: 28px;
+        height: 38px;
+        opacity: 0.8;
+        z-index: 1000;
+        box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 4. ЗАМЕТКИ (Ярлык) */
+    .note-tab {
+        pointer-events: auto;
+        left: 0 !important;
+        top: 60px; /* Ближе к первой закладке */
+        width: 28px; 
+        height: 28px; 
+        z-index: 1001;
+        opacity: 0.8;
+        clip-path: polygon(0% 0%, 80% 0%, 100% 50%, 80% 100%, 0% 100%);
+    }
+
+    /* 5. ПОЛЕ ВВОДА (Фикс прыжков и перекидывания) */
+    .note-input-container {
+        pointer-events: auto;
+        position: absolute;   /* чтобы была рядом с кнопкой */
+        left: 40px !important; /* Появляется сразу ПРАВЕЕ кнопки заметки */
+        top: 60px !important;  /* На той же высоте, что и кнопка .note-tab */
+        transform: none !important; /* Убираем центрирование, чтобы не прыгало */
+        width: 260px;         /* Фиксированная ширина, чтобы не распирало экран */
+        max-width: calc(100vw - 60px); /* Чтобы не выходило за правый край экрана */
+        z-index: 2005; 
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        box-shadow: 5px 5px 20px rgba(0,0,0,0.4);
+        padding: 12px;
+        border-radius: 0 12px 12px 12px; /* Скругляем углы, кроме верхнего левого */
+    }
+
+    .note-input-container textarea {
+        height: 90px;
+        font-size: 16px; 
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        padding: 8px;
+        width: 100%;
+        outline: none;
+    }
+
+    .note-actions {
+        margin-top: 10px;
+    }
+
+    /* Меню закладок */
+    .bookmarks-menu {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 90px;
+        top: auto;
+        width: 90%;
+        z-index: 1002;
+    }
+
+    .readable-area, .pdf-container {
+        pointer-events: auto;
     }
 }
 
+/* 6. Специфические правки для маленьких телефонов */
 @media (max-width: 480px) {
     .toolbar-container {
-        padding: 6px 10px;
-        gap: 8px;
+        padding: 8px;
+        gap: 6px;
     }
     
     .tool-btn {
-        padding: 10px 12px;
+        padding: 10px;
+        flex: 1; /* Кнопки распределяются равномерно */
+    }
+
+    .tool-btn small {
+        display: none;
+    }
+
+    .tool-btn img {
+        width: 22px;
+        height: 22px;
     }
     
     .readable-area h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
+    }
+
+    .divider {
+        margin: 0 2px;
     }
 }

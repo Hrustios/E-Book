@@ -72,12 +72,7 @@ export async function openFullBookModal(btn) {
             const fileUrl = modal.getAttribute('data-file-url');
 
             if (fileUrl) {
-                // Если ты используешь встроенную читалку (PDF.js или свою),
-                // то оставляем редирект на /read/ c ID, но если нужно просто открыть файл:
                 window.location.href = `/read/${bookId}`;
-
-                // Если /read/ перестал работать из-за бэка, можно открывать напрямую:
-                // window.open(fileUrl, '_blank');
             } else {
                 if (window.showToast) showToast("Файл книги не найден");
             }

@@ -114,7 +114,6 @@ body {
     top: calc(100% + 10px);
     right: 0;
     width: 190px;
-    /* Используем твои основные цвета: темный шоколад / дерево */
     background: #2D1B0E;
     border: 1px solid #4A3528;
     border-radius: 8px;
@@ -131,7 +130,7 @@ body {
 
 /* Пункты меню */
 .header-dropdown .dropdown-item {
-    color: #E8D1A7; /* Твой бежевый/песочный цвет текста */
+    color: #E8D1A7; 
     text-decoration: none;
     padding: 10px 14px;
     font-size: 14px;
@@ -182,8 +181,8 @@ body {
 .profile-avatar-letter {
     width: 36px;
     height: 36px;
-    background-color: var(--accent); /* Цвет кружка (бежевый/золотистый) */
-    color: var(--dark);             /* Цвет буквы */
+    background-color: var(--accent); 
+    color: var(--dark);             
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -206,11 +205,8 @@ input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus {
-    /* Тень внутри инпута перекрывает фоновый цвет */
     -webkit-box-shadow: 0 0 0px 1000px var(--dark) inset !important;
-    /* Цвет текста */
     -webkit-text-fill-color: var(--white) !important;
-    /* Плавный переход, чтобы цвет не моргал */
     transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -259,11 +255,9 @@ textarea:-webkit-autofill:focus {
     background-color: var(--accent);
     color: var(--dark);
     display: inline-block;
-    /* Увеличены padding для массивности */
     padding: 18px 80px; 
     border-radius: 18px;
     font-weight: 800;
-    /* Шрифт чуть крупнее */
     font-size: 18px; 
     margin-bottom: 40px;
     transform: rotate(-3.5deg); 
@@ -274,7 +268,7 @@ textarea:-webkit-autofill:focus {
 
 /* Уменьшенный заголовок "Будем на связи!" */
 .feedback-info h3 {
-    font-size: 20px; /* Размер уменьшен для соответствия дизайну */
+    font-size: 20px; 
     color: var(--white);
     margin-bottom: 20px;
     font-weight: 700;
@@ -308,7 +302,7 @@ textarea:-webkit-autofill:focus {
 .form-group input, 
 .form-group textarea {
     width: 100%;
-    background: transparent !important; /* Убираем системный серый фон */
+    background: transparent !important; 
     border: none !important;
     box-shadow: none !important;
     padding: 15px 0 10px 0;
@@ -367,7 +361,6 @@ textarea:-webkit-autofill:focus {
 .bottom-contacts {
     display: flex;
     justify-content: space-between;
-    /* Изменено с flex-end на flex-start */
     align-items: flex-start; 
     margin-top: 80px;
     padding-bottom: 40px;
@@ -428,7 +421,6 @@ textarea:-webkit-autofill:focus {
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Твой фикс для автозаполнения */
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px var(--dark) inset !important;
     -webkit-text-fill-color: var(--white) !important;
@@ -620,7 +612,6 @@ input:-webkit-autofill {
         width: 40%;      /* Растягиваем на всю ширину */
     }
 
-    /* Делаем пункты меню крупнее (правило 44px для мобильных интерфейсов) */
     .header-dropdown .dropdown-item {
         padding: 14px 18px;
         font-size: 16px; /* Увеличиваем шрифт для читабельности */
@@ -747,7 +738,6 @@ input:-webkit-autofill {
     .contacts-illustration img {
         max-width: 100%;
         height: auto;
-        /* Если нужно, чтобы картинка не была слишком огромной на планшетах */
         max-height: 300px; 
         object-fit: contain;
     }
